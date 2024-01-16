@@ -1,20 +1,69 @@
-body {
-  background-color: #0f172a;
-  color: #e2e8f0;
-  margin: 0;
+/* Reset styles */
+html {
+  text-size-adjust: 100%;
 }
 
-.fixed-image-section{
+/* Global styles */
+body {
+  margin: 0;
+  background-color: #0f172a;
+  color: #E2E8F0;
+  font-family: "Roboto Mono", monospace;
+  font-weight: 600;
+}
+
+/* Layout and box model */
+.hero-section {
+  position: relative;
   max-height: 80vh;
   overflow: hidden;
   display: flex;
- }
-
-.fixed-image {
-  margin-top: 1%;
-  width: 100%;
-  height: auto;
-  /* To maintain the aspect ratio of the image */
-  object-fit: cover;
 }
 
+/* Hero image styles */
+.hero-image {
+  position: relative;
+  margin: 0.1%;
+  padding: 0%;
+  /* To maintain the aspect ratio of the image */
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* Hero text styles */
+.hero-text {
+  position: absolute;
+  top: 50%;
+  left: 2%;
+  z-index: 2;
+  width: 70%;
+  max-width: 800px;
+  text-align: left;
+  color: #b85d14;
+}
+
+/* Typography styles */
+.hero-text p,
+.hero-text h6 {
+  margin: 0;
+  font-weight: bold;
+  font-size: calc(1.6vw); /* Responsive font size */
+}
+
+/* Heading styles */
+h2 {
+  font-family: "Exo 2", sans-serif;
+  font-weight: bold;
+  font-size: calc(2rem + 2vw); /* Responsive font size */
+}
+
+/* Media queries */
+@media (max-width: 654px) {
+  .hero-text {
+    top: 10%;
+  }
+
+  h2 {
+    font-size: calc(2rem + 1vw); /* Responsive font size */
+  }
+}
