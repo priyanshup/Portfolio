@@ -84,6 +84,27 @@ body {
   padding: 2% 12%;
   background-color: #0f172a;
 }
+
+.exp-module {
+  display: flex;
+}
+
+.exp-left-module {
+  flex-shrink: 0; /*Item will shrink or not? 0 means no shrink, +ve means shrink*/
+  width: auto; /* Adjust the width */
+  padding: 2px;
+  /* border: 1px solid #ddd;  */
+  box-sizing: border-box; /*the total size of the box (width + padding + border) remains constant, and the content area adjusts accordingly.*/
+}
+
+.exp-right-module {
+  flex-grow: 1; /*Item will grow or not? 0 means no grow, +ve means grow*/
+  margin-left: 20px; /* Adjust the margin as needed */
+  padding: 20px;
+  border: 1px solid #ddd; 
+  box-sizing: border-box; /*the total size of the box (width + padding + border) remains constant, and the content area adjusts accordingly.*/
+}
+
 .title {
   display: block;
   margin: auto;
@@ -119,6 +140,21 @@ h2 {
 p {
   padding-top: 0.5%;
   padding-bottom: 0.5%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+td {
+  padding: 12px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+td h6 {
+  font-weight: bold;
 }
 
 /* Media queries */
