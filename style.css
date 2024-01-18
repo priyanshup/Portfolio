@@ -11,12 +11,17 @@ body {
   font-weight: 600;
 }
 
-/* Navbar Styles */
+/* Navbar/Offcanvas Styles */
 .navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: #d0d5d8;
+}
+
+/* Offcanvas has this predefied as !important, therefore overriding here. */
+.bg-body-tertiary,
+.offcanvas {
+  background-color: #e2e8f0 !important;
 }
 
 /* Layout and box model */

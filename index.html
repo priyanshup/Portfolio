@@ -24,47 +24,62 @@
   </head>
 
   <body>
-    <!-- Navbar Code Starts Here -->
-    <nav class="navbar navbar-expand-lg">
+    <!-- Navbar/Offcanvas Code Starts Here -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
           <img src="images/logo.png" alt="Priyanshu" width="30" height="30" />
-          Priyanshu
-        </a>
+          Priyanshu</a
+        >
         <button
           class="navbar-toggler"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#offcanvasNavbar"
+          aria-controls="offcanvasNavbar"
           aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a
-                class="nav-link active"
-                aria-current="page"
-                href="#about-section"
-                >About</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Experience</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Work</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Projects</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Contact</a>
-            </li>
-          </ul>
+        <div
+          class="offcanvas offcanvas-end"
+          tabindex="-1"
+          id="offcanvasNavbar"
+          aria-labelledby="offcanvasNavbarLabel"
+        >
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="offcanvas"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  aria-current="page"
+                  href="#about-section"
+                  >About</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Experience</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Work</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Projects</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Contact</a>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </nav>
@@ -99,11 +114,12 @@
         <p class="body">
           Greetings, Earthlings! I'm Priyanshu Pushpam, your undercover
           intergalactic traveler. On a typical day and for the outside world, I
-          take on the role of a <span class="highlight golden">Product Analyst</span>,
-          delving into the intricacies of
+          take on the role of a
+          <span class="highlight golden">Product Analyst</span>, delving into
+          the intricacies of
           <span class="highlight golden">Sportsbook</span> and
-          <span class="highlight golden">US Healthcare</span> domains. But, shhh...
-          here's the secret: in a clandestine world, I'm a coder.
+          <span class="highlight golden">US Healthcare</span> domains. But,
+          shhh... here's the secret: in a clandestine world, I'm a coder.
         </p>
         <p class="body">
           Picture this: during the mundane moments of everyday life, I'm your
@@ -118,15 +134,15 @@
         <p class="body">
           In this hidden dimension, I navigate the cosmos of programming
           languages — an intergalactic explorer on a mission to uncover the
-          <span class="highlight golden">wonders of coding.</span> It's like unraveling
-          the threads of an alien language, and the
+          <span class="highlight golden">wonders of coding.</span> It's like
+          unraveling the threads of an alien language, and the
           <span class="highlight golden">thrill is unmatched.</span>
         </p>
         <p class="body">
           When the code isn't unfolding before me, you'll catch me pondering the
           meaning of life, questioning the existence of the Matrix, or simply
-          <span class="highlight golden">enjoying the little things</span> of our
-          Earthly existence.
+          <span class="highlight golden">enjoying the little things</span> of
+          our Earthly existence.
         </p>
         <p class="body">
           Join me on this covert escapade of bytes and pixels, where every bug
