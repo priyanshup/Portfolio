@@ -88,6 +88,10 @@ body {
   background-color: #0f172a;
 }
 
+.experience-section {
+  background-color: #001C30;
+}
+
 .exp-module {
   display: flex;
 }
@@ -284,14 +288,6 @@ td {
 
 td h6 {
   font-weight: bold;
-}
-
-/* Blank space at the bottom of the page for beautification */
-body::after {
-  content: "";
-  display: block;
-  height: 200px;
-  background-color: #e2e8f0;
 }
 
 /* Media queries */
