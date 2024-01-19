@@ -29,7 +29,7 @@ body {
 /* Layout and box model */
 .hero-section {
   position: relative;
-  max-height: 80vh;
+  max-height: 70vh;
   overflow: hidden;
   display: flex;
   background-color: #0f172a;
@@ -69,6 +69,13 @@ body {
   font-weight: bold;
   font-size: calc(1.6vw); /* Responsive font size */
   color: inherit;
+  text-decoration: none;
+  border-bottom: 3px solid #070a52;
+}
+
+.hero-text h6 a.hyperlink:hover {
+  color: #0f172a;
+  border-bottom: 3px solid #b85d14;
 }
 
 /* Section Styles */
@@ -128,6 +135,19 @@ body {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   color: #b85d14;
+}
+
+.thick-outline-text {
+  text-shadow: -1px -1px 0 #f9f5eb, /* Top-left shadow */ 1px -1px 0 #f9f5eb,
+    /* Top-right shadow */ -1px 1px 0 #f9f5eb,
+    /* Bottom-left shadow */ 1px 1px 0 #f9f5eb; /* Bottom-right shadow */
+}
+
+.thin-outline-text {
+  text-shadow: -0.5px -0.5px 0 #f9f5eb,
+    /* Top-left shadow */ 0.5px -0.5px 0 #f9f5eb,
+    /* Top-right shadow */ -0.5px 0.5px 0 #f9f5eb,
+    /* Bottom-left shadow */ 0.5px 0.5px 0 #f9f5eb; /* Bottom-right shadow */
 }
 
 .title {

@@ -75,4 +75,14 @@ $(document).ready(function () {
       }
     },
   });
+
+  // Logic to highlight work tabs
+  // Add click event handler to all filter-tabs elements using event delegation
+  $(".filter-group").on("click", ".filter-tab", function () {
+    // Remove highlighting from all tabs
+    $(".filter-group .filter-tab").removeClass("active-tab");
+
+    // Change the color of the clicked tab
+    $(this).addClass("active-tab");
+  });
 });

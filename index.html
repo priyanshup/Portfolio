@@ -30,7 +30,13 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
-          <img src="images/logo.png" alt="Priyanshu" width="30" height="30" />
+          <img
+            src="images/logo.png"
+            alt="Priyanshu"
+            width="30"
+            height="30"
+            oncontextmenu="return false;"
+          />
           Priyanshu</a
         >
         <button
@@ -96,12 +102,13 @@
           class="img-fluid"
           src="images/Profile Cropped.jpg"
           alt="Hero Image"
+          oncontextmenu="return false;"
         />
       </div>
       <div class="container-fluid hero-text">
-        <p>Hi, I am</p>
-        <h2>PRIYANSHU PUSHPAM</h2>
-        <h6>
+        <p class="thin-outline-text">Hi, I am</p>
+        <h2 class="thick-outline-text">PRIYANSHU PUSHPAM</h2>
+        <h6 class="thin-outline-text">
           Product Business Analyst at
           <a class="hyperlink" href="https://www.techmojo.com/" target="_blank"
             >Techmojo</a
@@ -172,20 +179,28 @@
         <div class="exp-left-module">
           <table>
             <tr>
-              <td data-content="product-analyst-content" class="golden"><h6>Product Business Analyst</h6></td>
+              <td data-content="product-analyst-content" class="golden">
+                <h6>Product Business Analyst</h6>
+              </td>
             </tr>
             <tr>
-              <td data-content="business-analyst-content"><h6>Sr. Business Systems Analyst</h6></td>
+              <td data-content="business-analyst-content">
+                <h6>Sr. Business Systems Analyst</h6>
+              </td>
             </tr>
             <tr>
-              <td data-content="software-engineer-content"><h6>Software Engineer</h6></td>
+              <td data-content="software-engineer-content">
+                <h6>Software Engineer</h6>
+              </td>
             </tr>
           </table>
         </div>
-        <div id="exp-content-container" class="exp-right-module container-fluid"></div>
+        <div
+          id="exp-content-container"
+          class="exp-right-module container-fluid"
+        ></div>
       </div>
     </section>
-
 
     <!-- Work section starts here -->
     <section id="work-section" class="work-section">
