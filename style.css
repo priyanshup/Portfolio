@@ -137,6 +137,72 @@ body {
   color: #b85d14;
 }
 
+.filter-projects {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-projects img {
+  width: 100%; /* Set the width to % of the container */
+  height: auto; /* Maintain the aspect ratio */
+  margin: 10px; /* Add margin for spacing between images */
+}
+
+.project-content {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -300%);
+  text-align: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  width: 100%;
+}
+
+.project-text-sub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -130%);
+  text-align: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  width: 100%;
+}
+
+.project-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 120%);
+  text-align: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-family: "Roboto Mono", monospace;
+}
+
+.project-content:hover .project-text,
+.project-content:hover .project-text-sub,
+.project-content:hover .project-button {
+  opacity: 1;
+  z-index: 2;
+}
+
+.project-content:hover .project-image {
+  opacity: 20%;
+  z-index: 0;
+}
+
 .thick-outline-text {
   text-shadow: -1px -1px 0 #f9f5eb, /* Top-left shadow */ 1px -1px 0 #f9f5eb,
     /* Top-right shadow */ -1px 1px 0 #f9f5eb,
