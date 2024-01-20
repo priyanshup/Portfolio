@@ -337,14 +337,7 @@ td h6 {
 
 /* Media queries */
 @media (max-width: 900px) {
-  #exp-content-container p,
-  #exp-content-container ul {
-    display: none;
-  }
-}
-
-@media (max-width: 800px) {
-  #exp-content-container h6 {
+  #exp-content-container {
     display: none;
   }
 }
@@ -358,8 +351,5 @@ td h6 {
   h2 {
     font-size: calc(2rem + 1vw); /* Responsive font size */
   }
-
-  #exp-content-container {
-    display: none;
-  }
+  
 }
