@@ -32,6 +32,7 @@ body {
   position: relative;
   max-height: 70vh;
   overflow: hidden;
+  overflow-x: hidden;
   display: flex;
   background-color: #0f172a;
 }
@@ -168,6 +169,7 @@ body {
 .project-content {
   position: relative;
   overflow: hidden;
+  overflow-x: hidden;
 }
 
 .project-text {
