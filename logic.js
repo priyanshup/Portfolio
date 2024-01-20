@@ -1,7 +1,7 @@
-// window.onload = function () {
-//   // Scroll to the top of the page
-//   window.scrollTo(0, 0.1);
-// };
+window.onload = function () {
+  // Scroll to the top of the page
+  window.scrollTo(0, 0.1);
+};
 
 $(document).ready(function () {
   // Adjust body padding based on the fixed navbar height
