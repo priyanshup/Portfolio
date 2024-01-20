@@ -1,6 +1,6 @@
 window.onload = function () {
   // Scroll to the top of the page
-  window.scrollTo(0, 0.1);
+  window.scrollTo(0, 0);
 };
 
 $(document).ready(function () {
@@ -118,7 +118,7 @@ $(document).ready(function () {
 
   // Check if the user has scrolled down
   $(window).scroll(function () {
-    if ($(this).scrollTop() > 100) {
+    if ($(this).scrollTop() > 50) {
       // If scrolled down, show the "Move to Top" button
       $("#moveToTopBtn").addClass("show");
     } else {
@@ -129,7 +129,8 @@ $(document).ready(function () {
 
   // Scroll to the top when the button is clicked
   $("#moveToTopBtn").click(function () {
-    $("html, body").animate({ scrollTop: 0 }, "slow");
+    $("html, body").animate({ scrollTop: 0 }, "fast");
     return false;
   });
+  
 });
