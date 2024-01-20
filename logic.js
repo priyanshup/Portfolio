@@ -79,42 +79,26 @@ $(document).ready(function () {
   // Logic to highlight work tabs
   // Add click event handler to all filter-tabs elements using event delegation
   $(".filter-group").on("click", ".filter-tab", function () {
-    // Remove highlighting from all tabs
     $(".filter-group .filter-tab").removeClass("active-tab");
-
-    // Change the color of the clicked tab
     $(this).addClass("active-tab");
+    var selectedTab = $(this).attr("class").split(" ")[1];
 
-    //display contents only for the selected tab
-    switch ($(this).attr("class").split(" ")[1]) {
+    // Show all items initially
+    $(".filter-projects .project-content").show();
+
+    switch (selectedTab) {
       case "uhg-tab":
-        $(".filter-projects .project-content > *").removeClass(
-          "hideFromScreen"
-        );
-        $(".filter-projects .project-content :not(.uhg-project > *)").addClass(
-          "hideFromScreen"
-        );
+        $(".filter-projects .project-content:not(.uhg-project)").fadeOut();
         break;
       case "techmojo-tab":
-        $(".filter-projects .project-content > *").removeClass(
-          "hideFromScreen"
-        );
-        $(
-          ".filter-projects .project-content :not(.techmojo-project > *)"
-        ).addClass("hideFromScreen");
+        $(".filter-projects .project-content:not(.techmojo-project)").fadeOut();
         break;
       case "personal-tab":
-        $(".filter-projects .project-content > *").removeClass(
-          "hideFromScreen"
-        );
-        $(
-          ".filter-projects .project-content :not(.personal-project > *)"
-        ).addClass("hideFromScreen");
+        $(".filter-projects .project-content:not(.personal-project)").fadeOut();
         break;
       default:
-        $(".filter-projects .project-content > *").removeClass(
-          "hideFromScreen"
-        );
+        // Show all project contents with fade-in effect
+        $(".filter-projects .project-content").fadeIn();
         break;
     }
   });
