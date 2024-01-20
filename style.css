@@ -89,7 +89,15 @@ body {
 }
 
 .experience-section {
-  background-color: #001C30;
+  background-color: #001c30;
+}
+
+.contact-section {
+  background-color: #001c30;
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  text-align: center;
+  height: 100%;
 }
 
 .exp-module {
@@ -157,7 +165,6 @@ body {
 .project-content {
   position: relative;
   overflow: hidden;
-
 }
 
 .project-text {
@@ -268,7 +275,31 @@ body {
   color: #008000;
 }
 
-.hideFromScreen{
+.footer-icons {
+  display: flex;
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  text-align: center;
+}
+
+.footer-icon {
+  margin: 30px 25px 10px;
+  font-size: calc(1rem + 0.5vw);
+  text-decoration: none;
+  color: #e2e8f0;
+}
+
+.footer-icon:hover {
+  color: #ff4c68;
+}
+
+.contact-copyright {
+  font-size: calc(0.5rem + 0.2vw);
+  margin-top: 10px;
+  padding-bottom: 15px;
+}
+
+.hideFromScreen {
   display: none;
 }
 
