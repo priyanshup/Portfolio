@@ -9,7 +9,8 @@ $(document).ready(function () {
 
   // Reload page upon clicking on navbar-brand
   $(".navbar-brand").click(function () {
-    location.reload();
+    //Fragment the URL after # and update it back to window
+    window.location.href = window.location.href.split("#")[0];
   });
 
   // Add click event handler to all nav-links
@@ -113,5 +114,22 @@ $(document).ready(function () {
         $(".filter-projects .project-content").fadeIn();
         break;
     }
+  });
+
+  // Check if the user has scrolled down
+  $(window).scroll(function () {
+    if ($(this).scrollTop() > 100) {
+      // If scrolled down, show the "Move to Top" button
+      $("#moveToTopBtn").addClass("show");
+    } else {
+      // If at the top, hide the "Move to Top" button
+      $("#moveToTopBtn").removeClass("show");
+    }
+  });
+
+  // Scroll to the top when the button is clicked
+  $("#moveToTopBtn").click(function () {
+    $("html, body").animate({ scrollTop: 0 }, "slow");
+    return false;
   });
 });
