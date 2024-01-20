@@ -12,6 +12,18 @@ $(document).ready(function () {
     location.reload();
   });
 
+  // Add click event handler to all nav-links
+  $(".navbar-nav .nav-link").on("click", function () {
+    // Remove 'active' class from all nav-links
+    $(".navbar-nav .nav-link").removeClass("active");
+
+    // Add 'active' class to the clicked nav-link
+    $(this).addClass("active");
+
+    // Close the offcanvas menu (if it's open)
+    $("#offcanvasNavbar").offcanvas("hide");
+  });
+
   // Logic to change color on click
   // Add click event handler to all td elements in the table using event delegation
   $("table").on("click", "td", function () {
