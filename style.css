@@ -32,7 +32,6 @@ body {
   position: relative;
   max-height: 70vh;
   overflow: hidden;
-  overflow-x: hidden;
   display: flex;
   background-color: #0f172a;
 }
@@ -88,11 +87,13 @@ body {
   height: 100%;
   padding: 1% 12%;
   background-color: #0f172a;
+  overflow: hidden;
 }
 
 .experience-section {
   width: 100%;
   background-color: #001c30;
+  overflow: hidden;
 }
 
 .contact-section {
@@ -102,6 +103,7 @@ body {
   justify-content: center; /* Center horizontally */
   text-align: center;
   height: 100%;
+  overflow: hidden;
 }
 
 .exp-module {
