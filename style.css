@@ -145,7 +145,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Allow items to wrap to the next line */
 }
 
 .filter-projects img {
@@ -157,16 +157,18 @@ body {
 .project-content {
   position: relative;
   overflow: hidden;
+
 }
 
 .project-text {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -300%);
+  transform: translate(-50%, -250%);
   text-align: center;
   color: #fff;
   opacity: 0;
+  font-size: calc(0.7rem + 0.7vw);
   transition: opacity 0.3s ease;
   width: 100%;
 }
@@ -175,10 +177,11 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -130%);
+  transform: translate(-50%, -150%);
   text-align: center;
   color: #fff;
   opacity: 0;
+  font-size: calc(0.5rem + 0.5vw);
   transition: opacity 0.3s ease;
   width: 100%;
 }
@@ -187,10 +190,11 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, 120%);
+  transform: translate(-50%, 50%);
   text-align: center;
   color: #fff;
   opacity: 0;
+  font-size: calc(0.5rem + 0.7vw);
   transition: opacity 0.3s ease;
   font-family: "Roboto Mono", monospace;
 }
@@ -263,6 +267,11 @@ body {
   border-radius: 10px;
   color: #008000;
 }
+
+.hideFromScreen{
+  display: none;
+}
+
 /* Heading styles */
 h2 {
   font-family: "Exo 2", sans-serif;

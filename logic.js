@@ -84,5 +84,38 @@ $(document).ready(function () {
 
     // Change the color of the clicked tab
     $(this).addClass("active-tab");
+
+    //display contents only for the selected tab
+    switch ($(this).attr("class").split(" ")[1]) {
+      case "uhg-tab":
+        $(".filter-projects .project-content > *").removeClass(
+          "hideFromScreen"
+        );
+        $(".filter-projects .project-content :not(.uhg-project > *)").addClass(
+          "hideFromScreen"
+        );
+        break;
+      case "techmojo-tab":
+        $(".filter-projects .project-content > *").removeClass(
+          "hideFromScreen"
+        );
+        $(
+          ".filter-projects .project-content :not(.techmojo-project > *)"
+        ).addClass("hideFromScreen");
+        break;
+      case "personal-tab":
+        $(".filter-projects .project-content > *").removeClass(
+          "hideFromScreen"
+        );
+        $(
+          ".filter-projects .project-content :not(.personal-project > *)"
+        ).addClass("hideFromScreen");
+        break;
+      default:
+        $(".filter-projects .project-content > *").removeClass(
+          "hideFromScreen"
+        );
+        break;
+    }
   });
 });
