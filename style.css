@@ -205,11 +205,11 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, 10%);
   text-align: center;
   color: #fff;
   opacity: 0;
-  font-size: calc(0.5rem + 0.7vw);
+  font-size: calc(0.5rem + 0.5vw);
   transition: opacity 0.3s ease;
   font-family: "Roboto Mono", monospace;
 }
