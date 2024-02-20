@@ -391,7 +391,9 @@ td h6 {
     display: none;
   }
 
-  .about-section {
+  .about-section,
+  .experience-section,
+  .work-section {
     padding: 1%;
   }
 }
