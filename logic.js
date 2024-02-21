@@ -4,8 +4,24 @@ window.onload = function () {
 };
 
 $(document).ready(function () {
-  // Adjust body padding based on the fixed navbar height
-  $("body").css("padding-top", $(".navbar").outerHeight() + "px");
+  // Function to adjust body padding based on navbar height
+  function adjustBodyPadding() {
+    var navbarHeight = $(".navbar").outerHeight();
+    $("body").css("padding-top", navbarHeight + "px");
+  }
+
+  // Adjust body padding when the page is loaded
+  adjustBodyPadding();
+
+  // Adjust body padding when the window is resized
+  $(window).resize(function () {
+    adjustBodyPadding();
+  });
+
+  // Adjust body padding when the navbar is toggled (if necessary)
+  $(".navbar-toggler").click(function () {
+    adjustBodyPadding();
+  });
 
   // Reload page upon clicking on navbar-brand
   $(".navbar-brand").click(function () {
@@ -42,7 +58,7 @@ $(document).ready(function () {
   });
 
   // Display the default content when the page is loaded
-  updateContent("product-analyst-content");
+  updateContent("product-owner-content");
 
   function updateContent(content) {
     // Clear previous content
@@ -51,7 +67,7 @@ $(document).ready(function () {
 
       // Add new content based on the selected content
       switch (content) {
-        case "product-analyst-content":
+        case "product-owner-content":
           $("#exp-content-container").html(
             "<div class='container-fluid'><h5>March 2022 - Present</h5> <h6> TechMojo Solutions | Online Gaming, Sportsbook</h6> <p class='body body-table'>In this universe, I act as a detective, decoding user needs and crafting product solutions. Navigating through ideas and innovations, I find joy in competitor analysis, transforming uncertainty into clarity, and sculpting requirements into the backbone of outstanding products. </p><ul class='exp-list-parent'><li class='exp-list'>HTML</li><li class='exp-list'>CSS</li><li class='exp-list'>Bootstrap</li><li class='exp-list'>jQuery</li><li class='exp-list'>Javascript</li><li class='exp-list'>NodeJS</li><li class='exp-list'>ExpressJS</li><li class='exp-list'>Git</li></ul></div>"
           );
@@ -132,5 +148,4 @@ $(document).ready(function () {
     $("html, body").animate({ scrollTop: 0 }, "fast");
     return false;
   });
-  
 });
