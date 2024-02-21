@@ -23,7 +23,8 @@ $navbarNavLinks.on("click", function () {
 });
 
 // Add click event handler to all td elements in the table using event delegation
-$table.on("click", "td", function () {
+// Add touchstart event handler to exp-left-module for mobile devices
+$table.on("touchstart click", "td", function () {
   $table.find("tr td").removeClass("golden").css("color", "");
   $(this).addClass("golden");
   // Get the data-content attribute value
