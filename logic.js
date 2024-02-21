@@ -4,24 +4,8 @@ window.onload = function () {
 };
 
 $(document).ready(function () {
-  // Function to adjust body padding based on navbar height
-  function adjustBodyPadding() {
-    var navbarHeight = $(".navbar").outerHeight();
-    $("body").css("padding-top", navbarHeight + "px");
-  }
-
-  // Adjust body padding when the page is loaded
-  adjustBodyPadding();
-
-  // Adjust body padding when the window is resized
-  $(window).resize(function () {
-    adjustBodyPadding();
-  });
-
-  // Adjust body padding when the navbar is toggled (if necessary)
-  $(".navbar-toggler").click(function () {
-    adjustBodyPadding();
-  });
+  // Adjust body padding based on the fixed navbar height
+  $("body").css("padding-top", $(".navbar").outerHeight() + "px");
 
   // Reload page upon clicking on navbar-brand
   $(".navbar-brand").click(function () {
@@ -148,4 +132,5 @@ $(document).ready(function () {
     $("html, body").animate({ scrollTop: 0 }, "fast");
     return false;
   });
+  
 });
