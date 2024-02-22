@@ -229,6 +229,7 @@ body {
   font-family: "Roboto Mono", monospace;
 }
 
+
 .project-content:hover .project-text,
 .project-content:hover .project-text-sub,
 .project-content:hover .project-button {
@@ -241,18 +242,95 @@ body {
   z-index: 0;
 }
 
+.overlay {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+}
+
+.overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #0f172a;
+  padding: 2%;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  width: 85%;
+  /* Set width to 80% of the viewport width */
+  max-height: 80vh;
+  /* Set maximum height to 80% of viewport height */
+  overflow: auto;
+  /* Enable scrollbar if content exceeds max-height */
+  scrollbar-width: thin;
+  scrollbar-color: #B4B4B8 #0f172a;
+  /* Set color of scrollbar (thumb and track) */
+}
+
+/* Style scrollbar thumb  - this is supported across majority of browsers*/
+.overlay-content::-webkit-scrollbar-thumb {
+  background-color: #B4B4B8;
+  /* Color of scrollbar thumb */
+}
+
+/* Style scrollbar track - this is supported across majority of browsers*/
+.overlay-content::-webkit-scrollbar-track {
+  background-color: #0f172a;
+  /* Color of scrollbar track */
+}
+
+.close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
+}
+
+/* Set the width of the scrollbar */
+body::-webkit-scrollbar {
+  width: 5px;
+  /* Adjust as needed */
+}
+
+/* Set the color of the scrollbar thumb */
+body::-webkit-scrollbar-thumb {
+  background-color: #B4B4B8;
+  /* Set your desired color */
+}
+
+/* Set the color of the scrollbar track */
+body::-webkit-scrollbar-track {
+  background-color: #0f172a;
+  /* Set your desired color */
+}
+
+
 .thick-outline-text {
-  text-shadow: -1px -1px 0 #f9f5eb, /* Top-left shadow */ 1px -1px 0 #f9f5eb,
-    /* Top-right shadow */ -1px 1px 0 #f9f5eb,
-    /* Bottom-left shadow */ 1px 1px 0 #f9f5eb;
+  text-shadow: -1px -1px 0 #f9f5eb,
+    /* Top-left shadow */
+    1px -1px 0 #f9f5eb,
+    /* Top-right shadow */
+    -1px 1px 0 #f9f5eb,
+    /* Bottom-left shadow */
+    1px 1px 0 #f9f5eb;
   /* Bottom-right shadow */
 }
 
 .thin-outline-text {
   text-shadow: -0.5px -0.5px 0 #f9f5eb,
-    /* Top-left shadow */ 0.5px -0.5px 0 #f9f5eb,
-    /* Top-right shadow */ -0.5px 0.5px 0 #f9f5eb,
-    /* Bottom-left shadow */ 0.5px 0.5px 0 #f9f5eb;
+    /* Top-left shadow */
+    0.5px -0.5px 0 #f9f5eb,
+    /* Top-right shadow */
+    -0.5px 0.5px 0 #f9f5eb,
+    /* Bottom-left shadow */
+    0.5px 0.5px 0 #f9f5eb;
   /* Bottom-right shadow */
 }
 
@@ -268,6 +346,13 @@ body {
 .body {
   max-width: 100%;
   padding-left: 12px;
+  color: #94a3b8;
+  font-size: calc(0.75rem + 0.5vw);
+  font-weight: 300;
+  word-spacing: 0.1em;
+}
+
+.list-body {
   color: #94a3b8;
   font-size: calc(0.75rem + 0.5vw);
   font-weight: 300;
@@ -398,7 +483,7 @@ td h6 {
   }
 
   .exp-left-module td {
-    width: 50%; 
+    width: 50%;
     box-sizing: border-box;
     padding: 2px 10px;
   }

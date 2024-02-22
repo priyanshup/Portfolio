@@ -55,8 +55,7 @@ function getContentHtml(content) {
 }
 
 // Add mouseover and mouseout event handlers to table td elements
-$table.on(
-  {
+$table.on({
     mouseover: function () {
       if (!$(this).hasClass("golden")) {
         $(this).css("color", "#94a3b8");
@@ -109,6 +108,46 @@ $(window).scroll(function () {
 
 // Scroll to top when "Move to Top" button is clicked
 $("#moveToTopBtn").click(function () {
-  $("html, body").animate({ scrollTop: 0 }, "fast");
+  $("html, body").animate({
+    scrollTop: 0
+  }, "fast");
   return false;
+});
+
+// Function to open the overlay and prevent scrolling of background page
+function openOverlay(overlayId) {
+  document.getElementById(overlayId).style.display = 'block';
+  document.body.style.overflow = 'hidden'; // Prevent scrolling of background page
+}
+
+// Function to close the overlay and allow scrolling of background page
+function closeOverlay(overlayId) {
+  document.getElementById(overlayId).style.display = 'none';
+  document.body.style.overflow = ''; // Allow scrolling of background page
+}
+
+// Add event listeners for each button
+document.querySelectorAll('.project-button').forEach(button => {
+  button.addEventListener('click', function () {
+    const overlayId = this.getAttribute('data-overlay');
+    openOverlay(overlayId);
+  });
+});
+
+// Add event listener to close buttons of each overlay
+document.querySelectorAll('.overlay .close').forEach(closeButton => {
+  closeButton.addEventListener('click', function () {
+    const overlayId = this.closest('.overlay').id;
+    closeOverlay(overlayId);
+  });
+});
+
+// Add event listener to close overlay when clicking outside the overlay content
+document.querySelectorAll('.overlay').forEach(overlay => {
+  overlay.addEventListener('click', function (event) {
+    if (event.target === this) {
+      const overlayId = this.id;
+      closeOverlay(overlayId);
+    }
+  });
 });
