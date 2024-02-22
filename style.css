@@ -400,7 +400,7 @@ td h6 {
   .exp-left-module td {
     width: 50%; 
     box-sizing: border-box;
-    padding: 0 10px;
+    padding: 2px 10px;
   }
 
   .about-section,
