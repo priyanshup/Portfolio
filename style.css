@@ -494,6 +494,18 @@ td h6 {
   .work-section {
     padding: 1%;
   }
+
+  .project-content .project-text,
+  .project-content .project-text-sub,
+  .project-content .project-button {
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .project-content .project-image {
+    opacity: 15%;
+    z-index: 0;
+  }
 }
 
 @media (max-width: 654px) {
