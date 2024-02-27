@@ -295,6 +295,8 @@ body {
   top: 0px;
   right: 0px;
   cursor: pointer;
+  border: 2px solid #b85d14 ;
+  padding: 0px 6px;
 }
 
 /* Set the width of the scrollbar */
