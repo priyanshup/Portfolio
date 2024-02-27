@@ -290,9 +290,10 @@ body {
 }
 
 .close {
-  position: absolute;
-  top: 5px;
-  right: 10px;
+  position: sticky;
+  float: right;
+  top: 0px;
+  right: 0px;
   cursor: pointer;
 }
 
