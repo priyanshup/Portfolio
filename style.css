@@ -175,7 +175,7 @@ body {
   /* Allow items to wrap to the next line */
 }
 
-.filter-projects img {
+.filter-projects .project-image {
   width: 100%;
   /* Set the width to % of the container */
   height: auto;
@@ -295,7 +295,7 @@ body {
   top: 0px;
   right: 0px;
   cursor: pointer;
-  border: 2px solid #b85d14 ;
+  border: 2px solid #b85d14;
   padding: 0px 6px;
 }
 
