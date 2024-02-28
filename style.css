@@ -45,12 +45,26 @@ body {
   z-index: 1;
 }
 
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  z-index: 2;
+}
+
 /* Hero text styles */
 .hero-text {
   position: absolute;
   top: 40%;
   left: 2%;
-  z-index: 2;
+  z-index: 3;
   width: 70%;
   max-width: 800px;
   text-align: left;
@@ -232,7 +246,6 @@ body {
   font-family: "Roboto Mono", monospace;
 }
 
-
 .project-content:hover .project-text,
 .project-content:hover .project-text-sub,
 .project-content:hover .project-button {
@@ -273,13 +286,13 @@ body {
   overflow: auto;
   /* Enable scrollbar if content exceeds max-height */
   scrollbar-width: thin;
-  scrollbar-color: #B4B4B8 #0f172a;
+  scrollbar-color: #b4b4b8 #0f172a;
   /* Set color of scrollbar (thumb and track) */
 }
 
 /* Style scrollbar thumb  - this is supported across majority of browsers*/
 .overlay-content::-webkit-scrollbar-thumb {
-  background-color: #B4B4B8;
+  background-color: #b4b4b8;
   /* Color of scrollbar thumb */
 }
 
@@ -307,7 +320,7 @@ body::-webkit-scrollbar {
 
 /* Set the color of the scrollbar thumb */
 body::-webkit-scrollbar-thumb {
-  background-color: #B4B4B8;
+  background-color: #b4b4b8;
   /* Set your desired color */
 }
 
@@ -317,26 +330,18 @@ body::-webkit-scrollbar-track {
   /* Set your desired color */
 }
 
-
 .thick-outline-text {
-  text-shadow: -1px -1px 0 #f9f5eb,
-    /* Top-left shadow */
-    1px -1px 0 #f9f5eb,
-    /* Top-right shadow */
-    -1px 1px 0 #f9f5eb,
-    /* Bottom-left shadow */
-    1px 1px 0 #f9f5eb;
+  text-shadow: -1px -1px 0 #f9f5eb, /* Top-left shadow */ 1px -1px 0 #f9f5eb,
+    /* Top-right shadow */ -1px 1px 0 #f9f5eb,
+    /* Bottom-left shadow */ 1px 1px 0 #f9f5eb;
   /* Bottom-right shadow */
 }
 
 .thin-outline-text {
   text-shadow: -0.5px -0.5px 0 #f9f5eb,
-    /* Top-left shadow */
-    0.5px -0.5px 0 #f9f5eb,
-    /* Top-right shadow */
-    -0.5px 0.5px 0 #f9f5eb,
-    /* Bottom-left shadow */
-    0.5px 0.5px 0 #f9f5eb;
+    /* Top-left shadow */ 0.5px -0.5px 0 #f9f5eb,
+    /* Top-right shadow */ -0.5px 0.5px 0 #f9f5eb,
+    /* Bottom-left shadow */ 0.5px 0.5px 0 #f9f5eb;
   /* Bottom-right shadow */
 }
 
