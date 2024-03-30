@@ -25,6 +25,10 @@ $navbarNavLinks.on("click", function () {
 // Add click event handler to all td elements in the table using event delegation
 // Add touchstart event handler to exp-left-module for mobile devices
 $table.on("touchstart click", "td", function () {
+  // Check if the clicked tab is already active
+  if ($(this).hasClass("golden")) {
+    return; // Return early without executing further actions
+  }
   $table.find("tr td").removeClass("golden").css("color", "");
   $(this).addClass("golden");
   // Get the data-content attribute value
