@@ -187,21 +187,19 @@ body {
   /* Allow items to wrap to the next line */
 }
 
-.filter-projects .project-image {
-  width: 100%;
-  /* Set the width to % of the container */
+.project-image {
+  width: calc(100% - 10px);
+  /* Adjust width to account for margin */
   height: auto;
-  /* Maintain the aspect ratio */
-  margin: 10px;
-  /* Add margin for spacing between images */
+  margin: 5px;
 }
 
 .project-content {
   position: relative;
   overflow: hidden;
-  overflow-x: hidden;
   display: flex;
   justify-content: center;
+  align-items: center;
   margin: auto;
 }
 
