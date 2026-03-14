@@ -1,0 +1,272 @@
+/*
+ * styles/globals.css
+ *
+ * All custom CSS for the portfolio.
+ * Imported once in main.jsx — no more inline <style> tag.
+ *
+ * Sections:
+ *  1. Google Fonts
+ *  2. Font utilities
+ *  3. Base reset
+ *  4. Scroll-reveal animation
+ *  5. Timeline
+ *  6. Case study locked overlay
+ *  7. Nav underline
+ *  8. Scrollbar
+ *  9. Accordion
+ * 10. Modals
+ * 11. Carousel arrows
+ * 12. Mobile slide-in menu
+ * 13. Scroll-to-top button
+ */
+
+/* ── 1. Google Fonts ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+/* ── 2. Font utilities ───────────────────────────────────────────── */
+.font-display { font-family: 'Syne', sans-serif !important; }
+.font-mono-pp { font-family: 'IBM Plex Mono', monospace !important; }
+
+/* ── 3. Base reset ───────────────────────────────────────────────── */
+html,
+body {
+  font-family: 'DM Sans', sans-serif;
+  /* Prevents wide Syne characters from causing horizontal scroll
+     or clipping on narrow viewports (iPhone SE etc.) */
+  overflow-x: hidden;
+}
+
+/* ── 4. Scroll-reveal ────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity  0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.in-view { opacity: 1; transform: none; }
+
+.d1 { transition-delay: 0.10s; }
+.d2 { transition-delay: 0.20s; }
+.d3 { transition-delay: 0.30s; }
+.d4 { transition-delay: 0.40s; }
+
+/* ── 5. Timeline vertical line ───────────────────────────────────── */
+.tl-line::before {
+  content: '';
+  position: absolute;
+  left: 27px;
+  top: 56px;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.10),
+    rgba(255, 255, 255, 0.04) 80%,
+    transparent
+  );
+}
+
+/* ── 6. Case study locked overlay ────────────────────────────────── */
+.cs-locked {
+  position: relative;
+  overflow: hidden;
+}
+.cs-locked-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.80);
+  backdrop-filter: blur(4px);
+  border-radius: inherit;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ── 7. Nav underline hover effect ───────────────────────────────── */
+.nav-link { position: relative; }
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s ease;
+}
+.nav-link:hover::after { width: 100%; }
+
+/* ── 8. Custom scrollbar ─────────────────────────────────────────── */
+.scroll-section {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.10) transparent;
+}
+.scroll-section::-webkit-scrollbar { width: 5px; }
+.scroll-section::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+/* ── 9. Accordion ────────────────────────────────────────────────── */
+/*
+ * IMPORTANT: .reveal and .accordion-body must NEVER be on the same element.
+ * .reveal is placed on the outer wrapper div.
+ * overflow-hidden is placed on the inner card div.
+ * If they share an element, the IntersectionObserver re-triggers the
+ * fade-out animation when the card expands and the bounding box changes.
+ */
+.accordion-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.accordion-body.open { grid-template-rows: 1fr; }
+.accordion-inner     { overflow: hidden; }
+
+/* ── 10. Modals ──────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.80);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+.modal-card {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes fadeIn  { from { opacity: 0; }                         to { opacity: 1; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+
+/* ── 11. Carousel arrows ─────────────────────────────────────────── */
+/*
+ * Full-height strips — span the entire card height so the whole
+ * left/right edge is a click target, not just a small circle.
+ * White-shade gradient replaces the previous near-black version.
+ */
+.car-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.50);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: color 0.2s, background 0.2s;
+  user-select: none;
+}
+.car-arrow:hover { color: rgba(255, 255, 255, 0.95); }
+.car-arrow-left {
+  left: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.07) 0%, transparent 100%);
+  border-radius: 1rem 0 0 1rem;
+}
+.car-arrow-right {
+  right: 0;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.07) 0%, transparent 100%);
+  border-radius: 0 1rem 1rem 0;
+}
+
+/* ── 12. Mobile slide-in menu ────────────────────────────────────── */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.97);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mobile-menu.open { transform: translateX(0); }
+
+/* ── 13. Scroll-to-top button ────────────────────────────────────── */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 24px;
+  z-index: 90;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.70);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.scroll-top-btn.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+.scroll-top-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* ── 14. Floating back-to-portfolio button (case study pages) ────── */
+/*
+ * Appears when the static top back-link scrolls out of view AND
+ * the static bottom back-link has not yet scrolled into view.
+ * Disappears when either static link is on screen.
+ */
+.floating-back-btn {
+  position: fixed;
+  top: 80px;           /* sits just below the fixed nav */
+  left: 24px;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.60);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.2s ease,
+              background 0.2s ease, border-color 0.2s ease;
+}
+.floating-back-btn.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.floating-back-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
