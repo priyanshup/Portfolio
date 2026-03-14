@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  /* Professional slate and emerald palette */
+  --color-darkBg: #0f172a; 
+  --color-cardBg: #1e293b; 
+  --color-accent: #10b981; 
+}
+
+/* Global resets for a smooth dark-mode feel */
+body {
+  background-color: var(--color-darkBg);
+  color: #f8fafc;
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
