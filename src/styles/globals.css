@@ -236,7 +236,7 @@ body {
  */
 .floating-back-btn {
   position: fixed;
-  top: 80px;           /* sits just below the fixed nav */
+  bottom: 28px;        /* bottom-left, thumb-friendly on mobile */
   left: 24px;
   z-index: 90;
   display: flex;
@@ -256,7 +256,7 @@ body {
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-8px);
+  transform: translateY(8px);   /* slides up into view (was sliding down from top) */
   transition: opacity 0.3s ease, transform 0.3s ease, color 0.2s ease,
               background 0.2s ease, border-color 0.2s ease;
 }
