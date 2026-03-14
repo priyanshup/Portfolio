@@ -13,6 +13,12 @@ const CONFIG = {
   },
 };
 
+/*
+ * How many cards to show inline before the "View All" button appears.
+ * Applies to Projects and Case Studies.
+ */
+const VIEW_MORE_THRESHOLD = 4;
+
 /* ═══════════════════════════════════════════════════════════════════
    GLOBAL STYLES
    ═══════════════════════════════════════════════════════════════════ */
@@ -22,12 +28,7 @@ const GlobalStyles = () => (
 
     .font-display { font-family: 'Syne', sans-serif !important; }
     .font-mono-pp { font-family: 'IBM Plex Mono', monospace !important; }
-
-    /*
-     * overflow-x: hidden prevents wide Syne characters from causing
-     * horizontal scroll / clipping on narrow viewports (iPhone SE etc.)
-     */
-    html, body { font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+    html, body     { font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
 
     /* ── Scroll-reveal ── */
     .reveal {
@@ -65,26 +66,19 @@ const GlobalStyles = () => (
     .nav-link:hover::after { width: 100%; }
 
     /* ── Scrollbar ── */
-    .scroll-section { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.08) transparent; }
-    .scroll-section::-webkit-scrollbar { width: 4px; }
-    .scroll-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 4px; }
+    .scroll-section { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.10) transparent; }
+    .scroll-section::-webkit-scrollbar { width: 5px; }
+    .scroll-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
 
-    /*
-     * ── ACCORDION ──
-     * .reveal is ONLY on the outer wrapper div.
-     * overflow-hidden is ONLY on the inner card div.
-     * These must NEVER share the same element — doing so causes the
-     * IntersectionObserver to re-trigger the reveal fade-out when the
-     * card expands and the bounding box changes.
-     */
+    /* ── Accordion ── */
     .accordion-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .38s cubic-bezier(0.16,1,0.3,1); }
     .accordion-body.open { grid-template-rows: 1fr; }
     .accordion-inner { overflow: hidden; }
 
-    /* ── Testimonial modal ── */
+    /* ── Modals (testimonial + view-more) ── */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 100;
-      background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+      background: rgba(0,0,0,.80); backdrop-filter: blur(8px);
       display: flex; align-items: center; justify-content: center; padding: 24px;
       animation: fadeIn .2s ease;
     }
@@ -92,34 +86,98 @@ const GlobalStyles = () => (
     @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
     @keyframes scaleIn { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
 
-    /* ── Full-height carousel arrow strips ── */
+    /*
+     * ── CAROUSEL ARROWS ──
+     * White-shade gradient (fix #3): replaces the black/dark overlay
+     * with a subtle white frosted-glass fade so it reads cleanly on dark cards.
+     * Full-height (fix #3): top:0 bottom:0 makes the entire edge clickable.
+     */
     .car-arrow {
       position: absolute; top: 0; bottom: 0; z-index: 10; width: 44px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; font-weight: 700;
-      color: rgba(156,163,175,1);   /* gray-400 */
+      font-size: 1.6rem; font-weight: 700;
+      color: rgba(255,255,255,0.50);
       cursor: pointer; border: none; background: transparent;
       transition: color .2s, background .2s;
       user-select: none;
     }
-    .car-arrow:hover { color: #fff; }
-    .car-arrow-left  { left: 0;  background: linear-gradient(to right, rgba(10,10,10,.55), transparent); border-radius: 1rem 0 0 1rem; }
-    .car-arrow-right { right: 0; background: linear-gradient(to left,  rgba(10,10,10,.55), transparent); border-radius: 0 1rem 1rem 0; }
+    .car-arrow:hover { color: rgba(255,255,255,0.95); }
+    .car-arrow-left  {
+      left: 0;
+      background: linear-gradient(to right, rgba(255,255,255,0.07) 0%, transparent 100%);
+      border-radius: 1rem 0 0 1rem;
+    }
+    .car-arrow-right {
+      right: 0;
+      background: linear-gradient(to left, rgba(255,255,255,0.07) 0%, transparent 100%);
+      border-radius: 0 1rem 1rem 0;
+    }
+
+    /* ── Mobile menu slide-in ── */
+    .mobile-menu {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.96);
+      display: flex; flex-direction: column;
+      padding: 0;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(0.16,1,0.3,1);
+    }
+    .mobile-menu.open { transform: translateX(0); }
+
+    /* ── Scroll-to-top button ── */
+    .scroll-top-btn {
+      position: fixed; bottom: 28px; right: 24px; z-index: 90;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.70);
+      cursor: pointer; transition: all .25s ease;
+      opacity: 0; pointer-events: none;
+    }
+    .scroll-top-btn.visible { opacity: 1; pointer-events: all; }
+    .scroll-top-btn:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
   ` }} />
 );
 
 /* ═══════════════════════════════════════════════════════════════════
    HOOKS
    ═══════════════════════════════════════════════════════════════════ */
+
+/*
+ * useScrollReveal with MutationObserver (fix #6):
+ * Watches for newly added .reveal elements (from conditional rendering
+ * switching between carousel/grid) and observes them immediately,
+ * preventing the "disappearing content on resize" bug.
+ */
 const useScrollReveal = () => {
   useEffect(() => {
-    const els = document.querySelectorAll('.reveal');
     const obs = new IntersectionObserver(
       entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); }),
-      { threshold: 0.1 }
+      { threshold: 0.08 }
     );
-    els.forEach(el => obs.observe(el));
-    return () => obs.disconnect();
+
+    const observeEl = (el) => {
+      if (el.classList?.contains('reveal') && !el.classList.contains('in-view')) obs.observe(el);
+    };
+
+    /* Observe all currently in DOM */
+    document.querySelectorAll('.reveal').forEach(observeEl);
+
+    /* Watch for dynamically added elements (layout switching) */
+    const mutObs = new MutationObserver(mutations => {
+      mutations.forEach(m => {
+        m.addedNodes.forEach(node => {
+          if (node.nodeType !== 1) return;
+          observeEl(node);
+          node.querySelectorAll?.('.reveal').forEach(observeEl);
+        });
+      });
+    });
+    mutObs.observe(document.body, { childList: true, subtree: true });
+
+    return () => { obs.disconnect(); mutObs.disconnect(); };
   }, []);
 };
 
@@ -152,18 +210,13 @@ const useIsMobile = () => {
 /* ═══════════════════════════════════════════════════════════════════
    CAROUSEL
    ─────────────────────────────────────────────────────────────────
-   INFINITE DIRECTION (fix #5):
-   Items are triple-cloned: [copy-A | copy-B | copy-C]
-   cur starts in copy-B (index = len).
-   Clicking always increments/decrements cur — never reverses.
-   After every transition ends, if cur drifted into an outer copy,
-   we silently snap back to the equivalent position in copy-B
-   (same visual content, zero animation). This creates seamless
-   infinite scroll that always continues in the clicked direction.
-
-   FULL-HEIGHT ARROWS (fix #3):
-   .car-arrow strips span top-0 to bottom-0 of the relative parent,
-   making the entire side edge of the carousel a click target.
+   Fix #3: White-shade arrows (via .car-arrow-left/right CSS above)
+   Fix #4a: Touch swipe — tracks touchStartX, on touchEnd if |dx|>50
+             and horizontal movement dominates, navigate in that direction.
+   Fix #4b: Desktop hover pause — onMouseEnter pauses, onMouseLeave
+             schedules resume after 30 seconds.
+   Infinite wrap: triple-clone ensures the animation always continues
+   in the clicked direction (never reverses).
    ═══════════════════════════════════════════════════════════════════ */
 const Carousel = ({
   items, renderItem,
@@ -173,84 +226,98 @@ const Carousel = ({
   const ipv        = useItemsPerView(desktopItems, tabletItems, mobileItems);
   const len        = items.length;
   const needsScroll = len > ipv;
+  const extended    = useMemo(() => [...items, ...items, ...items], [items]);
 
-  /* Triple-clone for seamless infinite wrap */
-  const extended = useMemo(() => [...items, ...items, ...items], [items]);
+  const [cur, setCur]           = useState(len);
+  const [transOn, setTransOn]   = useState(true);
+  const [manualPaused, setManualPaused] = useState(false);
+  const [hoverPaused, setHoverPaused]   = useState(false);
+  const paused    = manualPaused || hoverPaused;
+  const resumeRef = useRef(null);
+  const hoverRef  = useRef(null);
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
 
-  /* cur lives in extended-array space; middle copy = [len … 2*len-1] */
-  const [cur, setCur]         = useState(len);
-  const [transOn, setTransOn] = useState(true);
-  const [paused, setPaused]   = useState(false);
-  const resumeRef             = useRef(null);
-
-  /* When ipv changes, reset to middle-copy start without animation */
   useEffect(() => {
     setTransOn(false);
     setCur(len);
   }, [ipv, len]);
 
-  /* Re-enable transition after any no-animation jump */
   useEffect(() => {
     if (!transOn) {
-      const id = requestAnimationFrame(() =>
-        requestAnimationFrame(() => setTransOn(true))
-      );
+      const id = requestAnimationFrame(() => requestAnimationFrame(() => setTransOn(true)));
       return () => cancelAnimationFrame(id);
     }
   }, [transOn]);
 
-  /* Auto-scroll: just keep incrementing; transitionEnd handles the snap */
   useEffect(() => {
     if (!autoPlay || !needsScroll || paused) return;
     const t = setInterval(() => setCur(c => c + 1), interval);
     return () => clearInterval(t);
   }, [autoPlay, needsScroll, paused, interval]);
 
-  /* After each slide transition: silently snap if outside middle copy */
   const handleTransitionEnd = useCallback(() => {
     if (!needsScroll) return;
-    if (cur >= 2 * len) {
-      setTransOn(false);
-      setCur(c => c - len);
-    } else if (cur < len) {
-      setTransOn(false);
-      setCur(c => c + len);
-    }
+    if (cur >= 2 * len) { setTransOn(false); setCur(c => c - len); }
+    else if (cur < len)  { setTransOn(false); setCur(c => c + len); }
   }, [cur, len, needsScroll]);
 
-  /* Manual navigation: always +1 or -1, never reverses */
   const go = useCallback((dir) => {
     if (!needsScroll) return;
     setTransOn(true);
     setCur(c => c + dir);
-    setPaused(true);
+    setManualPaused(true);
     clearTimeout(resumeRef.current);
-    resumeRef.current = setTimeout(() => setPaused(false), 7000);
+    resumeRef.current = setTimeout(() => setManualPaused(false), 7000);
   }, [needsScroll]);
 
-  /* Dot indicator: which original-array index is leftmost */
-  const activeDot = ((cur % len) + len) % len;
-  const dotCount  = needsScroll ? Math.max(1, len - ipv + 1) : 0;
-  const activePage = activeDot % dotCount;
+  /* Desktop: pause on hover, resume 30s after mouse leaves */
+  const onMouseEnter = () => {
+    clearTimeout(hoverRef.current);
+    setHoverPaused(true);
+  };
+  const onMouseLeave = () => {
+    hoverRef.current = setTimeout(() => setHoverPaused(false), 30000);
+  };
+
+  /* Mobile: swipe */
+  const onTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const onTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50 && needsScroll) {
+      go(dx > 0 ? -1 : 1);
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
+  const activeDot  = ((cur % len) + len) % len;
+  const dotCount   = needsScroll ? Math.max(1, len - ipv + 1) : 0;
+  const activePage = activeDot % (dotCount || 1);
 
   const goToDot = (page) => {
     setTransOn(true);
     setCur(len + page);
-    setPaused(true);
+    setManualPaused(true);
     clearTimeout(resumeRef.current);
-    resumeRef.current = setTimeout(() => setPaused(false), 7000);
+    resumeRef.current = setTimeout(() => setManualPaused(false), 7000);
   };
 
   return (
-    <div>
+    <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
       <div className="relative">
-        {/* Full-height left arrow */}
-        {needsScroll && (
-          <button className="car-arrow car-arrow-left" onClick={() => go(-1)} aria-label="Previous">‹</button>
-        )}
+        {needsScroll && <button className="car-arrow car-arrow-left"  onClick={() => go(-1)} aria-label="Previous">‹</button>}
 
-        {/* Track — mx-[44px] reserves space so cards never hide under arrows */}
-        <div className={`overflow-hidden ${needsScroll ? 'mx-[44px]' : ''}`}>
+        <div
+          className={`overflow-hidden ${needsScroll ? 'mx-[44px]' : ''}`}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
           <div
             className="flex"
             style={{
@@ -260,31 +327,20 @@ const Carousel = ({
             onTransitionEnd={handleTransitionEnd}
           >
             {extended.map((item, i) => (
-              <div
-                key={i}
-                style={{ width: `${100 / ipv}%`, flexShrink: 0 }}
-                className="px-3 box-border"
-              >
+              <div key={i} style={{ width: `${100 / ipv}%`, flexShrink: 0 }} className="px-3 box-border">
                 {renderItem(item, i % len)}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Full-height right arrow */}
-        {needsScroll && (
-          <button className="car-arrow car-arrow-right" onClick={() => go(1)} aria-label="Next">›</button>
-        )}
+        {needsScroll && <button className="car-arrow car-arrow-right" onClick={() => go(1)}  aria-label="Next">›</button>}
       </div>
 
-      {/* Dot indicators */}
       {dotCount > 1 && (
         <div className="flex justify-center gap-2 mt-6">
           {Array.from({ length: dotCount }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goToDot(i)}
-              aria-label={`Go to page ${i + 1}`}
+            <button key={i} onClick={() => goToDot(i)} aria-label={`Go to page ${i+1}`}
               className={`h-1.5 rounded-full transition-all duration-300 ${i === activePage ? 'bg-accent w-5' : 'bg-gray-700 hover:bg-gray-500 w-1.5'}`}
             />
           ))}
@@ -295,35 +351,88 @@ const Carousel = ({
 };
 
 /* ═══════════════════════════════════════════════════════════════════
+   VIEW MORE MODAL (fix #2)
+   Shows all cards in a scrollable overlay grid.
+   ═══════════════════════════════════════════════════════════════════ */
+const ViewMoreModal = ({ title, eyebrow, items, renderItem, onClose }) => {
+  useEffect(() => {
+    const h = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', h);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
+  return (
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
+      <div
+        className="modal-card relative w-full max-w-4xl flex flex-col rounded-3xl bg-cardBg border border-gray-700 shadow-2xl"
+        style={{ maxHeight: '88vh' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between p-6 border-b border-gray-800 flex-shrink-0">
+          <div>
+            <p className="font-mono-pp text-accent text-[10px] uppercase tracking-[0.3em] mb-1">{eyebrow}</p>
+            <h3 className="font-display text-2xl font-bold text-white">{title}</h3>
+          </div>
+          <button onClick={onClose} aria-label="Close"
+            className="text-gray-500 hover:text-white transition-colors p-1 flex-shrink-0 mt-1">
+            <CloseIcon />
+          </button>
+        </div>
+        {/* Scrollable grid */}
+        <div className="overflow-y-auto scroll-section p-6">
+          <div className="grid sm:grid-cols-2 gap-5">
+            {items.map((item, i) => (
+              <div key={i}>{renderItem(item, i)}</div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════
    ICONS
    ═══════════════════════════════════════════════════════════════════ */
-const LI = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>;
-const GH = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>;
-const IG = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>;
-const FB = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>;
-const DL = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>;
+const LI       = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>;
+const GH       = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>;
+const IG       = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>;
+const FB       = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>;
+const DL       = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>;
 const LockIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-gray-400"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>;
-const ChevronDown = ({ open }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`w-4 h-4 text-gray-400 transition-transform duration-300 flex-shrink-0 ${open ? 'rotate-180' : ''}`}><path d="M19 9l-7 7-7-7"/></svg>;
+const ChevDown = ({ open }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`w-4 h-4 text-gray-400 transition-transform duration-300 flex-shrink-0 ${open ? 'rotate-180' : ''}`}><path d="M19 9l-7 7-7-7"/></svg>;
 const CloseIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-5 h-5"><path d="M18 6L6 18M6 6l12 12"/></svg>;
-const ExtLink = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 inline ml-1"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+const ExtLink  = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 inline ml-1"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+const MenuIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-5 h-5"><line x1="3" y1="6"  x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
+const ArrowUp  = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="w-4 h-4"><path d="M12 19V5M5 12l7-7 7 7"/></svg>;
+
+/* Brand logo — references logo.png from your repo's public/ folder */
+const BrandLogo = ({ className = "h-8 w-8" }) => (
+  <img src="logo.png" alt="Priyanshu Pushpam" className={`${className} object-contain`} />
+);
 
 /* ═══════════════════════════════════════════════════════════════════
    DATA
    ═══════════════════════════════════════════════════════════════════ */
 const stats = [
-  { val: "10+",  label: "Years Exp" },
-  { val: "200%", label: "Rev Growth" },
-  { val: "90K+", label: "SKUs Scaled" },
-  { val: "50+",  label: "Eng Leaders" },
-  { val: "25K+", label: "Platform DAU" },
-  { val: "5",    label: "Global Markets" },
+  { val:"10+",  label:"Years Exp" },
+  { val:"200%", label:"Rev Growth" },
+  { val:"90K+", label:"SKUs Scaled" },
+  { val:"50+",  label:"Eng Leaders" },
+  { val:"25K+", label:"Platform DAU" },
+  { val:"5",    label:"Global Markets" },
 ];
 
 const timeline = [
-  { year:"2016", role:"Software Engineer",            company:"UnitedHealth Group", note:"Built the technical foundation — Java, SQL, Shell scripting for high-availability healthcare systems. Automated 92% of manual ops and cleared 900+ ticket backlogs.", type:"eng" },
+  { year:"2016", role:"Software Engineer",                        company:"UnitedHealth Group", note:"Built the technical foundation — Java, SQL, Shell scripting for high-availability healthcare systems. Automated 92% of manual ops and cleared 900+ ticket backlogs.", type:"eng" },
   { year:"2019", role:"Sr. Business Systems Analyst — Healthcare", company:"UnitedHealth Group", note:"The deliberate pivot: from writing code to owning business outcomes. Bridged engineering teams and business stakeholders across 4 enterprise transformation programmes.", type:"pivot" },
-  { year:"2022", role:"Product Owner — Sportsbook",   company:"Techmojo Solutions",  note:"Stepped into full product leadership — 50+ engineers, 5 scrum teams, 5 global markets. Drove 200% revenue growth within 3 months of MVP.", type:"po" },
-  { year:"2024", role:"Product Owner — E-commerce",   company:"VidaXL",              note:"Leading AI-driven content automation at scale. 90K+ SKUs across 12 global markets. OpenAI on GCP delivering a 7% conversion lift in 30 days.", type:"current" },
+  { year:"2022", role:"Product Owner — Sportsbook",               company:"Techmojo Solutions",  note:"Stepped into full product leadership — 50+ engineers, 5 scrum teams, 5 global markets. Drove 200% revenue growth within 3 months of MVP.", type:"po" },
+  { year:"2024", role:"Product Owner — E-commerce",               company:"VidaXL",              note:"Leading AI-driven content automation at scale. 90K+ SKUs across 12 global markets. OpenAI on GCP delivering a 7% conversion lift in 30 days.", type:"current" },
 ];
 
 const typeStyle = {
@@ -335,8 +444,7 @@ const typeStyle = {
 
 const experience = [
   {
-    period:"Sep 2024", periodEnd:"Present",
-    role:"Product Owner", domain:"E-commerce Platform",
+    period:"Sep 2024", periodEnd:"Present", role:"Product Owner", domain:"E-commerce Platform",
     company:"VidaXL", location:"Hyderabad, India", current:true,
     bullets:[
       "Achieved 7% conversion lift across all SKUs within 30 days by integrating OpenAI-driven multilingual content generation.",
@@ -347,8 +455,7 @@ const experience = [
     tags:["GCP","OpenAI","Python","Productsup","Salsify"],
   },
   {
-    period:"Mar 2022", periodEnd:"Aug 2024",
-    role:"Product Owner", domain:"Sportsbook & Gaming",
+    period:"Mar 2022", periodEnd:"Aug 2024", role:"Product Owner", domain:"Sportsbook & Gaming",
     company:"Techmojo Solutions", location:"Hyderabad, India", current:false,
     bullets:[
       "Drove 200% revenue growth within 3 months post-MVP by executing a multi-country GTM strategy across UK, Germany, Spain, Japan, and Turkey.",
@@ -359,8 +466,7 @@ const experience = [
     tags:["AWS","Java Microservices","Redis","React","RICE"],
   },
   {
-    period:"Jun 2019", periodEnd:"Mar 2022",
-    role:"Sr. Business Systems Analyst", domain:"Healthcare",
+    period:"Jun 2019", periodEnd:"Mar 2022", role:"Sr. Business Systems Analyst", domain:"Healthcare",
     company:"UnitedHealth Group", location:"Hyderabad, India", current:false,
     bullets:[
       "Delivered 25% improvement in operational efficiency by managing 4 enterprise transformation initiatives.",
@@ -370,8 +476,7 @@ const experience = [
     tags:["SQL","Shell","Java","JIRA","Healthcare"],
   },
   {
-    period:"Jul 2016", periodEnd:"Jun 2019",
-    role:"Software Engineer", domain:"Healthcare",
+    period:"Jul 2016", periodEnd:"Jun 2019", role:"Software Engineer", domain:"Healthcare",
     company:"UnitedHealth Group", location:"Hyderabad, India", current:false,
     bullets:[
       "Automated 92% of manual workload for account creation, resolving a backlog of 900+ tickets in 4 weeks.",
@@ -416,15 +521,14 @@ const caseStudies = [
     tags:["GTM Strategy","Multi-team Execution","Roadmap","AWS"] },
 ];
 
-/* Paste LinkedIn recommendations here — full text, modal handles any length */
-const testimonials = [   
+const testimonials = [
   { text:"I had the pleasure of working with Priyanshu Pushpam when he was a developer, and he was exceptional in that role. His technical skills, innovative solutions, and collaborative spirit made a significant impact on our projects. Now, as a Product Owner, I am confident that Priyanshu continues to excel. His ability of understanding business requirements, his own wonderful technical hand, combined with his dedication to continuous learning, ensures he is a wonderful product owner. I wholeheartedly recommend Priyanshu for any professional opportunity.", name:"Anup Mittal", title:"Solutions Architect", company:"UnitedHealth Group", relation:"Managed Priyanshu directly" },
-  { text:"I had the privilege of working with Priyanshu on the Sportsbook product for Pragmatic Play, a highly complex and fast-paced initiative that demanded clarity, agility, and precision. From the outset, Priyanshu brought an exceptional level of ownership and product thinking that elevated the entire project. As a Product Owner, Priyanshu consistently demonstrated a rare balance of strategic foresight and operational excellence. Their ability to translate evolving business goals into a well-structured product backlog ensured that both technical teams and stakeholders were aligned at every step. Their user stories weren’t just tasks, they reflected deep customer empathy and a sharp focus on business value. What truly set Priyanshu apart was their communication style clear, calm, and compelling. Whether aligning stakeholders on shifting priorities, presenting roadmaps to leadership, or navigating last-minute scope changes, he did so with remarkable composure and professionalism. His presence fostered trust and collaboration across teams, and they always ensured that every voice was heard. Priyanshu ’s soft skills are just as commendable as their technical capabilities. They’re approachable, emotionally intelligent, and naturally inclusive, a team player who uplifts others while driving the product forward with purpose. During high-pressure milestones, Priyanshu remained a steady force, making smart trade-offs and rallying the team with confidence and clarity. The Sportsbook project benefitted immensely from Priyanshu’s contributions — and so did everyone who worked alongside them. I would highly recommend Priyanshu to any organization seeking a strong, thoughtful, and skilled Product Owner who can lead Product and Team by putting his heart into it.", name:"Vivek Rao Peachara", title:"Project Manager", company:"Techmojo Solutions", relation:"Worked with Priyanshu at Techmojo" },
-  { text:"I had the pleasure of working with Priyanshu in our previous company Techmojo Solutions Pvt Ltd where he served as a business analyst and was reporting to me. I must say that, not only as a business analyst, Priyanshu has proven his capabilities in any area he focused on. He has shown tremendous efforts and capabilities in client management, requirement gathering and bridging the gap between client and our team. He understands the domain and technology both which ensured that the team and clients are aligned. I would recommend every organisation to give him the opportunity that he deserves.",    name:"Tanushi Gupta",    title:"Development Lead",    company:"Techmojo Solutions",    relation:"Managed Priyanshu directly" },
-  { text:"I have worked with Priyanshu. He is very dedicated and motivated in work and always likes to take challenges in project. He has sound technical knowledge, project management skills and a proven resource who deliver work with high quality. Definitely a person many want to work with. I recommend him for a Product owner role.",    name:"Uma Shankar Pandey",    title:"Product Owner",    company:"Pragmatic Play",    relation:"Cross-Functional Collaborator" },
-  { text:"It was a pleasure working with Priyanshu for the 1 year. As a product owner, he did demonstrated exceptional leadership, clear vision, and a strong ability to align stakeholders toward common goals. He excelled at prioritizing tasks, ensuring our team delivered high-quality outcomes on time while fostering a collaborative and inclusive environment. Priyanshu consistently brought strategic insight, adaptability, and a customer-focused approach to our projects, making a significant impact on our success. I highly recommend him for any role requiring innovative product leadership and effective team coordination  He take complete responsibility of the product and extends any sort of support if needed. As Scrum Master when I reach out to him with unrealistic time lines. He does Address them with proper justification and manages stakeholders on the other hand",    name:"Ganesh Aradi",    title:"Scrum Master",    company:"Techmojo Solutions",    relation:"Worked with Priyanshu at Techmojo" },
- ];
-/* Add certificate URL to `link` field; leave "" if not yet available */
+  { text:"I had the privilege of working with Priyanshu on the Sportsbook product for Pragmatic Play, a highly complex and fast-paced initiative that demanded clarity, agility, and precision. From the outset, Priyanshu brought an exceptional level of ownership and product thinking that elevated the entire project. As a Product Owner, Priyanshu consistently demonstrated a rare balance of strategic foresight and operational excellence. Their ability to translate evolving business goals into a well-structured product backlog ensured that both technical teams and stakeholders were aligned at every step. Their user stories weren't just tasks, they reflected deep customer empathy and a sharp focus on business value. What truly set Priyanshu apart was their communication style clear, calm, and compelling. Whether aligning stakeholders on shifting priorities, presenting roadmaps to leadership, or navigating last-minute scope changes, he did so with remarkable composure and professionalism. His presence fostered trust and collaboration across teams, and they always ensured that every voice was heard. Priyanshu's soft skills are just as commendable as their technical capabilities. They're approachable, emotionally intelligent, and naturally inclusive, a team player who uplifts others while driving the product forward with purpose. During high-pressure milestones, Priyanshu remained a steady force, making smart trade-offs and rallying the team with confidence and clarity. The Sportsbook project benefitted immensely from Priyanshu's contributions — and so did everyone who worked alongside them. I would highly recommend Priyanshu to any organization seeking a strong, thoughtful, and skilled Product Owner who can lead Product and Team by putting his heart into it.", name:"Vivek Rao Peachara", title:"Project Manager", company:"Techmojo Solutions", relation:"Worked with Priyanshu at Techmojo" },
+  { text:"I had the pleasure of working with Priyanshu in our previous company Techmojo Solutions Pvt Ltd where he served as a business analyst and was reporting to me. I must say that, not only as a business analyst, Priyanshu has proven his capabilities in any area he focused on. He has shown tremendous efforts and capabilities in client management, requirement gathering and bridging the gap between client and our team. He understands the domain and technology both which ensured that the team and clients are aligned. I would recommend every organisation to give him the opportunity that he deserves.", name:"Tanushi Gupta", title:"Development Lead", company:"Techmojo Solutions", relation:"Managed Priyanshu directly" },
+  { text:"I have worked with Priyanshu. He is very dedicated and motivated in work and always likes to take challenges in project. He has sound technical knowledge, project management skills and a proven resource who deliver work with high quality. Definitely a person many want to work with. I recommend him for a Product owner role.", name:"Uma Shankar Pandey", title:"Product Owner", company:"Pragmatic Play", relation:"Cross-Functional Collaborator" },
+  { text:"It was a pleasure working with Priyanshu for the 1 year. As a product owner, he did demonstrated exceptional leadership, clear vision, and a strong ability to align stakeholders toward common goals. He excelled at prioritizing tasks, ensuring our team delivered high-quality outcomes on time while fostering a collaborative and inclusive environment. Priyanshu consistently brought strategic insight, adaptability, and a customer-focused approach to our projects, making a significant impact on our success. I highly recommend him for any role requiring innovative product leadership and effective team coordination. He takes complete responsibility of the product and extends any sort of support if needed. As Scrum Master when I reach out to him with unrealistic time lines, he does address them with proper justification and manages stakeholders on the other hand.", name:"Ganesh Aradi", title:"Scrum Master", company:"Techmojo Solutions", relation:"Worked with Priyanshu at Techmojo" },
+];
+
 const certifications = [
   { short:"CSPO®", full:"Certified Scrum Product Owner",  issuer:"Scrum Alliance",     year:"2024", link:"https://bcert.me/bc/html/show-badge.html?b=aedlnhiv" },
   { short:"GA4",   full:"Google Analytics Certification", issuer:"Google",             year:"2025", link:"https://skillshop.credential.net/4c74613d-1a20-46b0-aaf0-688983f4d215#acc.9zRFUDa2" },
@@ -433,27 +537,138 @@ const certifications = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
-   TESTIMONIAL MODAL
+   TESTIMONIAL MODAL (fix #5 — max-height + internal scroll)
    ═══════════════════════════════════════════════════════════════════ */
 const TestimonialModal = ({ t, onClose }) => {
   useEffect(() => {
     const h = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', h);
-    return () => window.removeEventListener('keydown', h);
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', h); document.body.style.overflow = ''; };
   }, [onClose]);
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card relative max-w-lg w-full p-8 rounded-3xl bg-cardBg border border-gray-600 shadow-2xl" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} aria-label="Close" className="absolute top-5 right-5 text-gray-500 hover:text-white transition-colors"><CloseIcon /></button>
-        <p className="text-4xl text-gray-600 font-serif leading-none select-none mb-4">"</p>
-        <p className="text-gray-200 text-base leading-relaxed">{t.text}</p>
-        <div className="border-t border-gray-700 pt-5 mt-6">
+      <div
+        className="modal-card relative w-full max-w-lg flex flex-col rounded-3xl bg-cardBg border border-gray-600 shadow-2xl"
+        style={{ maxHeight: '82vh' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Fixed header */}
+        <div className="flex items-center justify-between px-8 pt-8 pb-4 flex-shrink-0">
+          <p className="text-4xl text-gray-600 font-serif leading-none select-none">"</p>
+          <button onClick={onClose} aria-label="Close" className="text-gray-500 hover:text-white transition-colors"><CloseIcon /></button>
+        </div>
+        {/* Scrollable body */}
+        <div className="overflow-y-auto scroll-section px-8 pb-4 flex-1">
+          <p className="text-gray-200 text-base leading-relaxed">{t.text}</p>
+        </div>
+        {/* Fixed footer */}
+        <div className="border-t border-gray-700 px-8 py-5 flex-shrink-0">
           <p className="text-white font-bold">{t.name}</p>
           <p className="text-gray-400 text-sm mt-1">{t.title} · {t.company}</p>
           <p className="font-mono-pp text-gray-500 text-[10px] uppercase tracking-widest mt-1">{t.relation}</p>
         </div>
       </div>
     </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE MENU (fix #9)
+   Full-screen overlay slide-in from right.
+   Logo + Resume stay always visible in nav; this adds section nav + socials.
+   ═══════════════════════════════════════════════════════════════════ */
+const MobileMenu = ({ open, onClose }) => {
+  useEffect(() => {
+    if (open) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  const links = [
+    ['#about',        'About'],
+    ['#journey',      'Journey'],
+    ['#experience',   'Experience'],
+    ['#projects',     'Projects'],
+    ['#case-studies', 'Case Studies'],
+    ['#testimonials', 'Testimonials'],
+  ];
+
+  const socials = [
+    { href: CONFIG.social.linkedin,  Icon: LI, label: "LinkedIn" },
+    { href: CONFIG.social.github,    Icon: GH, label: "GitHub" },
+    { href: CONFIG.social.instagram, Icon: IG, label: "Instagram" },
+    { href: CONFIG.social.facebook,  Icon: FB, label: "Facebook" },
+  ];
+
+  return (
+    <>
+      {/* Backdrop */}
+      {open && <div className="fixed inset-0 z-[199] bg-black/40" onClick={onClose} />}
+
+      <div className={`mobile-menu ${open ? 'open' : ''}`}>
+        {/* Top bar inside menu */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-800 flex-shrink-0">
+          <BrandLogo className="h-8 w-8" />
+          <button onClick={onClose} aria-label="Close menu" className="text-gray-400 hover:text-white transition-colors p-1">
+            <CloseIcon />
+          </button>
+        </div>
+
+        {/* Nav links */}
+        <nav className="flex-1 flex flex-col justify-center px-8 gap-1 overflow-y-auto">
+          {links.map(([href, label]) => (
+            <a
+              key={href}
+              href={href}
+              onClick={onClose}
+              className="font-display text-4xl font-bold text-gray-500 hover:text-white transition-colors py-3 border-b border-gray-900 last:border-0"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+
+        {/* Social icons + resume at bottom */}
+        <div className="px-8 py-8 border-t border-gray-800 flex-shrink-0 space-y-6">
+          <div className="flex items-center gap-5">
+            {socials.map(({ href, Icon, label }) => (
+              <a key={label} href={href} target="_blank" rel="noopener" aria-label={label}
+                className="text-gray-500 hover:text-white transition-colors">
+                <Icon />
+              </a>
+            ))}
+          </div>
+          <a href={CONFIG.resumeUrl} download
+            className="flex items-center gap-2 justify-center w-full text-sm border border-accent text-accent px-6 py-3 rounded-full hover:bg-accent hover:text-darkBg transition-all font-bold uppercase tracking-widest font-mono-pp">
+            <DL /> Download Resume
+          </a>
+        </div>
+      </div>
+    </>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCROLL TO TOP (fix #8)
+   ═══════════════════════════════════════════════════════════════════ */
+const ScrollToTop = () => {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const h = () => setVisible(window.scrollY > 400);
+    window.addEventListener('scroll', h, { passive: true });
+    return () => window.removeEventListener('scroll', h);
+  }, []);
+
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      aria-label="Scroll to top"
+      className={`scroll-top-btn ${visible ? 'visible' : ''}`}
+    >
+      <ArrowUp />
+    </button>
   );
 };
 
@@ -475,42 +690,66 @@ const SectionHeader = ({ eyebrow, title, subtitle, center=false }) => (
 );
 
 /* ═══════════════════════════════════════════════════════════════════
-   NAV
+   NAV (fix #9 — hamburger on mobile; logo always visible)
    ═══════════════════════════════════════════════════════════════════ */
-const Nav = () => (
-  <nav className="fixed w-full z-50 bg-darkBg/80 backdrop-blur-md border-b border-gray-800/60">
-    <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center gap-4">
-      <span className="font-display text-xl font-bold tracking-tighter text-accent">PP.</span>
-      <div className="hidden lg:flex space-x-7 text-sm font-medium text-gray-400">
-        {[['#about','About'],['#journey','Journey'],['#experience','Experience'],['#projects','Projects'],['#case-studies','Case Studies']].map(([href,label]) => (
-          <a key={href} href={href} className="nav-link hover:text-white transition-colors">{label}</a>
-        ))}
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="hidden md:flex items-center gap-3 text-gray-500">
-          <a href={CONFIG.social.linkedin}  target="_blank" rel="noopener" aria-label="LinkedIn"  className="hover:text-white transition-colors"><LI /></a>
-          <a href={CONFIG.social.github}    target="_blank" rel="noopener" aria-label="GitHub"    className="hover:text-white transition-colors"><GH /></a>
-          <a href={CONFIG.social.instagram} target="_blank" rel="noopener" aria-label="Instagram" className="hover:text-white transition-colors"><IG /></a>
-          <a href={CONFIG.social.facebook}  target="_blank" rel="noopener" aria-label="Facebook"  className="hover:text-white transition-colors"><FB /></a>
+const Nav = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <>
+      <nav className="fixed w-full z-50 bg-darkBg/80 backdrop-blur-md border-b border-gray-800/60">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center gap-4">
+          {/* Brand logo — always visible */}
+          <a href="#about" className="flex-shrink-0">
+            <BrandLogo className="h-9 w-9" />
+          </a>
+
+          {/* Desktop links */}
+          <div className="hidden lg:flex space-x-7 text-sm font-medium text-gray-400">
+            {[['#about','About'],['#journey','Journey'],['#experience','Experience'],['#projects','Projects'],['#case-studies','Case Studies']].map(([href,label]) => (
+              <a key={href} href={href} className="nav-link hover:text-white transition-colors">{label}</a>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Social icons — desktop only */}
+            <div className="hidden md:flex items-center gap-3 text-gray-500">
+              <a href={CONFIG.social.linkedin}  target="_blank" rel="noopener" aria-label="LinkedIn"  className="hover:text-white transition-colors"><LI /></a>
+              <a href={CONFIG.social.github}    target="_blank" rel="noopener" aria-label="GitHub"    className="hover:text-white transition-colors"><GH /></a>
+              <a href={CONFIG.social.instagram} target="_blank" rel="noopener" aria-label="Instagram" className="hover:text-white transition-colors"><IG /></a>
+              <a href={CONFIG.social.facebook}  target="_blank" rel="noopener" aria-label="Facebook"  className="hover:text-white transition-colors"><FB /></a>
+            </div>
+
+            {/* Resume — always visible */}
+            <a href={CONFIG.resumeUrl} download
+              className="flex items-center gap-2 text-xs border border-accent text-accent px-4 py-2 rounded-full hover:bg-accent hover:text-darkBg transition-all font-bold uppercase tracking-widest font-mono-pp whitespace-nowrap">
+              <DL /> Resume
+            </a>
+
+            {/* Hamburger — mobile only */}
+            <button
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open menu"
+              className="lg:hidden text-gray-400 hover:text-white transition-colors p-1"
+            >
+              <MenuIcon />
+            </button>
+          </div>
         </div>
-        <a href={CONFIG.resumeUrl} download className="flex items-center gap-2 text-xs border border-accent text-accent px-4 py-2 rounded-full hover:bg-accent hover:text-darkBg transition-all font-bold uppercase tracking-widest font-mono-pp">
-          <DL /> Resume
-        </a>
-      </div>
-    </div>
-  </nav>
-);
+      </nav>
+
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+    </>
+  );
+};
 
 /* ═══════════════════════════════════════════════════════════════════
    HERO
-   FIX #1 (iPhone SE): font-size uses min(9vw, 7rem) — pure vw scaling,
-     no fixed minimum that can be too large for narrow screens.
-     overflow-x:hidden on html/body prevents any overhang.
-   FIX #2 (iPad): object-top ensures the face is always visible instead
-     of being cropped by object-cover centering.
+   Fix #1: image div changes from justify-end to justify-center so the
+   text+image pair is visually centred as a balanced unit.
    ═══════════════════════════════════════════════════════════════════ */
 const Hero = () => (
-  <header id="about" className="pt-32 pb-20 px-6 max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-16">
+  <header id="about" className="pt-32 pb-20 px-6 max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 md:gap-16">
     <div className="flex-1 space-y-6 md:space-y-8 text-left w-full">
       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-mono-pp">
         <span className="relative flex h-2 w-2">
@@ -520,21 +759,12 @@ const Hero = () => (
         Available for Strategic Technical Roles
       </div>
 
-      {/*
-        min(9vw, 7rem):
-          • At 375px (iPhone SE): 9vw = 33.75px  → fits "PRIYANSHU" (9 wide chars)
-          • At 768px (iPad):      9vw = 69.12px  → capped at 7rem ≈ 112px
-          • At 1280px (desktop):  9vw = 115px    → capped at 7rem ≈ 112px
-        tracking-tighter tightens letter-spacing, buying a few more px on narrow screens.
-      */}
       <h1
         className="font-display font-extrabold tracking-tighter leading-[0.95]"
         style={{ fontSize: 'min(9vw, 7rem)' }}
       >
         PRIYANSHU<br/>
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">
-          PUSHPAM
-        </span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">PUSHPAM</span>
       </h1>
 
       <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-xl border-l-2 border-gray-800 pl-6">
@@ -554,19 +784,14 @@ const Hero = () => (
       </div>
     </div>
 
-    <div className="flex-1 flex justify-center md:justify-end">
+    {/* Image — justify-center (was md:justify-end) */}
+    <div className="flex-1 flex justify-center">
       <div className="relative group">
         <div className="absolute -inset-4 bg-accent/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition duration-1000"></div>
         <div className="relative w-64 h-72 sm:w-72 sm:h-80 md:w-80 md:h-96">
           <div className="absolute inset-0 border border-gray-800 rounded-2xl rotate-3 group-hover:rotate-6 transition-transform duration-500"></div>
           <div className="absolute inset-0 border border-accent/30 rounded-2xl -rotate-3 group-hover:-rotate-12 transition-transform duration-500"></div>
           <div className="relative w-full h-full bg-cardBg rounded-2xl overflow-hidden border border-gray-700 shadow-2xl">
-            {/*
-              object-top: ensures the face (top of portrait) is always
-              visible instead of object-cover defaulting to center.
-              md:grayscale: hover effect only where hover is meaningful.
-              Mobile always shows colour photo.
-            */}
             <img
               src="me.jpg"
               alt="Priyanshu Pushpam"
@@ -586,10 +811,7 @@ const Hero = () => (
 const StatsBar = () => (
   <section className="border-y border-gray-900 bg-cardBg/10 py-10 px-6">
     <div className="max-w-5xl mx-auto">
-      <Carousel
-        items={stats}
-        desktopItems={4} tabletItems={3} mobileItems={2}
-        autoPlay={stats.length > 4} interval={3500}
+      <Carousel items={stats} desktopItems={4} tabletItems={3} mobileItems={2} autoPlay={stats.length > 4} interval={3500}
         renderItem={(s) => (
           <div className="text-center py-2 px-4">
             <h3 className="font-display text-3xl font-bold text-accent">{s.val}</h3>
@@ -635,8 +857,7 @@ const CareerJourney = () => (
 );
 
 /* ═══════════════════════════════════════════════════════════════════
-   WORK EXPERIENCE — accordion
-   The .reveal wrapper and the overflow-hidden card are separate elements.
+   WORK EXPERIENCE
    ═══════════════════════════════════════════════════════════════════ */
 const WorkExperience = () => {
   const [open, setOpen] = useState(0);
@@ -649,9 +870,7 @@ const WorkExperience = () => {
         {experience.map((job, i) => {
           const isOpen = open === i;
           return (
-            /* .reveal ONLY here — no overflow-hidden on this element */
             <div key={i} className={`reveal d${Math.min(i+1,4)}`}>
-              {/* overflow-hidden ONLY here — separate from .reveal */}
               <div className={`rounded-2xl border transition-colors duration-300 overflow-hidden ${isOpen ? 'border-gray-600 bg-cardBg' : 'border-gray-800 bg-cardBg/40 hover:border-gray-700'}`}>
                 <button onClick={() => setOpen(i)} className="w-full text-left p-6 md:p-8 flex flex-wrap md:flex-nowrap items-start md:items-center justify-between gap-4">
                   <div className="flex gap-6 items-center flex-1 min-w-0">
@@ -669,7 +888,7 @@ const WorkExperience = () => {
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {job.current && <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border border-green-400/30 text-green-400 bg-green-400/10 font-mono-pp">Current</span>}
-                    <ChevronDown open={isOpen} />
+                    <ChevDown open={isOpen} />
                   </div>
                 </button>
                 <div className={`accordion-body ${isOpen ? 'open' : ''}`}>
@@ -678,8 +897,7 @@ const WorkExperience = () => {
                       <ul className="space-y-3">
                         {job.bullets.map((b, j) => (
                           <li key={j} className="flex gap-3 text-sm text-gray-400 leading-relaxed">
-                            <span className="text-accent mt-0.5 flex-shrink-0">▸</span>
-                            <span>{b}</span>
+                            <span className="text-accent mt-0.5 flex-shrink-0">▸</span><span>{b}</span>
                           </li>
                         ))}
                       </ul>
@@ -724,40 +942,59 @@ const CoreDNA = () => (
 
 /* ═══════════════════════════════════════════════════════════════════
    PROJECT CARD
+   Fix #7: mobile-compact — responsive padding and tighter gaps
    ═══════════════════════════════════════════════════════════════════ */
 const ProjectCard = ({ p }) => (
-  <div className="h-full p-8 rounded-3xl bg-cardBg border border-gray-800 hover:border-gray-600 transition-colors flex flex-col gap-5">
+  <div className="h-full p-5 sm:p-8 rounded-3xl bg-cardBg border border-gray-800 hover:border-gray-600 transition-colors flex flex-col gap-3 sm:gap-5">
     <div>
-      <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-2">{p.domain}</p>
-      <h3 className="font-display text-xl font-bold text-white leading-tight">{p.title}</h3>
+      <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-1 sm:mb-2">{p.domain}</p>
+      <h3 className="font-display text-lg sm:text-xl font-bold text-white leading-tight">{p.title}</h3>
       <p className="text-gray-400 text-xs mt-1 font-mono-pp">{p.company}</p>
     </div>
-    <div className="border-t border-gray-800 pt-5">
-      <p className="font-mono-pp text-[10px] uppercase tracking-widest text-gray-400 mb-2">Problem</p>
-      <p className="text-gray-400 text-sm leading-relaxed">{p.problem}</p>
+    <div className="border-t border-gray-800 pt-3 sm:pt-5">
+      <p className="font-mono-pp text-[10px] uppercase tracking-widest text-gray-400 mb-1 sm:mb-2">Problem</p>
+      <p className="text-gray-400 text-sm leading-snug sm:leading-relaxed">{p.problem}</p>
     </div>
-    <div className="border-t border-gray-800 pt-5">
-      <p className="font-mono-pp text-[10px] uppercase tracking-widest text-gray-400 mb-3">Outcomes</p>
-      <div className="flex flex-wrap gap-2">
-        {p.outcomes.map(o => <span key={o} className="text-xs font-bold px-3 py-1 rounded-full border border-accent/30 text-accent bg-accent/10">{o}</span>)}
+    <div className="border-t border-gray-800 pt-3 sm:pt-5">
+      <p className="font-mono-pp text-[10px] uppercase tracking-widest text-gray-400 mb-2">Outcomes</p>
+      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+        {p.outcomes.map(o => <span key={o} className="text-xs font-bold px-2 sm:px-3 py-1 rounded-full border border-accent/30 text-accent bg-accent/10">{o}</span>)}
       </div>
     </div>
-    <div className="mt-auto pt-2 flex flex-wrap gap-2">
+    <div className="mt-auto pt-1 sm:pt-2 flex flex-wrap gap-1.5 sm:gap-2">
       {p.stack.map(s => <span key={s} className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-gray-900 border border-gray-800 text-gray-400">{s}</span>)}
     </div>
   </div>
 );
 
 /* ═══════════════════════════════════════════════════════════════════
-   PROJECTS  (mobile=carousel, desktop=scrollable grid)
+   PROJECTS
+   Fix #2: Desktop shows first VIEW_MORE_THRESHOLD cards in a static grid.
+   If there are more, a "View All (N)" button opens a ViewMoreModal.
+   Mobile: swipe carousel (unchanged).
    ═══════════════════════════════════════════════════════════════════ */
 const Projects = () => {
   const isMobile = useIsMobile();
+  const [showAll, setShowAll] = useState(false);
+  const visible = projects.slice(0, VIEW_MORE_THRESHOLD);
+  const hasMore = projects.length > VIEW_MORE_THRESHOLD;
+
   return (
     <section id="projects" className="py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
       <SectionHeader eyebrow="Shipped Work" title="Key Projects"
         subtitle="All work done under NDA — no links, no screenshots. What's here: the problem, the approach, and the measurable outcome."
       />
+
+      {showAll && (
+        <ViewMoreModal
+          title="Key Projects"
+          eyebrow="All Shipped Work"
+          items={projects}
+          renderItem={(p) => <ProjectCard p={p} />}
+          onClose={() => setShowAll(false)}
+        />
+      )}
+
       <div className="reveal">
         {isMobile ? (
           <Carousel items={projects} desktopItems={1} tabletItems={1} mobileItems={1} autoPlay={false}
@@ -765,12 +1002,19 @@ const Projects = () => {
           />
         ) : (
           <>
-            <div className="scroll-section overflow-y-auto pr-1" style={{ maxHeight: projects.length > 4 ? '740px' : 'none' }}>
-              <div className="grid md:grid-cols-2 gap-6">
-                {projects.map((p, i) => <ProjectCard key={i} p={p} />)}
-              </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {visible.map((p, i) => <ProjectCard key={i} p={p} />)}
             </div>
-            {projects.length > 4 && <p className="font-mono-pp text-[10px] text-gray-600 uppercase tracking-widest text-center mt-3">Scroll to see all {projects.length} projects ↓</p>}
+            {hasMore && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => setShowAll(true)}
+                  className="font-mono-pp text-xs border border-gray-700 text-gray-400 px-6 py-3 rounded-full hover:border-accent hover:text-accent transition-all uppercase tracking-widest"
+                >
+                  View All Projects ({projects.length}) ↗
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -783,11 +1027,11 @@ const Projects = () => {
    ═══════════════════════════════════════════════════════════════════ */
 const CaseStudyCard = ({ cs }) => (
   <div className="cs-locked rounded-3xl bg-cardBg border border-gray-800 h-full">
-    <div className="p-8 space-y-4">
+    <div className="p-5 sm:p-8 space-y-3 sm:space-y-4">
       <p className="font-mono-pp text-[10px] uppercase tracking-widest text-accent">{cs.company}</p>
-      <h3 className="font-display text-xl font-bold text-white leading-tight">{cs.title}</h3>
-      <p className="text-gray-400 text-sm leading-relaxed">{cs.teaser}</p>
-      <div className="flex flex-wrap gap-2 pt-2">
+      <h3 className="font-display text-lg sm:text-xl font-bold text-white leading-tight">{cs.title}</h3>
+      <p className="text-gray-400 text-sm leading-snug sm:leading-relaxed">{cs.teaser}</p>
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1 sm:pt-2">
         {cs.tags.map(t => <span key={t} className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-gray-900 border border-gray-800 text-gray-400">{t}</span>)}
       </div>
     </div>
@@ -796,10 +1040,14 @@ const CaseStudyCard = ({ cs }) => (
 );
 
 /* ═══════════════════════════════════════════════════════════════════
-   CASE STUDIES  (mobile=carousel, desktop=grid)
+   CASE STUDIES (same View More pattern)
    ═══════════════════════════════════════════════════════════════════ */
 const CaseStudies = () => {
   const isMobile = useIsMobile();
+  const [showAll, setShowAll] = useState(false);
+  const visible = caseStudies.slice(0, VIEW_MORE_THRESHOLD);
+  const hasMore = caseStudies.length > VIEW_MORE_THRESHOLD;
+
   return (
     <section id="case-studies" className="py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
       <div className="mb-10">
@@ -812,17 +1060,38 @@ const CaseStudies = () => {
           <span className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border border-yellow-400/30 text-yellow-400 bg-yellow-400/10">Publishing Soon</span>
         </div>
       </div>
+
+      {showAll && (
+        <ViewMoreModal
+          title="Case Studies"
+          eyebrow="All Deep Dives"
+          items={caseStudies}
+          renderItem={(cs) => <CaseStudyCard cs={cs} />}
+          onClose={() => setShowAll(false)}
+        />
+      )}
+
       <div className="reveal">
         {isMobile ? (
           <Carousel items={caseStudies} desktopItems={1} tabletItems={1} mobileItems={1} autoPlay={false}
             renderItem={(cs) => <CaseStudyCard cs={cs} />}
           />
         ) : (
-          <div className="scroll-section overflow-y-auto pr-1" style={{ maxHeight: caseStudies.length > 4 ? '740px' : 'none' }}>
+          <>
             <div className="grid md:grid-cols-2 gap-6">
-              {caseStudies.map((cs, i) => <CaseStudyCard key={i} cs={cs} />)}
+              {visible.map((cs, i) => <CaseStudyCard key={i} cs={cs} />)}
             </div>
-          </div>
+            {hasMore && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => setShowAll(true)}
+                  className="font-mono-pp text-xs border border-gray-700 text-gray-400 px-6 py-3 rounded-full hover:border-accent hover:text-accent transition-all uppercase tracking-widest"
+                >
+                  View All Case Studies ({caseStudies.length}) ↗
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
@@ -848,7 +1117,7 @@ const Testimonials = () => {
               className="w-full h-full text-left p-8 rounded-3xl bg-cardBg border border-gray-800 hover:border-accent/40 transition-colors flex flex-col gap-4 min-h-64 cursor-pointer group"
             >
               <p className="text-4xl text-gray-600 group-hover:text-gray-500 font-serif leading-none select-none">"</p>
-              <p className="text-gray-300 text-sm leading-relaxed flex-1 -mt-3 line-clamp-5">{t.text}</p>
+              <p className="text-gray-300 text-sm leading-relaxed flex-1 -mt-3 line-clamp-4">{t.text}</p>
               <div className="border-t border-gray-800 pt-4 mt-auto">
                 <p className="text-white font-bold text-sm">{t.name}</p>
                 <p className="text-gray-400 text-xs mt-1">{t.title} · {t.company}</p>
@@ -865,8 +1134,10 @@ const Testimonials = () => {
 
 /* ═══════════════════════════════════════════════════════════════════
    CERTIFICATIONS
-   FIX #4: mobile view uses carousel (1 card at a time)
-   Desktop: 2×2 or 4-col grid as before
+   Fix #6: useIsMobile switches between carousel/grid. The MutationObserver
+   in useScrollReveal now picks up newly mounted .reveal elements automatically.
+   Additional safety: cert cards are always mounted with their in-view state
+   managed by the observer.
    ═══════════════════════════════════════════════════════════════════ */
 const CertCard = ({ c }) => {
   const inner = (
@@ -895,14 +1166,12 @@ const Certifications = () => {
         subtitle="Formal credentials across product management, analytics, and platform expertise."
       />
       {isMobile ? (
-        /* Mobile: carousel — 1 card at a time */
         <div className="reveal">
           <Carousel items={certifications} desktopItems={1} tabletItems={1} mobileItems={1} autoPlay={false}
             renderItem={(c) => <CertCard c={c} />}
           />
         </div>
       ) : (
-        /* Desktop/tablet: grid */
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {certifications.map((c, i) => (
             <div key={i} className={`reveal d${i+1}`}><CertCard c={c} /></div>
@@ -914,17 +1183,22 @@ const Certifications = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════════
-   FOOTER
+   FOOTER — logo replaces "PP." text
    ═══════════════════════════════════════════════════════════════════ */
 const Footer = () => (
   <footer className="py-16 px-6 border-t border-gray-900">
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-      <div>
-        <span className="font-display text-3xl font-extrabold text-accent">PP.</span>
-        <p className="font-mono-pp text-gray-500 text-xs uppercase tracking-widest mt-1">Technical Product Leader</p>
+      <div className="flex flex-col items-center md:items-start gap-2">
+        <BrandLogo className="h-10 w-10" />
+        <p className="font-mono-pp text-gray-500 text-xs uppercase tracking-widest">Technical Product Leader</p>
       </div>
       <div className="flex items-center gap-6 text-gray-500">
-        {[{href:CONFIG.social.linkedin,Icon:LI,label:"LinkedIn"},{href:CONFIG.social.github,Icon:GH,label:"GitHub"},{href:CONFIG.social.instagram,Icon:IG,label:"Instagram"},{href:CONFIG.social.facebook,Icon:FB,label:"Facebook"}].map(({href,Icon,label}) => (
+        {[
+          { href:CONFIG.social.linkedin, Icon:LI, label:"LinkedIn" },
+          { href:CONFIG.social.github,   Icon:GH, label:"GitHub" },
+          { href:CONFIG.social.instagram,Icon:IG, label:"Instagram" },
+          { href:CONFIG.social.facebook, Icon:FB, label:"Facebook" },
+        ].map(({ href, Icon, label }) => (
           <a key={label} href={href} target="_blank" rel="noopener" aria-label={label} className="hover:text-white transition-colors"><Icon /></a>
         ))}
       </div>
@@ -935,9 +1209,22 @@ const Footer = () => (
 
 /* ═══════════════════════════════════════════════════════════════════
    APP
+   Fix #10: useEffect sets favicon + page title on mount.
    ═══════════════════════════════════════════════════════════════════ */
 const App = () => {
   useScrollReveal();
+
+  /* Set favicon and page title (fix #10) */
+  useEffect(() => {
+    document.title = "Priyanshu Pushpam — Technical Product Leader";
+    const existing = document.querySelector("link[rel*='icon']");
+    const link = existing || document.createElement('link');
+    link.rel  = 'icon';
+    link.type = 'image/png';
+    link.href = 'logo.png';
+    if (!existing) document.head.appendChild(link);
+  }, []);
+
   return (
     <div className="min-h-screen selection:bg-accent selection:text-white">
       <GlobalStyles />
@@ -952,6 +1239,7 @@ const App = () => {
       <Testimonials />
       <Certifications />
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };
