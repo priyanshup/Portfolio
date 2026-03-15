@@ -5,8 +5,13 @@
  * Contains NO content, NO styles, NO data.
  *
  * Routing:
- *   /            → full portfolio (all sections)
- *   /case-studies/:slug → individual case study page
+ *   /                    → full portfolio (all sections)
+ *   /case-studies/:slug  → individual case study page
+ *
+ * Analytics:
+ *   - RouteTracker fires trackPageView on every route change
+ *   - useScrollTracking fires scroll depth events at 25/50/75/100%
+ *   - useSectionTracking fires view_section when each section enters viewport
  *
  * To add/remove/reorder sections, edit the HomePage component below.
  * To change content, edit the relevant file in src/data/.
@@ -15,7 +20,8 @@
 
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { useScrollReveal } from './hooks';
+import { useScrollReveal, useScrollTracking, useSectionTracking } from './hooks';
+import { trackPageView } from './utils/analytics.js';
 
 /* Layout */
 import Nav         from './components/layout/Nav';
@@ -39,6 +45,21 @@ import Certifications from './sections/Certifications';
 import CaseStudyPage from './pages/CaseStudyPage';
 
 /* ─────────────────────────────────────────────────────────────────
+   ROUTE TRACKER
+   Fires a GA4 page_view event on every route change.
+   Handles HashRouter navigation which GA4 doesn't track automatically.
+───────────────────────────────────────────────────────────────── */
+const RouteTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.hash);
+  }, [location]);
+
+  return null;
+};
+
+/* ─────────────────────────────────────────────────────────────────
    HOME PAGE — all portfolio sections in one place
    Handles scroll restoration when returning from a case study page.
    Pass state={{ scrollTo: 'case-studies' }} on the back Link to
@@ -46,6 +67,9 @@ import CaseStudyPage from './pages/CaseStudyPage';
 ───────────────────────────────────────────────────────────────── */
 const HomePage = () => {
   useScrollReveal();
+  useScrollTracking();    // fires scroll_depth events at 25/50/75/100%
+  useSectionTracking();   // fires view_section as each section enters viewport
+
   const location = useLocation();
 
   useEffect(() => {
@@ -103,11 +127,18 @@ const App = () => {
       {/* Nav is always visible on every page */}
       <Nav />
 
+      {/*
+        RouteTracker lives inside the router context (provided by HashRouter
+        in main.jsx) so useLocation() works correctly.
+        It renders nothing — purely fires analytics events.
+      */}
+      <RouteTracker />
+
       <Routes>
         {/* Home — full portfolio */}
         <Route path="/" element={<HomePage />} />
 
-        {/* Individual case study pages — e.g. /case-studies/vidaxl-ai-automation */}
+        {/* Individual case study pages — e.g. /#/case-studies/vidaxl-ai-automation */}
         <Route path="/case-studies/:slug" element={<CaseStudyPage />} />
 
         {/* Catch-all: redirect unknown paths back to home */}

@@ -6,6 +6,8 @@
  * Always visible:  brand logo (left)  |  Resume button  |  hamburger (mobile)
  * Desktop only:    section links (centre)  |  social icons
  * Mobile only:     hamburger triggers MobileMenu overlay
+ *
+ * Analytics: tracks resume download and all social link clicks.
  */
 
 import { useState } from 'react';
@@ -13,6 +15,13 @@ import { CONFIG } from '../../config';
 import BrandLogo from '../ui/BrandLogo';
 import MobileMenu from './MobileMenu';
 import { LI, GH, IG, FB, DL, MenuIcon } from '../ui/Icons';
+import {
+  trackResumeDownload,
+  trackLinkedInClick,
+  trackGitHubClick,
+  trackInstagramClick,
+  trackFacebookClick,
+} from '../../utils/analytics.js';
 
 const NAV_LINKS = [
   ['#about',        'About'],
@@ -47,16 +56,45 @@ const Nav = () => {
           <div className="flex items-center gap-3">
             {/* Social icons — desktop only */}
             <div className="hidden md:flex items-center gap-3 text-gray-500">
-              <a href={CONFIG.social.linkedin}  target="_blank" rel="noopener" aria-label="LinkedIn"  className="hover:text-white transition-colors"><LI /></a>
-              <a href={CONFIG.social.github}    target="_blank" rel="noopener" aria-label="GitHub"    className="hover:text-white transition-colors"><GH /></a>
-              <a href={CONFIG.social.instagram} target="_blank" rel="noopener" aria-label="Instagram" className="hover:text-white transition-colors"><IG /></a>
-              <a href={CONFIG.social.facebook}  target="_blank" rel="noopener" aria-label="Facebook"  className="hover:text-white transition-colors"><FB /></a>
+              <a
+                href={CONFIG.social.linkedin}
+                target="_blank" rel="noopener" aria-label="LinkedIn"
+                onClick={trackLinkedInClick}
+                className="hover:text-white transition-colors"
+              >
+                <LI />
+              </a>
+              <a
+                href={CONFIG.social.github}
+                target="_blank" rel="noopener" aria-label="GitHub"
+                onClick={trackGitHubClick}
+                className="hover:text-white transition-colors"
+              >
+                <GH />
+              </a>
+              <a
+                href={CONFIG.social.instagram}
+                target="_blank" rel="noopener" aria-label="Instagram"
+                onClick={trackInstagramClick}
+                className="hover:text-white transition-colors"
+              >
+                <IG />
+              </a>
+              <a
+                href={CONFIG.social.facebook}
+                target="_blank" rel="noopener" aria-label="Facebook"
+                onClick={trackFacebookClick}
+                className="hover:text-white transition-colors"
+              >
+                <FB />
+              </a>
             </div>
 
             {/* Resume — always visible */}
             <a
               href={CONFIG.resumeUrl}
               download
+              onClick={trackResumeDownload}
               className="flex items-center gap-2 text-xs border border-accent text-accent px-4 py-2 rounded-full hover:bg-accent hover:text-darkBg transition-all font-bold uppercase tracking-widest font-mono-pp whitespace-nowrap"
             >
               <DL /> Resume

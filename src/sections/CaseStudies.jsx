@@ -10,6 +10,10 @@
  *   Cards inside the overlay pass fromOverlay: true in their navigation state.
  *   Cards in the main grid pass fromOverlay: false (no overlay to restore).
  *
+ * Analytics:
+ *   - trackCaseStudyOpen fires when a published case study card is clicked
+ *   - trackViewMoreOpen fires when the "View All" button is clicked
+ *
  * Desktop: static 2-col grid + "View All" modal when count > VIEW_MORE_THRESHOLD.
  * Mobile:  swipeable carousel.
  */
@@ -23,6 +27,7 @@ import { LockIcon } from '../components/ui/Icons';
 import { useIsMobile } from '../hooks';
 import { caseStudies } from '../data/caseStudies.js';
 import { VIEW_MORE_THRESHOLD } from '../config';
+import { trackCaseStudyOpen, trackViewMoreOpen } from '../utils/analytics.js';
 
 /* ── Case study card ─────────────────────────────────────────────
    Props:
@@ -70,6 +75,7 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
           scrollTo:    'case-studies',
           fromOverlay: fromOverlay,
         }}
+        onClick={() => trackCaseStudyOpen(cs.slug)}
         className="block rounded-3xl bg-cardBg border border-gray-800 hover:border-accent/40 transition-colors h-full group"
       >
         {body}
@@ -139,6 +145,11 @@ const CaseStudies = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const handleViewAllClick = () => {
+    setShowAll(true);
+    trackViewMoreOpen('case-studies');
+  };
+
   return (
     <section id="case-studies" className="py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
 
@@ -189,7 +200,7 @@ const CaseStudies = () => {
             {hasMore && (
               <div className="flex justify-center mt-8">
                 <button
-                  onClick={() => setShowAll(true)}
+                  onClick={handleViewAllClick}
                   className="font-mono-pp text-xs border border-gray-700 text-gray-400 px-6 py-3 rounded-full hover:border-accent hover:text-accent transition-all uppercase tracking-widest"
                 >
                   View All Case Studies ({caseStudies.length}) ↗

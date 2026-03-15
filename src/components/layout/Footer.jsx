@@ -2,17 +2,25 @@
  * components/layout/Footer.jsx
  *
  * Site footer with brand logo, social links, and copyright.
+ *
+ * Analytics: tracks all social link clicks.
  */
 
 import { CONFIG } from '../../config';
 import BrandLogo from '../ui/BrandLogo';
 import { LI, GH, IG, FB } from '../ui/Icons';
+import {
+  trackLinkedInClick,
+  trackGitHubClick,
+  trackInstagramClick,
+  trackFacebookClick,
+} from '../../utils/analytics.js';
 
 const SOCIAL_LINKS = [
-  { href: CONFIG.social.linkedin,  Icon: LI, label: 'LinkedIn' },
-  { href: CONFIG.social.github,    Icon: GH, label: 'GitHub' },
-  { href: CONFIG.social.instagram, Icon: IG, label: 'Instagram' },
-  { href: CONFIG.social.facebook,  Icon: FB, label: 'Facebook' },
+  { href: CONFIG.social.linkedin,  Icon: LI, label: 'LinkedIn',  onClick: trackLinkedInClick  },
+  { href: CONFIG.social.github,    Icon: GH, label: 'GitHub',    onClick: trackGitHubClick    },
+  { href: CONFIG.social.instagram, Icon: IG, label: 'Instagram', onClick: trackInstagramClick },
+  { href: CONFIG.social.facebook,  Icon: FB, label: 'Facebook',  onClick: trackFacebookClick  },
 ];
 
 const Footer = () => (
@@ -27,13 +35,14 @@ const Footer = () => (
       </div>
 
       <div className="flex items-center gap-6 text-gray-500">
-        {SOCIAL_LINKS.map(({ href, Icon, label }) => (
+        {SOCIAL_LINKS.map(({ href, Icon, label, onClick }) => (
           <a
             key={label}
             href={href}
             target="_blank"
             rel="noopener"
             aria-label={label}
+            onClick={onClick}
             className="hover:text-white transition-colors"
           >
             <Icon />

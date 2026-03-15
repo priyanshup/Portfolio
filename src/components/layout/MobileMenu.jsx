@@ -9,6 +9,8 @@
  * - Social icons + Resume download at the bottom
  * - Closes on: link click, backdrop click, close button
  *
+ * Analytics: tracks resume download and all social link clicks.
+ *
  * Props:
  *   open     – boolean
  *   onClose  – callback
@@ -18,6 +20,13 @@ import { useEffect } from 'react';
 import { CONFIG } from '../../config';
 import BrandLogo from '../ui/BrandLogo';
 import { LI, GH, IG, FB, DL, CloseIcon } from '../ui/Icons';
+import {
+  trackResumeDownload,
+  trackLinkedInClick,
+  trackGitHubClick,
+  trackInstagramClick,
+  trackFacebookClick,
+} from '../../utils/analytics.js';
 
 const NAV_LINKS = [
   ['#about',        'About'],
@@ -29,10 +38,10 @@ const NAV_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { href: CONFIG.social.linkedin,  Icon: LI, label: 'LinkedIn' },
-  { href: CONFIG.social.github,    Icon: GH, label: 'GitHub' },
-  { href: CONFIG.social.instagram, Icon: IG, label: 'Instagram' },
-  { href: CONFIG.social.facebook,  Icon: FB, label: 'Facebook' },
+  { href: CONFIG.social.linkedin,  Icon: LI, label: 'LinkedIn',  onClick: trackLinkedInClick  },
+  { href: CONFIG.social.github,    Icon: GH, label: 'GitHub',    onClick: trackGitHubClick    },
+  { href: CONFIG.social.instagram, Icon: IG, label: 'Instagram', onClick: trackInstagramClick },
+  { href: CONFIG.social.facebook,  Icon: FB, label: 'Facebook',  onClick: trackFacebookClick  },
 ];
 
 const MobileMenu = ({ open, onClose }) => {
@@ -82,13 +91,14 @@ const MobileMenu = ({ open, onClose }) => {
         {/* Social + resume */}
         <div className="px-8 py-8 border-t border-gray-800 flex-shrink-0 space-y-6">
           <div className="flex items-center gap-5">
-            {SOCIAL_LINKS.map(({ href, Icon, label }) => (
+            {SOCIAL_LINKS.map(({ href, Icon, label, onClick }) => (
               <a
                 key={label}
                 href={href}
                 target="_blank"
                 rel="noopener"
                 aria-label={label}
+                onClick={onClick}
                 className="text-gray-500 hover:text-white transition-colors"
               >
                 <Icon />
@@ -98,6 +108,7 @@ const MobileMenu = ({ open, onClose }) => {
           <a
             href={CONFIG.resumeUrl}
             download
+            onClick={trackResumeDownload}
             className="flex items-center gap-2 justify-center w-full text-sm border border-accent text-accent px-6 py-3 rounded-full hover:bg-accent hover:text-darkBg transition-all font-bold uppercase tracking-widest font-mono-pp"
           >
             <DL /> Download Resume
