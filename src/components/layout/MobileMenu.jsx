@@ -1,25 +1,21 @@
 /**
  * components/layout/MobileMenu.jsx
  *
- * Full-screen slide-in menu for mobile navigation.
- * Triggered by the hamburger icon in Nav.
+ * Compact frosted-glass dropdown menu — NOT full-viewport.
  *
- * - Slides in from the right
- * - Large Syne font links for all sections
- * - Social icons + Resume download at the bottom
- * - Closes on: link click, backdrop click, close button
+ * Behaviour:
+ *   - Scales in from the top-right corner (transform-origin: top right)
+ *   - 280px wide, anchored just below the nav bar
+ *   - Contains: section nav links | social icons | resume button
+ *   - No backdrop overlay — clicking outside is handled by Nav.jsx
+ *   - ref forwarded so Nav.jsx can detect outside clicks
  *
  * Analytics: tracks resume download and all social link clicks.
- *
- * Props:
- *   open     – boolean
- *   onClose  – callback
  */
 
-import { useEffect } from 'react';
+import { forwardRef } from 'react';
 import { CONFIG } from '../../config';
-import BrandLogo from '../ui/BrandLogo';
-import { LI, GH, IG, FB, DL, CloseIcon } from '../ui/Icons';
+import { LI, GH, IG, FB, DL } from '../ui/Icons';
 import {
   trackResumeDownload,
   trackLinkedInClick,
@@ -37,86 +33,71 @@ const NAV_LINKS = [
   ['#testimonials', 'Testimonials'],
 ];
 
-const SOCIAL_LINKS = [
-  { href: CONFIG.social.linkedin,  Icon: LI, label: 'LinkedIn',  onClick: trackLinkedInClick  },
-  { href: CONFIG.social.github,    Icon: GH, label: 'GitHub',    onClick: trackGitHubClick    },
-  { href: CONFIG.social.instagram, Icon: IG, label: 'Instagram', onClick: trackInstagramClick },
-  { href: CONFIG.social.facebook,  Icon: FB, label: 'Facebook',  onClick: trackFacebookClick  },
+const SOCIAL = [
+  { href: CONFIG.social.linkedin,  icon: () => <LI />, label: 'LinkedIn',  track: trackLinkedInClick  },
+  { href: CONFIG.social.github,    icon: () => <GH />, label: 'GitHub',    track: trackGitHubClick    },
+  { href: CONFIG.social.instagram, icon: () => <IG />, label: 'Instagram', track: trackInstagramClick },
+  { href: CONFIG.social.facebook,  icon: () => <FB />, label: 'Facebook',  track: trackFacebookClick  },
 ];
 
-const MobileMenu = ({ open, onClose }) => {
-  /* Lock body scroll while menu is open */
-  useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [open]);
-
-  return (
-    <>
-      {/* Backdrop */}
-      {open && (
-        <div
-          className="fixed inset-0 z-[199] bg-black/40"
+const MobileMenu = forwardRef(({ open, onClose }, ref) => (
+  <div
+    ref={ref}
+    className={`mobile-dropdown ${open ? 'open' : ''}`}
+    role="dialog"
+    aria-modal="true"
+    aria-label="Navigation menu"
+  >
+    {/* ── Section links ── */}
+    <nav>
+      {NAV_LINKS.map(([href, label]) => (
+        <a
+          key={href}
+          href={href}
           onClick={onClose}
-        />
-      )}
+          className="dd-link font-medium"
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
 
-      <div className={`mobile-menu ${open ? 'open' : ''}`}>
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-800 flex-shrink-0">
-          <BrandLogo className="h-8 w-8" />
-          <button
-            onClick={onClose}
-            aria-label="Close menu"
-            className="text-gray-400 hover:text-white transition-colors p-1"
-          >
-            <CloseIcon />
-          </button>
-        </div>
+    <div className="dd-divider" />
 
-        {/* Nav links */}
-        <nav className="flex-1 flex flex-col justify-center px-8 gap-1 overflow-y-auto">
-          {NAV_LINKS.map(([href, label]) => (
-            <a
-              key={href}
-              href={href}
-              onClick={onClose}
-              className="font-display text-4xl font-bold text-gray-500 hover:text-white transition-colors py-3 border-b border-gray-900 last:border-0"
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
+    {/* ── Social icons ── */}
+    <div className="flex items-center gap-1 px-3 py-2">
+      {SOCIAL.map(({ href, icon, label, track }) => (
+        <a
+          key={label}
+          href={href}
+          target="_blank"
+          rel="noopener"
+          aria-label={label}
+          onClick={track}
+          className="p-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+        >
+          {icon()}
+        </a>
+      ))}
+    </div>
 
-        {/* Social + resume */}
-        <div className="px-8 py-8 border-t border-gray-800 flex-shrink-0 space-y-6">
-          <div className="flex items-center gap-5">
-            {SOCIAL_LINKS.map(({ href, Icon, label, onClick }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener"
-                aria-label={label}
-                onClick={onClick}
-                className="text-gray-500 hover:text-white transition-colors"
-              >
-                <Icon />
-              </a>
-            ))}
-          </div>
-          <a
-            href={CONFIG.resumeUrl}
-            download
-            onClick={trackResumeDownload}
-            className="flex items-center gap-2 justify-center w-full text-sm border border-accent text-accent px-6 py-3 rounded-full hover:bg-accent hover:text-darkBg transition-all font-bold uppercase tracking-widest font-mono-pp"
-          >
-            <DL /> Download Resume
-          </a>
-        </div>
-      </div>
-    </>
-  );
-};
+    <div className="dd-divider" />
+
+    {/* ── Resume button ── */}
+    <div className="px-2 py-2">
+      <a
+        href={CONFIG.resumeUrl}
+        download
+        onClick={trackResumeDownload}
+        className="resume-btn font-mono-pp w-full justify-center"
+        style={{ display: 'flex' }}
+      >
+        <DL /> Download Resume
+      </a>
+    </div>
+  </div>
+));
+
+MobileMenu.displayName = 'MobileMenu';
 
 export default MobileMenu;

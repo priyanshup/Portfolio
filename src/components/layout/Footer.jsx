@@ -17,10 +17,10 @@ import {
 } from '../../utils/analytics.js';
 
 const SOCIAL_LINKS = [
-  { href: CONFIG.social.linkedin,  Icon: LI, label: 'LinkedIn',  onClick: trackLinkedInClick  },
-  { href: CONFIG.social.github,    Icon: GH, label: 'GitHub',    onClick: trackGitHubClick    },
-  { href: CONFIG.social.instagram, Icon: IG, label: 'Instagram', onClick: trackInstagramClick },
-  { href: CONFIG.social.facebook,  Icon: FB, label: 'Facebook',  onClick: trackFacebookClick  },
+  { href: CONFIG.social.linkedin,  icon: () => <LI />, label: 'LinkedIn',  onClick: trackLinkedInClick  },
+  { href: CONFIG.social.github,    icon: () => <GH />, label: 'GitHub',    onClick: trackGitHubClick    },
+  { href: CONFIG.social.instagram, icon: () => <IG />, label: 'Instagram', onClick: trackInstagramClick },
+  { href: CONFIG.social.facebook,  icon: () => <FB />, label: 'Facebook',  onClick: trackFacebookClick  },
 ];
 
 const Footer = () => (
@@ -35,7 +35,7 @@ const Footer = () => (
       </div>
 
       <div className="flex items-center gap-6 text-gray-500">
-        {SOCIAL_LINKS.map(({ href, Icon, label, onClick }) => (
+        {SOCIAL_LINKS.map(({ href, icon, label, onClick }) => (
           <a
             key={label}
             href={href}
@@ -45,7 +45,7 @@ const Footer = () => (
             onClick={onClick}
             className="hover:text-white transition-colors"
           >
-            <Icon />
+            {icon()}
           </a>
         ))}
       </div>

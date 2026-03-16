@@ -27,6 +27,7 @@ const StatsBar = () => (
         tapSlowMultiplier={0.25}
         clickable={false}
         showArrows={false}
+        disableSwipe={true}
         renderItem={(s) => (
           <div className="text-center py-2">
             {/* Full-width wrapper ensures consistent slot sizing */}

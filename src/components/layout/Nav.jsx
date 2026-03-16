@@ -37,10 +37,10 @@ const NAV_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { href: CONFIG.social.linkedin,  Icon: LI, label: 'LinkedIn',  track: trackLinkedInClick  },
-  { href: CONFIG.social.github,    Icon: GH, label: 'GitHub',    track: trackGitHubClick    },
-  { href: CONFIG.social.instagram, Icon: IG, label: 'Instagram', track: trackInstagramClick },
-  { href: CONFIG.social.facebook,  Icon: FB, label: 'Facebook',  track: trackFacebookClick  },
+  { href: CONFIG.social.linkedin,  icon: () => <LI />, label: 'LinkedIn',  track: trackLinkedInClick  },
+  { href: CONFIG.social.github,    icon: () => <GH />, label: 'GitHub',    track: trackGitHubClick    },
+  { href: CONFIG.social.instagram, icon: () => <IG />, label: 'Instagram', track: trackInstagramClick },
+  { href: CONFIG.social.facebook,  icon: () => <FB />, label: 'Facebook',  track: trackFacebookClick  },
 ];
 
 /* ── Animated 3-bar hamburger icon ─────────────────────────────── */
@@ -109,7 +109,7 @@ const Nav = () => {
         <div className="flex items-center gap-3">
           {/* Desktop social icons */}
           <div className="hidden md:flex items-center gap-3 text-gray-500">
-            {SOCIAL_LINKS.map(({ href, Icon, label, track }) => (
+            {SOCIAL_LINKS.map(({ href, icon, label, track }) => (
               <a
                 key={label}
                 href={href}
@@ -119,7 +119,7 @@ const Nav = () => {
                 onClick={track}
                 className="hover:text-white transition-colors"
               >
-                <Icon />
+                {icon()}
               </a>
             ))}
           </div>
@@ -175,7 +175,7 @@ const Nav = () => {
 
         {/* Social icons row */}
         <div className="flex items-center gap-1 px-2 py-1">
-          {SOCIAL_LINKS.map(({ href, Icon, label, track }) => (
+          {SOCIAL_LINKS.map(({ href, icon, label, track }) => (
             <a
               key={label}
               href={href}
@@ -185,7 +185,7 @@ const Nav = () => {
               onClick={() => { track(); close(); }}
               className="flex items-center justify-center w-9 h-9 rounded-xl text-gray-500 hover:text-white hover:bg-white/5 transition-all"
             >
-              <Icon />
+              {icon()}
             </a>
           ))}
         </div>

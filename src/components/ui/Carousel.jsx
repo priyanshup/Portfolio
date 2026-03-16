@@ -1,48 +1,27 @@
 /**
  * components/ui/Carousel.jsx
  *
- * Two modes determined automatically:
+ * ── CONTINUOUS  (autoPlay=true AND len > ipv) ────────────────────────────
+ *   rAF infinite scroll. Hover-slow on desktop. Tap-to-slow on mobile.
+ *   externalPaused prop pauses loop from parent (e.g. modal open).
+ *   disableSwipe prop prevents swipe on mobile (used by StatsBar).
  *
- * ── CONTINUOUS  (autoPlay=true AND items.length > itemsPerView) ──────────
- *   requestAnimationFrame infinite scroll.
- *   Desktop hover  → slows to hoverSpeed.
- *   Mobile swipe   → adjusts continuous offset.
- *   Mobile tap (clickable=false) → slows to 25% for 5s.
- *   externalPaused → pause from parent (e.g. while modal is open).
- *   No arrows rendered in continuous mode.
- *
- * ── DISCRETE  (autoPlay=false OR items.length <= itemsPerView) ──────────
- *   Smooth drag-follow swipe: track follows finger live, snaps on release.
- *   Triple-clone for seamless infinite wrap.
- *   Auto-advance + hover-pause when autoPlay=true.
- *   showArrows prop controls arrow visibility.
- *
- * ── PEEK (peek=true, isMobile, mobileItems=1) ──────────────────────────
- *   Shows ~10% of the next card on mobile to hint more content.
- *   Achieved by sizing each slot to 87% of the container instead of 100%.
- *   The transform offset scales with the slot size so snapping stays clean.
- *   The discrete container drops overflow-hidden so the peek is visible;
- *   the html/body overflow-x:hidden (globals.css) handles page-level clipping.
+ * ── DISCRETE  (autoPlay=false OR len <= ipv) ────────────────────────────
+ *   Live drag-follow swipe → smooth snap on release.
+ *   Triple-clone for seamless wrap. curRef keeps cur in sync so
+ *   fast swipes never drift out of copy-B range.
+ *   Native touchmove listener (passive:false) so preventDefault works.
+ *   showArrows / peek / disableSwipe props.
  *
  * Props:
- *   items             Array of data objects
- *   renderItem        (item, originalIndex) => JSX
- *   desktopItems      Visible on desktop        (default 3)
- *   tabletItems       Visible on tablet         (default 2)
- *   mobileItems       Visible on mobile         (default 1)
- *   autoPlay          Enable continuous/auto    (default true)
- *   desktopSpeed      px/s normal desktop speed (default 40)
- *   hoverSpeed        px/s desktop hover speed  (default 12)
- *   mobileSpeed       px/s mobile speed         (default 30)
- *   tapSlowMultiplier Speed fraction on tap     (default 0.25)
- *   clickable         Items interactive?        (default true)
- *   showArrows        Show prev/next arrows     (default false)
- *   peek              10% next-card peek mobile (default false)
- *   externalPaused    Pause from parent         (default false)
- *   interval          ms between discrete steps (default 4000)
+ *   items desktopItems tabletItems mobileItems
+ *   autoPlay desktopSpeed hoverSpeed mobileSpeed tapSlowMultiplier
+ *   clickable showArrows peek disableSwipe externalPaused interval
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import {
+  useState, useEffect, useRef, useCallback, useMemo,
+} from 'react';
 import useItemsPerView from '../../hooks/useItemsPerView';
 import useIsMobile from '../../hooks/useIsMobile';
 
@@ -60,21 +39,17 @@ const Carousel = ({
   clickable         = true,
   showArrows        = false,
   peek              = false,
+  disableSwipe      = false,
   externalPaused    = false,
   interval          = 4000,
 }) => {
-  const ipv         = useItemsPerView(desktopItems, tabletItems, mobileItems);
-  const isMobile    = useIsMobile();
-  const len         = items.length;
+  const ipv        = useItemsPerView(desktopItems, tabletItems, mobileItems);
+  const isMobile   = useIsMobile();
+  const len        = items.length;
   const needsScroll = len > ipv;
   const continuous  = autoPlay && needsScroll;
 
-  /*
-   * peekIpv — used for slot width and transform in discrete mode on mobile.
-   * 1.15 means each card takes up 100/1.15 ≈ 87% of the container,
-   * leaving ~13% for the next card to peek through.
-   * Logic operations (cur, dotCount) still use real ipv so snapping is clean.
-   */
+  /* peekIpv — shrinks each slot to ~87% on mobile so next card peeks */
   const peekIpv = (peek && isMobile && mobileItems === 1) ? ipv + 0.15 : ipv;
 
   const extended = useMemo(() => [...items, ...items, ...items], [items]);
@@ -83,13 +58,17 @@ const Carousel = ({
   const contWrapRef = useRef(null);
   const trackRef    = useRef(null);
   const rafRef      = useRef(null);
+  const tickRef     = useRef(null);
   const lastTsRef   = useRef(null);
   const offsetRef   = useRef(0);
   const speedRef    = useRef(desktopSpeed);
   const [slotW, setSlotW] = useState(0);
 
-  // ── DISCRETE state ────────────────────────────────────────────────
-  const [cur, setCur]         = useState(len);
+  // ── DISCRETE state + curRef ───────────────────────────────────────
+  // curRef mirrors cur so touch handlers can read the latest value
+  // synchronously without stale-closure issues.
+  const curRef = useRef(len);
+  const [cur, setCurState]    = useState(len);
   const [trans, setTrans]     = useState(true);
   const [manPaused, setManPaused] = useState(false);
   const [hovPaused, setHovPaused] = useState(false);
@@ -98,9 +77,20 @@ const Carousel = ({
   const resumeRef = useRef(null);
   const hoverRef  = useRef(null);
 
-  // ── Shared touch refs ─────────────────────────────────────────────
+  // Wrapper that keeps curRef in sync with React state
+  const setCur = useCallback((fn) => {
+    setCurState(prev => {
+      const next = typeof fn === 'function' ? fn(prev) : fn;
+      curRef.current = next;
+      return next;
+    });
+  }, []);
+
+  // ── Touch refs ────────────────────────────────────────────────────
+  const trackContainerRef = useRef(null); // for native touchmove listener
   const txRef     = useRef(null);
   const tyRef     = useRef(null);
+  const isDragHorizRef = useRef(false); // determined after first few px
   const tappedRef = useRef(false);
   const tapTimer  = useRef(null);
 
@@ -130,39 +120,44 @@ const Carousel = ({
           'translateX(' + (-(sw + offsetRef.current)) + 'px)';
       }
     }
-    rafRef.current = requestAnimationFrame(tick);
+    rafRef.current = requestAnimationFrame(tickRef.current);
   }, [slotW, len]);
+
+  useEffect(() => { tickRef.current = tick; }, [tick]);
 
   useEffect(() => {
     if (!continuous || slotW === 0) return;
     speedRef.current = isMobile ? mobileSpeed : desktopSpeed;
     lastTsRef.current = null;
-    rafRef.current = requestAnimationFrame(tick);
+    rafRef.current = requestAnimationFrame(tickRef.current);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lastTsRef.current = null;
     };
   }, [continuous, slotW, isMobile, mobileSpeed, desktopSpeed, tick]);
 
-  // Pause/resume via externalPaused
   useEffect(() => {
     if (!continuous) return;
     if (externalPaused) {
       if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
-    } else {
-      if (!rafRef.current && slotW > 0) {
-        lastTsRef.current = null;
-        rafRef.current = requestAnimationFrame(tick);
-      }
+    } else if (!rafRef.current && slotW > 0) {
+      lastTsRef.current = null;
+      rafRef.current = requestAnimationFrame(tickRef.current);
     }
   }, [externalPaused, continuous, slotW, tick]);
 
-  // ── DISCRETE: reset on ipv change ────────────────────────────────
+  // ── DISCRETE: reset when ipv or len changes ───────────────────────
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (continuous) return;
-    setTrans(false); setCur(len); setDragX(0);
-  }, [ipv, len, continuous]);
+    // Synchronize curRef and state — legitimate reset on external change
+    curRef.current = len;
+    setTrans(false);
+    setCurState(len);
+    setDragX(0);
+  }, [ipv, len, continuous]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Re-enable transition after the silent snap
   useEffect(() => {
     if (continuous || trans) return;
     const id = requestAnimationFrame(() =>
@@ -171,17 +166,29 @@ const Carousel = ({
     return () => cancelAnimationFrame(id);
   }, [trans, continuous]);
 
+  // Auto-advance
   useEffect(() => {
     if (continuous || !autoPlay || manPaused || hovPaused || !needsScroll) return;
     const t = setInterval(() => setCur(c => c + 1), interval);
     return () => clearInterval(t);
-  }, [continuous, autoPlay, manPaused, hovPaused, needsScroll, interval]);
+  }, [continuous, autoPlay, manPaused, hovPaused, needsScroll, interval, setCur]);
 
+  // Snap back silently from copy-A or copy-C after CSS transition ends
   const onTransEnd = useCallback(() => {
     if (continuous) return;
-    if (cur >= 2 * len) { setTrans(false); setCur(c => c - len); }
-    else if (cur < len) { setTrans(false); setCur(c => c + len); }
-  }, [cur, len, continuous]);
+    const c = curRef.current;
+    if (c >= 2 * len) {
+      const next = c - len;
+      curRef.current = next;
+      setTrans(false);
+      setCurState(next);
+    } else if (c < len) {
+      const next = c + len;
+      curRef.current = next;
+      setTrans(false);
+      setCurState(next);
+    }
+  }, [len, continuous]);
 
   // ── HOVER ─────────────────────────────────────────────────────────
   const onMouseEnter = useCallback(() => {
@@ -208,7 +215,7 @@ const Carousel = ({
     setTrans(true); setDragX(0); setCur(c => c + 1);
     setManPaused(true); clearTimeout(resumeRef.current);
     resumeRef.current = setTimeout(() => setManPaused(false), 7000);
-  }, [needsScroll, continuous, jumpOffset]);
+  }, [needsScroll, continuous, jumpOffset, setCur]);
 
   const goPrev = useCallback(() => {
     if (!needsScroll) return;
@@ -216,35 +223,91 @@ const Carousel = ({
     setTrans(true); setDragX(0); setCur(c => c - 1);
     setManPaused(true); clearTimeout(resumeRef.current);
     resumeRef.current = setTimeout(() => setManPaused(false), 7000);
-  }, [needsScroll, continuous, jumpOffset]);
+  }, [needsScroll, continuous, jumpOffset, setCur]);
 
-  // ── TOUCH: drag-follow swipe ──────────────────────────────────────
+  // ── TOUCH: start (React, passive OK) ──────────────────────────────
   const onTouchStart = useCallback((e) => {
+    if (disableSwipe && isMobile) return;
+
     txRef.current = e.touches[0].clientX;
     tyRef.current = e.touches[0].clientY;
-    if (!continuous) { setDragging(true); setTrans(false); setDragX(0); }
-  }, [continuous]);
+    isDragHorizRef.current = false; // undecided until we see movement
 
-  const onTouchMove = useCallback((e) => {
+    if (continuous) return; // continuous handles swipe in touchEnd only
+
+    /* Normalize cur to copy-B before starting drag.
+     * Fast swipes may leave cur in copy-A/C if onTransEnd was skipped. */
+    const c = curRef.current;
+    if (c >= 2 * len) {
+      const norm = c - len;
+      curRef.current = norm;
+      setCurState(norm);
+    } else if (c < len) {
+      const norm = c + len;
+      curRef.current = norm;
+      setCurState(norm);
+    }
+
+    setDragging(true);
+    setTrans(false);
+    setDragX(0);
+  }, [disableSwipe, isMobile, continuous, len]);
+
+  // ── TOUCH: move — attached as NATIVE listener (passive:false) ─────
+  // This is registered via useEffect below so we can call preventDefault.
+  const onTouchMoveNative = useCallback((e) => {
+    if (disableSwipe && isMobile) return;
     if (txRef.current === null || continuous) return;
+
     const dx = e.touches[0].clientX - txRef.current;
     const dy = e.touches[0].clientY - tyRef.current;
-    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) {
-      txRef.current = null; setDragging(false); setTrans(true); setDragX(0); return;
-    }
-    if (needsScroll) { e.preventDefault(); setDragX(dx); }
-  }, [continuous, needsScroll]);
+    const adx = Math.abs(dx);
+    const ady = Math.abs(dy);
 
+    // Determine scroll direction on first significant movement
+    if (!isDragHorizRef.current && (adx > 5 || ady > 5)) {
+      if (ady > adx) {
+        // Vertical scroll — release drag, allow page scroll
+        txRef.current = null;
+        setDragging(false);
+        setTrans(true);
+        setDragX(0);
+        return;
+      }
+      isDragHorizRef.current = true;
+    }
+
+    if (isDragHorizRef.current && needsScroll) {
+      e.preventDefault(); // blocks page scroll during horizontal swipe
+      setDragX(dx);
+    }
+  }, [disableSwipe, isMobile, continuous, needsScroll]);
+
+  // Register native touchmove listener on track container
+  useEffect(() => {
+    const el = trackContainerRef.current;
+    if (!el || continuous) return;
+    el.addEventListener('touchmove', onTouchMoveNative, { passive: false });
+    return () => el.removeEventListener('touchmove', onTouchMoveNative);
+  }, [onTouchMoveNative, continuous]);
+
+  // ── TOUCH: end (React) ────────────────────────────────────────────
   const onTouchEnd = useCallback((e) => {
+    if (disableSwipe && isMobile) return;
     if (txRef.current === null) return;
+
     const dx = e.changedTouches[0].clientX - txRef.current;
     const dy = e.changedTouches[0].clientY - tyRef.current;
-    txRef.current = null; tyRef.current = null;
+    txRef.current = null;
+    tyRef.current = null;
+    isDragHorizRef.current = false;
 
     if (continuous) {
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50 && needsScroll) {
+      // Continuous: swipe adjusts offset
+      if (!disableSwipe && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50 && needsScroll) {
         if (dx > 0) goPrev(); else goNext();
       }
+      // Tap-to-slow for non-clickable
       if (Math.abs(dx) < 12 && Math.abs(dy) < 12 && !clickable) {
         if (!tappedRef.current) {
           tappedRef.current = true;
@@ -259,30 +322,44 @@ const Carousel = ({
       return;
     }
 
-    setDragging(false); setTrans(true); setDragX(0);
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50 && needsScroll) {
-      setCur(c => dx > 0 ? c - 1 : c + 1);
-      setManPaused(true); clearTimeout(resumeRef.current);
-      resumeRef.current = setTimeout(() => setManPaused(false), 7000);
-    }
-  }, [continuous, needsScroll, clickable, isMobile, mobileSpeed, desktopSpeed,
-      tapSlowMultiplier, goNext, goPrev]);
+    // Discrete: commit or cancel drag
+    setDragging(false);
+    setTrans(true);
+    setDragX(0);
 
+    if (isDragHorizRef.current || (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50 && needsScroll)) {
+      if (Math.abs(dx) > 50) {
+        setCur(c => dx > 0 ? c - 1 : c + 1);
+        setManPaused(true); clearTimeout(resumeRef.current);
+        resumeRef.current = setTimeout(() => setManPaused(false), 7000);
+      }
+    }
+  }, [disableSwipe, isMobile, continuous, needsScroll, clickable,
+      mobileSpeed, desktopSpeed, tapSlowMultiplier, goNext, goPrev, setCur]);
+
+  // Resume speed on page scroll (tap-to-slow)
   useEffect(() => {
     if (!isMobile || !continuous) return;
     const h = () => {
-      if (tappedRef.current) { tappedRef.current = false; speedRef.current = mobileSpeed; clearTimeout(tapTimer.current); }
+      if (tappedRef.current) {
+        tappedRef.current = false;
+        speedRef.current = mobileSpeed;
+        clearTimeout(tapTimer.current);
+      }
     };
     window.addEventListener('scroll', h, { passive: true });
     return () => window.removeEventListener('scroll', h);
   }, [isMobile, continuous, mobileSpeed]);
 
+  // Resume speed on outside tap (tap-to-slow)
   useEffect(() => {
     if (!isMobile || !continuous) return;
     const el = contWrapRef.current;
     const h = (e) => {
       if (tappedRef.current && el && !el.contains(e.target)) {
-        tappedRef.current = false; speedRef.current = mobileSpeed; clearTimeout(tapTimer.current);
+        tappedRef.current = false;
+        speedRef.current = mobileSpeed;
+        clearTimeout(tapTimer.current);
       }
     };
     document.addEventListener('touchstart', h, { passive: true });
@@ -299,7 +376,7 @@ const Carousel = ({
     resumeRef.current = setTimeout(() => setManPaused(false), 7000);
   };
 
-  // ── STATIC ────────────────────────────────────────────────────────
+  // ── STATIC (no scroll needed) ─────────────────────────────────────
   if (!needsScroll) {
     return (
       <div className="flex">
@@ -319,11 +396,13 @@ const Carousel = ({
       <div className="relative overflow-hidden"
            onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
         <div ref={contWrapRef} className="overflow-hidden"
-             onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+             onTouchStart={onTouchStart}
+             onTouchEnd={onTouchEnd}>
           <div ref={trackRef} className="flex will-change-transform"
                style={{ transform: 'translateX(' + (-(slotW * len)) + 'px)' }}>
             {extended.map((item, i) => (
-              <div key={i} className="px-3 box-border flex-shrink-0" style={{ width: slotW + 'px' }}>
+              <div key={i} className="px-3 box-border flex-shrink-0"
+                   style={{ width: slotW + 'px' }}>
                 {renderItem(item, i % len)}
               </div>
             ))}
@@ -334,16 +413,20 @@ const Carousel = ({
   }
 
   // ── DISCRETE render ───────────────────────────────────────────────
-  /*
-   * When peek=true and mobile: peekIpv = ipv + 0.15, so each card is ~87%
-   * wide and the next card is visible at the edge.
-   * overflow-hidden is removed from the container so the peek shows through;
-   * html overflow-x:hidden (globals.css) prevents a horizontal scrollbar.
-   */
-  const arrowMargin    = showArrows ? 'mx-[40px]' : '';
-  const trackContainer = peek && isMobile
-    ? arrowMargin                      // no overflow-hidden — let peek show
+  // When peek=true on mobile, remove overflow-hidden so the next card
+  // peeks through. Page-level overflow-x:hidden (globals.css) clips it.
+  const arrowMargin = showArrows ? 'mx-[40px]' : '';
+  const wrapClass   = (peek && isMobile)
+    ? arrowMargin
     : 'overflow-hidden ' + arrowMargin;
+
+  const transform = dragX !== 0
+    ? 'translateX(calc(-' + ((cur * 100) / peekIpv) + '% + ' + dragX + 'px))'
+    : 'translateX(-' + ((cur * 100) / peekIpv) + '%)';
+
+  const transition = (trans && !dragging)
+    ? 'transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    : 'none';
 
   return (
     <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
@@ -353,22 +436,15 @@ const Carousel = ({
         )}
 
         <div
-          className={trackContainer}
+          ref={trackContainerRef}
+          className={wrapClass}
           onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          style={{ touchAction: dragging ? 'none' : 'pan-y' }}
+          style={{ touchAction: 'pan-y' }}
         >
           <div
             className="flex"
-            style={{
-              transform: dragX !== 0
-                ? 'translateX(calc(-' + ((cur * 100) / peekIpv) + '% + ' + dragX + 'px))'
-                : 'translateX(-' + ((cur * 100) / peekIpv) + '%)',
-              transition: (trans && !dragging)
-                ? 'transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-                : 'none',
-            }}
+            style={{ transform, transition }}
             onTransitionEnd={onTransEnd}
           >
             {extended.map((item, i) => (

@@ -1,24 +1,26 @@
 /**
  * sections/WorkExperience.jsx
  *
- * SYNCHRONIZED ACCORDION SCROLL — how it works:
+ * ACCORDION SCROLL — how it works:
  *
- *   Goal: card header anchors at navHeight+12px while content grows downward.
- *         Scroll and expansion feel like one single motion.
+ *   Goal: card header appears anchored at navHeight+12px while content
+ *   grows downward. Scroll and expansion feel like one single motion.
  *
  *   Implementation:
- *     1. setOpen(i) immediately — the accordion CSS transition starts.
- *     2. A requestAnimationFrame loop runs for the transition duration (430ms).
- *     3. Every frame: measure where the card header currently is.
- *        If it has drifted from the target, instantly correct with scrollBy().
- *     4. The corrections are imperceptible (sub-pixel per frame) so the
- *        card header appears perfectly pinned while content grows below it.
- *     5. If the user deliberately scrolls during the animation, the rAF
- *        loop aborts so it does not fight them.
+ *     1. Capture rect.top of the target card BEFORE React re-renders.
+ *     2. Calculate the exact scroll destination so the card header will
+ *        land at NAV_HEIGHT + TOP_MARGIN from the top of the viewport.
+ *     3. Call window.scrollTo({ behavior:'smooth' }) AND setOpen(i)
+ *        in the same synchronous event handler.
+ *     4. Both animations start in the same frame — the browser scrolls
+ *        while React expands the accordion simultaneously.
+ *
+ *   No rAF loop, no repeated corrections, no fighting browser scroll.
+ *   Works identically on mobile and desktop.
  *
  * IMPORTANT — accordion + reveal separation:
- *   .reveal is on the outer wrapper div ONLY.
- *   overflow-hidden is on the inner card div ONLY.
+ *   .reveal on outer wrapper div ONLY.
+ *   overflow-hidden (.accordion-inner) on inner div ONLY.
  */
 
 import { useState, useRef } from 'react';
@@ -26,74 +28,36 @@ import SectionHeader from '../components/ui/SectionHeader';
 import { ChevronDown } from '../components/ui/Icons';
 import { experience } from '../data/experience';
 
-const NAV_HEIGHT   = 80;  // px — fixed nav bar height
-const TOP_MARGIN   = 12;  // px — breathing room below nav
-const ANIM_DURATION = 430; // ms — accordion grid transition + buffer
+const NAV_HEIGHT = 80; // px — fixed nav bar height
+const TOP_MARGIN = 16; // px — breathing room below nav
 
 const WorkExperience = () => {
-  const [open, setOpen]   = useState(0);
-  const cardRefs          = useRef([]);
-  const rafRef            = useRef(null);
-  const abortedRef        = useRef(false);
+  const [open, setOpen] = useState(0);
+  const cardRefs = useRef([]);
 
   const handleOpen = (i) => {
     if (open === i) return;
 
-    // Cancel any in-progress animation from a previous click
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-
     const el = cardRefs.current[i];
-
-    // Start the accordion animation immediately
-    setOpen(i);
-
-    if (!el) return;
-
-    const TARGET   = NAV_HEIGHT + TOP_MARGIN;
-    const deadline = performance.now() + ANIM_DURATION;
-    abortedRef.current = false;
-
-    /*
-     * Abort the rAF lock if the user intentionally scrolls.
-     * wheel = desktop trackpad/mouse, touchstart = mobile finger.
-     * { once: true } removes the listener after the first trigger.
-     */
-    const abort = () => { abortedRef.current = true; };
-    window.addEventListener('wheel',      abort, { once: true, passive: true });
-    window.addEventListener('touchstart', abort, { once: true, passive: true });
-
-    const lock = (now) => {
-      if (abortedRef.current) {
-        window.removeEventListener('wheel',      abort);
-        window.removeEventListener('touchstart', abort);
-        return;
-      }
-
-      const top = el.getBoundingClientRect().top;
-      const err = top - TARGET;
+    if (el) {
+      /*
+       * Read position BEFORE setOpen triggers any re-render.
+       * getBoundingClientRect() is synchronous — this is safe here
+       * because we are still inside the click event handler.
+       */
+      const rect = el.getBoundingClientRect();
+      const currentScrollY = window.scrollY;
+      const targetScrollY  = currentScrollY + rect.top - NAV_HEIGHT - TOP_MARGIN;
 
       /*
-       * Only correct if the error is meaningful.
-       * Small threshold (0.5px) prevents fighting the browser's
-       * own sub-pixel rounding on smooth displays.
+       * Start the smooth scroll FIRST (before React re-renders),
+       * then set state immediately after in the same microtask.
+       * Both animations begin within the same frame.
        */
-      if (Math.abs(err) > 0.5) {
-        window.scrollBy({ top: err, behavior: 'instant' });
-      }
+      window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+    }
 
-      if (now < deadline) {
-        rafRef.current = requestAnimationFrame(lock);
-      } else {
-        rafRef.current = null;
-        window.removeEventListener('wheel',      abort);
-        window.removeEventListener('touchstart', abort);
-      }
-    };
-
-    rafRef.current = requestAnimationFrame(lock);
+    setOpen(i);
   };
 
   return (
