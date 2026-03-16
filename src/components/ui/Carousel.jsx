@@ -147,12 +147,13 @@ const Carousel = ({
   }, [externalPaused, continuous, slotW, tick]);
 
   // ── DISCRETE: reset when ipv or len changes ───────────────────────
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+  // This is a legitimate synchronous reset triggered by external prop changes
+  // (ipv from resize, len from items changing). The three setState calls are
+  // intentionally batched here — React 18 batches them automatically in effects.
   useEffect(() => {
     if (continuous) return;
-    // Synchronize curRef and state — legitimate reset on external change
     curRef.current = len;
-    setTrans(false);
+    setTrans(false);    // eslint-disable-line react-hooks/set-state-in-effect
     setCurState(len);
     setDragX(0);
   }, [ipv, len, continuous]); // eslint-disable-line react-hooks/exhaustive-deps

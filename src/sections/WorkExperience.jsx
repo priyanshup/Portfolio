@@ -38,26 +38,17 @@ const WorkExperience = () => {
   const handleOpen = (i) => {
     if (open === i) return;
 
-    const el = cardRefs.current[i];
-    if (el) {
-      /*
-       * Read position BEFORE setOpen triggers any re-render.
-       * getBoundingClientRect() is synchronous — this is safe here
-       * because we are still inside the click event handler.
-       */
-      const rect = el.getBoundingClientRect();
-      const currentScrollY = window.scrollY;
-      const targetScrollY  = currentScrollY + rect.top - NAV_HEIGHT - TOP_MARGIN;
-
-      /*
-       * Start the smooth scroll FIRST (before React re-renders),
-       * then set state immediately after in the same microtask.
-       * Both animations begin within the same frame.
-       */
-      window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
-    }
-
+    // Expand the card first, then after the accordion animation completes
+    // scroll smoothly to bring it fully into view.
     setOpen(i);
+
+    setTimeout(() => {
+      const el = cardRefs.current[i];
+      if (!el) return;
+      const rect   = el.getBoundingClientRect();
+      const target = window.scrollY + rect.top - NAV_HEIGHT - TOP_MARGIN;
+      window.scrollTo({ top: target, behavior: 'smooth' });
+    }, 400); // matches the 0.38s accordion CSS transition + small buffer
   };
 
   return (
