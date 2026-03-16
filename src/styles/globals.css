@@ -2,22 +2,30 @@
  * styles/globals.css
  *
  * All custom CSS for the portfolio.
- * Imported once in main.jsx — no more inline <style> tag.
+ * Imported once in main.jsx.
  *
  * Sections:
- *  1. Google Fonts
- *  2. Font utilities
- *  3. Base reset
- *  4. Scroll-reveal animation
- *  5. Timeline
- *  6. Case study locked overlay
- *  7. Nav underline
- *  8. Scrollbar
- *  9. Accordion
- * 10. Modals
- * 11. Carousel arrows
- * 12. Mobile slide-in menu
- * 13. Scroll-to-top button
+ *  1.  Google Fonts
+ *  2.  Font utilities
+ *  3.  Base reset
+ *  4.  Scroll-reveal animation
+ *  5.  Timeline vertical line
+ *  6.  Case study locked overlay
+ *  7.  Nav underline
+ *  8.  Scrollbar
+ *  9.  Accordion
+ * 10.  Modals
+ * 11.  Carousel arrows — icon only, no background, no shadow
+ * 12.  Mobile slide-in menu — frosted glass
+ * 13.  Scroll-to-top button
+ * 14.  Floating back-to-portfolio button
+ * 15.  Animated hamburger (3-bar to X morph)
+ * 16.  Compact frosted-glass dropdown menu
+ * 17.  Glass card treatment
+ * 18.  Glass stat / metric highlight
+ * 19.  Glass timeline year bubble
+ * 20.  Resume CTA glass pill button
+ * 21.  Glass accent badge
  */
 
 /* ── 1. Google Fonts ─────────────────────────────────────────────── */
@@ -31,8 +39,6 @@
 html,
 body {
   font-family: 'DM Sans', sans-serif;
-  /* Prevents wide Syne characters from causing horizontal scroll
-     or clipping on narrow viewports (iPhone SE etc.) */
   overflow-x: hidden;
 }
 
@@ -86,7 +92,7 @@ body {
   gap: 8px;
 }
 
-/* ── 7. Nav underline hover effect ───────────────────────────────── */
+/* ── 7. Nav underline hover ──────────────────────────────────────── */
 .nav-link { position: relative; }
 .nav-link::after {
   content: '';
@@ -114,10 +120,8 @@ body {
 /* ── 9. Accordion ────────────────────────────────────────────────── */
 /*
  * IMPORTANT: .reveal and .accordion-body must NEVER be on the same element.
- * .reveal is placed on the outer wrapper div.
- * overflow-hidden is placed on the inner card div.
- * If they share an element, the IntersectionObserver re-triggers the
- * fade-out animation when the card expands and the bounding box changes.
+ * .reveal goes on the outer wrapper div.
+ * overflow-hidden goes on the inner card div.
  */
 .accordion-body {
   display: grid;
@@ -125,15 +129,15 @@ body {
   transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .accordion-body.open { grid-template-rows: 1fr; }
-.accordion-inner     { overflow: hidden; }
+.accordion-inner { overflow: hidden; }
 
 /* ── 10. Modals ──────────────────────────────────────────────────── */
 .modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.80);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -143,51 +147,51 @@ body {
 .modal-card {
   animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-@keyframes fadeIn  { from { opacity: 0; }                         to { opacity: 1; } }
-@keyframes scaleIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes fadeIn  {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
 
-/* ── 11. Carousel arrows ─────────────────────────────────────────── */
+/* ── 11. Carousel arrows — ICON ONLY ─────────────────────────────── */
 /*
- * Full-height strips — span the entire card height so the whole
- * left/right edge is a click target, not just a small circle.
- * White-shade gradient replaces the previous near-black version.
+ * Full-height click target, zero background, zero shadow.
+ * Matches the remotestar.io aesthetic.
  */
 .car-arrow {
   position: absolute;
   top: 0;
   bottom: 0;
   z-index: 10;
-  width: 44px;
+  width: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.50);
+  color: rgba(255, 255, 255, 0.30);
   cursor: pointer;
   border: none;
   background: transparent;
-  transition: color 0.2s, background 0.2s;
+  box-shadow: none;
+  transition: color 0.2s ease;
   user-select: none;
+  padding: 0;
 }
-.car-arrow:hover { color: rgba(255, 255, 255, 0.95); }
-.car-arrow-left {
-  left: 0;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.07) 0%, transparent 100%);
-  border-radius: 1rem 0 0 1rem;
-}
-.car-arrow-right {
-  right: 0;
-  background: linear-gradient(to left, rgba(255, 255, 255, 0.07) 0%, transparent 100%);
-  border-radius: 0 1rem 1rem 0;
-}
+.car-arrow:hover { color: rgba(255, 255, 255, 0.85); }
+.car-arrow-left  { left: 0; }
+.car-arrow-right { right: 0; }
 
-/* ── 12. Mobile slide-in menu ────────────────────────────────────── */
+/* ── 12. Mobile slide-in menu — frosted glass ─────────────────────── */
 .mobile-menu {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.97);
+  background: rgba(4, 8, 20, 0.94);
+  backdrop-filter: blur(24px);
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -205,13 +209,13 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.70);
+  color: rgba(255, 255, 255, 0.60);
   cursor: pointer;
   transition: all 0.25s ease;
   opacity: 0;
@@ -222,21 +226,16 @@ body {
   pointer-events: all;
 }
 .scroll-top-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.22);
   transform: translateY(-2px);
 }
 
-/* ── 14. Floating back-to-portfolio button (case study pages) ────── */
-/*
- * Appears when the static top back-link scrolls out of view AND
- * the static bottom back-link has not yet scrolled into view.
- * Disappears when either static link is on screen.
- */
+/* ── 14. Floating back-to-portfolio button ───────────────────────── */
 .floating-back-btn {
   position: fixed;
-  bottom: 28px;        /* bottom-left, thumb-friendly on mobile */
+  bottom: 28px;
   left: 24px;
   z-index: 90;
   display: flex;
@@ -256,7 +255,7 @@ body {
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(8px);   /* slides up into view (was sliding down from top) */
+  transform: translateY(8px);
   transition: opacity 0.3s ease, transform 0.3s ease, color 0.2s ease,
               background 0.2s ease, border-color 0.2s ease;
 }
@@ -269,4 +268,195 @@ body {
   color: #fff;
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── 15. Animated hamburger (3-bar to X morph) ───────────────────── */
+/*
+ * Three bars animate on open:
+ *   bar 1 - slides to centre + rotates 45 deg  = top arm of X
+ *   bar 2 - fades and collapses                = invisible
+ *   bar 3 - slides to centre + rotates -45 deg = bottom arm of X
+ *
+ * Apply .hbar-N-open to trigger each bar's open state.
+ * Usage in JSX: <span className={`hbar ${open ? 'hbar-1-open' : ''}`} />
+ */
+.hamburger {
+  width: 22px;
+  height: 14px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.hbar {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 2px;
+  transition:
+    top        0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    bottom     0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity    0.20s ease,
+    transform  0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hbar:nth-child(1) { top: 0; }
+.hbar:nth-child(2) { top: 50%; transform: translateY(-50%); }
+.hbar:nth-child(3) { bottom: 0; }
+.hbar-1-open { top: 50%;    transform: translateY(-50%) rotate(45deg); }
+.hbar-2-open { opacity: 0;  transform: translateY(-50%) scaleX(0); }
+.hbar-3-open { bottom: 50%; transform: translateY(50%) rotate(-45deg); }
+
+/* ── 16. Compact frosted-glass dropdown menu ─────────────────────── */
+/*
+ * 280px panel anchored top-right below the nav.
+ * Scales in from the top-right corner.
+ * Used by Nav.jsx — toggled via .mobile-dropdown.open
+ */
+.mobile-dropdown {
+  position: fixed;
+  top: 68px;
+  right: 14px;
+  width: 280px;
+  z-index: 200;
+  background: rgba(4, 8, 20, 0.92);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 1.25rem;
+  padding: 8px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.20),
+    0 20px 50px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transform-origin: top right;
+  transform: scale(0.88) translateY(-10px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity   0.20s ease;
+}
+.mobile-dropdown.open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+.dd-link {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.dd-link:hover,
+.dd-link:focus {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  outline: none;
+}
+.dd-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 6px 4px;
+}
+
+/* ── 17. Glass card treatment ────────────────────────────────────── */
+/*
+ * Applied to every .bg-cardBg element that has rounded corners.
+ * Semi-transparent + backdrop-filter over the body gradients = glass.
+ * inset box-shadow = bright top edge of a glass pane.
+ *
+ * Note: bg-cardBg/40 (Tailwind opacity modifier) is a separate class
+ * and is NOT affected — inactive accordion items stay more transparent.
+ */
+.rounded-2xl.bg-cardBg,
+.rounded-3xl.bg-cardBg {
+  background: rgba(30, 41, 59, 0.45) !important;
+  backdrop-filter: blur(18px) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+.rounded-2xl.bg-cardBg:hover,
+.rounded-3xl.bg-cardBg:hover {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ── 18. Glass stat / metric highlight ───────────────────────────── */
+/*
+ * Add class "glass-metric" to any stat number wrapper.
+ * Accent-tinted glass with a faint green glow ring.
+ */
+.glass-metric {
+  background: rgba(16, 185, 129, 0.07);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 0 0 1px rgba(16, 185, 129, 0.04),
+    0 4px 20px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(16, 185, 129, 0.08);
+}
+
+/* ── 19. Glass timeline year bubble ──────────────────────────────── */
+/*
+ * Add class "tl-bubble" to the year circle in CareerJourney.
+ * The badge colour class provides border + text; this adds the glass layer.
+ */
+.tl-bubble {
+  background: rgba(8, 14, 28, 0.55) !important;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── 20. Resume CTA glass pill button ────────────────────────────── */
+/*
+ * Add class "resume-btn" to the resume download link in Nav.
+ * Replaces the plain border + text style with an accent-tinted glass pill.
+ */
+.resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  backdrop-filter: blur(10px);
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(16, 185, 129, 0.10);
+}
+.resume-btn:hover {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.55);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.20), inset 0 1px 0 rgba(16, 185, 129, 0.14);
+}
+
+/* ── 21. Glass accent badge ──────────────────────────────────────── */
+/*
+ * Add class "glass-badge" alongside existing colour classes on badge chips.
+ * Example: className="glass-badge text-accent border-accent/30 bg-accent/10"
+ */
+.glass-badge {
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }

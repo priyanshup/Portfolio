@@ -60,7 +60,7 @@ const Projects = () => {
   const hasMore = projects.length > VIEW_MORE_THRESHOLD;
 
   return (
-    <section id="projects" className="py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+    <section id="projects" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
       <SectionHeader
         eyebrow="Shipped Work"
         title="Key Projects"
@@ -85,6 +85,7 @@ const Projects = () => {
             tabletItems={1}
             mobileItems={1}
             autoPlay={false}
+            peek={true}
             renderItem={(p) => <ProjectCard p={p} />}
           />
         ) : (

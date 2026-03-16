@@ -1,8 +1,16 @@
 /*
- * index.css  — kept for Tailwind directives only.
+ * index.css
  *
- * All custom CSS has moved to src/styles/globals.css.
- * Do not add custom rules here.
+ * Tailwind v4 directives + theme colour tokens.
+ *
+ * Glass strategy:
+ *   The three radial gradients on the body give the dark background
+ *   subtle colour variation. backdrop-filter blur on cards then has
+ *   something to act on — without this, glass on a flat dark bg is invisible.
+ *
+ *   The .bg-cardBg override makes every cardBg element a glass surface.
+ *   bg-cardBg/40 (Tailwind opacity modifier) is a separate generated class
+ *   and is NOT affected, so inactive accordion items stay more transparent.
  */
 
 @import "tailwindcss";
@@ -14,8 +22,20 @@
   --color-accent: #10b981;
 }
 
+/* ── Body: atmospheric gradient background ─────────────────────── */
 body {
   background-color: var(--color-darkBg);
   color: #f8fafc;
   margin: 0;
+  background-image:
+    radial-gradient(ellipse at 15% 60%, rgba(16, 185, 129, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 15%, rgba(30, 80, 160, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse at 55% 88%, rgba(100, 60, 180, 0.03) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+
+/* ── Global glass card treatment ──────────────────────────────── */
+.bg-cardBg {
+  background-color: rgba(30, 41, 59, 0.50) !important;
+  backdrop-filter: blur(16px);
 }

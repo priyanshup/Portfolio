@@ -151,7 +151,7 @@ const CaseStudies = () => {
   };
 
   return (
-    <section id="case-studies" className="py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+    <section id="case-studies" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
 
       {/* Section header */}
       <div className="mb-10">
@@ -187,6 +187,7 @@ const CaseStudies = () => {
             tabletItems={1}
             mobileItems={1}
             autoPlay={false}
+            peek={true}
             renderItem={(cs) => <CaseStudyCard cs={cs} fromOverlay={false} />}
           />
         ) : (

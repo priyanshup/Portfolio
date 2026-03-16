@@ -54,7 +54,7 @@ const Certifications = () => {
   const isMobile = useIsMobile();
 
   return (
-    <section className="py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+    <section className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
       <SectionHeader
         eyebrow="Credentials"
         title="Certifications"
@@ -70,6 +70,7 @@ const Certifications = () => {
             tabletItems={1}
             mobileItems={1}
             autoPlay={false}
+            peek={true}
             renderItem={(c) => <CertCard c={c} />}
           />
         </div>

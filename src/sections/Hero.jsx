@@ -16,7 +16,7 @@ import { CONFIG } from '../config';
 const Hero = () => (
   <header
     id="about"
-    className="pt-32 pb-20 px-6 max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 md:gap-16"
+    className="pt-20 md:pt-32 pb-12 md:pb-20 px-6 max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 md:gap-16"
   >
     {/* ── Text column ── */}
     <div className="flex-1 space-y-6 md:space-y-8 text-left w-full">
