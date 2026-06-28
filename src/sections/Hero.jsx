@@ -32,17 +32,17 @@ const Hero = () => (
 
       {/* Name */}
       <h1
-        className="font-display font-extrabold tracking-tighter leading-[0.95]"
+        className="font-display font-extrabold tracking-tighter leading-[0.95] dark:text-white text-slate-900"
         style={{ fontSize: 'min(9vw, 7rem)' }}
       >
         PRIYANSHU<br />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">
+        <span className="text-transparent bg-clip-text bg-gradient-to-r dark:from-gray-400 dark:to-gray-600 from-slate-600 to-slate-800">
           PUSHPAM
         </span>
       </h1>
 
       {/* Tagline */}
-      <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-xl border-l-2 border-gray-800 pl-6">
+      <p className="text-lg md:text-xl dark:text-gray-400 text-slate-600 leading-relaxed max-w-xl border-l-2 dark:border-gray-800 border-slate-200 pl-6">
         A Technical Product Leader with 10 years of experience. I bridge the gap between
         C-suite strategy and high-concurrency engineering — scaling platforms from zero to global.
       </p>
@@ -52,7 +52,7 @@ const Hero = () => (
         {['CSPO®', 'Google GA4', 'Productsup Expert', 'Ex-Software Engineer'].map((tag) => (
           <span
             key={tag}
-            className="px-3 py-1 bg-cardBg border border-gray-800 rounded text-[10px] font-bold uppercase tracking-widest text-gray-400 font-mono-pp"
+            className="px-3 py-1 bg-cardBg border dark:border-gray-800 border-slate-200 rounded text-[10px] font-bold uppercase tracking-widest dark:text-gray-400 text-slate-500 font-mono-pp"
           >
             {tag}
           </span>
@@ -63,13 +63,13 @@ const Hero = () => (
       <div className="pt-2 flex flex-wrap gap-4">
         <a
           href="#projects"
-          className="bg-white text-darkBg px-8 py-4 rounded-full font-bold hover:bg-accent hover:text-darkBg transition-all duration-300"
+          className="dark:bg-white dark:text-darkBg bg-slate-900 text-white px-8 py-4 rounded-full font-bold hover:bg-accent dark:hover:bg-accent dark:hover:text-white hover:text-white transition-all duration-300"
         >
           View My Work
         </a>
         <a
           href="#journey"
-          className="border border-gray-700 text-gray-300 px-8 py-4 rounded-full font-bold hover:border-gray-500 hover:text-white transition-all duration-300"
+          className="border dark:border-gray-700 border-slate-300 dark:text-gray-300 text-slate-700 px-8 py-4 rounded-full font-bold dark:hover:border-gray-500 hover:border-slate-500 dark:hover:text-white hover:text-slate-900 transition-all duration-300"
         >
           My Journey
         </a>
@@ -84,11 +84,11 @@ const Hero = () => (
 
         <div className="relative w-64 h-72 sm:w-72 sm:h-80 md:w-80 md:h-96">
           {/* Decorative borders */}
-          <div className="absolute inset-0 border border-gray-800 rounded-2xl rotate-3 group-hover:rotate-6 transition-transform duration-500" />
+          <div className="absolute inset-0 border dark:border-gray-800 border-slate-200 rounded-2xl rotate-3 group-hover:rotate-6 transition-transform duration-500" />
           <div className="absolute inset-0 border border-accent/30 rounded-2xl -rotate-3 group-hover:-rotate-12 transition-transform duration-500" />
 
           {/* Photo */}
-          <div className="relative w-full h-full bg-cardBg rounded-2xl overflow-hidden border border-gray-700 shadow-2xl">
+          <div className="relative w-full h-full bg-cardBg rounded-2xl overflow-hidden dark:border dark:border-gray-700 border border-slate-200 shadow-2xl">
             <img
               src="me.jpg"
               alt="Priyanshu Pushpam"

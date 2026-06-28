@@ -38,8 +38,8 @@ export const timeline = [
 
 /** Badge styles keyed by timeline entry type */
 export const typeStyle = {
-  eng:     { badge: "text-blue-400 border-blue-400/30 bg-blue-400/10",       label: "Engineer" },
-  pivot:   { badge: "text-yellow-400 border-yellow-400/30 bg-yellow-400/10", label: "Career Pivot" },
-  po:      { badge: "text-accent border-accent/30 bg-accent/10",             label: "Product Owner" },
-  current: { badge: "text-green-400 border-green-400/30 bg-green-400/10",    label: "Current" },
+  eng:     { badge: "dark:text-blue-400 text-blue-600 dark:border-blue-400/30 border-blue-600/40 dark:bg-blue-400/10 bg-blue-600/10",         label: "Engineer" },
+  pivot:   { badge: "dark:text-yellow-400 text-yellow-700 dark:border-yellow-400/30 border-yellow-700/40 dark:bg-yellow-400/10 bg-yellow-700/10", label: "Career Pivot" },
+  po:      { badge: "text-accent border-accent/30 bg-accent/10",                                                                               label: "Product Owner" },
+  current: { badge: "dark:text-green-400 text-green-700 dark:border-green-400/30 border-green-700/40 dark:bg-green-400/10 bg-green-700/10",    label: "Current" },
 };

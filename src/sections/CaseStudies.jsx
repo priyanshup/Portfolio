@@ -33,8 +33,6 @@ import { trackCaseStudyOpen, trackViewMoreOpen } from '../utils/analytics.js';
    Props:
      cs           – case study data object
      fromOverlay  – true when rendered inside the ViewMoreModal.
-                    Adds state to the navigation so the section
-                    knows to reopen the overlay on return.
 ─────────────────────────────────────────────────────────────────── */
 export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
   const tags = (
@@ -42,7 +40,7 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
       {cs.tags.map((t) => (
         <span
           key={t}
-          className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-gray-900 border border-gray-800 text-gray-400"
+          className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-400 text-slate-600"
         >
           {t}
         </span>
@@ -53,13 +51,13 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
   const body = (
     <div className="p-5 sm:p-8 space-y-3 sm:space-y-4">
       <p className="font-mono-pp text-[10px] uppercase tracking-widest text-accent">{cs.company}</p>
-      <h3 className="font-display text-lg sm:text-xl font-bold text-white leading-tight group-hover:text-accent transition-colors">
+      <h3 className="font-display text-lg sm:text-xl font-bold dark:text-white text-slate-900 leading-tight group-hover:text-accent transition-colors">
         {cs.title}
       </h3>
-      <p className="text-gray-400 text-sm leading-snug sm:leading-relaxed">{cs.teaser}</p>
+      <p className="dark:text-gray-400 text-slate-600 text-sm leading-snug sm:leading-relaxed">{cs.teaser}</p>
       {tags}
       {cs.published && (
-        <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest pt-1 group-hover:text-white transition-colors">
+        <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest pt-1 dark:group-hover:text-white group-hover:text-emerald-700 transition-colors">
           Read Case Study →
         </p>
       )}
@@ -76,7 +74,7 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
           fromOverlay: fromOverlay,
         }}
         onClick={() => trackCaseStudyOpen(cs.slug)}
-        className="block rounded-3xl bg-cardBg border border-gray-800 hover:border-accent/40 transition-colors h-full group"
+        className="block rounded-3xl bg-cardBg dark:border-gray-800 border-slate-200 border hover:border-accent/40 transition-colors h-full group"
       >
         {body}
       </Link>
@@ -86,7 +84,7 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
   /* Published but no slug */
   if (cs.published) {
     return (
-      <div className="rounded-3xl bg-cardBg border border-gray-800 h-full group">
+      <div className="rounded-3xl bg-cardBg dark:border-gray-800 border-slate-200 border h-full group">
         {body}
       </div>
     );
@@ -94,16 +92,16 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
 
   /* Not published — locked */
   return (
-    <div className="cs-locked rounded-3xl bg-cardBg border border-gray-800 h-full">
+    <div className="cs-locked rounded-3xl bg-cardBg dark:border-gray-800 border-slate-200 border h-full">
       <div className="p-5 sm:p-8 space-y-3 sm:space-y-4">
         <p className="font-mono-pp text-[10px] uppercase tracking-widest text-accent">{cs.company}</p>
-        <h3 className="font-display text-lg sm:text-xl font-bold text-white leading-tight">{cs.title}</h3>
-        <p className="text-gray-400 text-sm leading-snug sm:leading-relaxed">{cs.teaser}</p>
+        <h3 className="font-display text-lg sm:text-xl font-bold dark:text-white text-slate-900 leading-tight">{cs.title}</h3>
+        <p className="dark:text-gray-400 text-slate-600 text-sm leading-snug sm:leading-relaxed">{cs.teaser}</p>
         {tags}
       </div>
       <div className="cs-locked-overlay">
         <LockIcon />
-        <span className="font-mono-pp text-xs uppercase tracking-widest text-gray-400">
+        <span className="font-mono-pp text-xs uppercase tracking-widest dark:text-gray-400 text-slate-600">
           Publishing Soon
         </span>
       </div>
@@ -119,23 +117,10 @@ const CaseStudies = () => {
   const visible = caseStudies.slice(0, VIEW_MORE_THRESHOLD);
   const hasMore = caseStudies.length > VIEW_MORE_THRESHOLD;
 
-  /*
-   * Overlay restoration on return from a case study.
-   *
-   * Initialise showAll directly from location.state — no effect needed.
-   * This avoids the react-hooks/set-state-in-effect lint warning and
-   * removes a render cycle. The lazy initialiser runs only once on mount.
-   */
   const [showAll, setShowAll] = useState(
     () => !!(location.state?.fromOverlay && hasMore)
   );
 
-  /*
-   * Clear the fromOverlay flag from history after reading it.
-   * This prevents the overlay from reopening if the user navigates
-   * away and returns via the browser's back button.
-   * Empty deps is intentional — runs once on mount only.
-   */
   useEffect(() => {
     if (location.state?.fromOverlay) {
       window.history.replaceState(
@@ -151,17 +136,17 @@ const CaseStudies = () => {
   };
 
   return (
-    <section id="case-studies" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+    <section id="case-studies" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-100">
 
       {/* Section header */}
       <div className="mb-10">
         <div className="reveal">
           <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.3em] mb-3">Deep Dives</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold">Case Studies</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold dark:text-white text-slate-900">Case Studies</h2>
         </div>
         <div className="reveal d1 mt-3 flex flex-wrap items-center gap-3">
-          <p className="text-gray-400 text-sm">Full written case studies are in progress.</p>
-          <span className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border border-yellow-400/30 text-yellow-400 bg-yellow-400/10">
+          <p className="dark:text-gray-400 text-slate-600 text-sm">Full written case studies are in progress.</p>
+          <span className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border dark:border-yellow-400/30 border-yellow-700/40 dark:text-yellow-400 text-yellow-700 dark:bg-yellow-400/10 bg-yellow-700/10">
             Publishing Soon
           </span>
         </div>
@@ -180,7 +165,6 @@ const CaseStudies = () => {
 
       <div className="reveal">
         {isMobile ? (
-          /* Mobile carousel — fromOverlay not relevant on mobile */
           <Carousel
             items={caseStudies}
             desktopItems={1}
@@ -192,7 +176,7 @@ const CaseStudies = () => {
           />
         ) : (
           <>
-            {/* Main grid — cards pass fromOverlay: false */}
+            {/* Main grid */}
             <div className="grid md:grid-cols-2 gap-6">
               {visible.map((cs, i) => (
                 <CaseStudyCard key={i} cs={cs} fromOverlay={false} />
@@ -202,7 +186,7 @@ const CaseStudies = () => {
               <div className="flex justify-center mt-8">
                 <button
                   onClick={handleViewAllClick}
-                  className="font-mono-pp text-xs border border-gray-700 text-gray-400 px-6 py-3 rounded-full hover:border-accent hover:text-accent transition-all uppercase tracking-widest"
+                  className="font-mono-pp text-xs dark:border-gray-700 border-slate-400 dark:text-gray-400 text-slate-700 dark:bg-transparent bg-slate-100 border px-6 py-3 rounded-full hover:border-accent hover:text-accent dark:hover:bg-transparent hover:bg-slate-200 transition-all uppercase tracking-widest"
                 >
                   View All Case Studies ({caseStudies.length}) ↗
                 </button>

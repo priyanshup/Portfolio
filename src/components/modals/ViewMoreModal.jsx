@@ -36,28 +36,28 @@ const ViewMoreModal = ({ title, eyebrow, items, renderItem, onClose }) => {
   return (
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div
-        className="modal-card relative w-full max-w-4xl flex flex-col rounded-3xl bg-darkBg border border-gray-700 shadow-2xl"
+        className="modal-card relative w-full max-w-4xl flex flex-col rounded-3xl bg-darkBg dark:border-gray-700 border-slate-200 border shadow-2xl"
         style={{ maxHeight: '88vh' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Fixed header — bg-darkBg matches the scrollable grid area below */}
-        <div className="flex items-start justify-between p-6 border-b border-gray-800 flex-shrink-0 bg-darkBg rounded-t-3xl">
+        {/* Fixed header */}
+        <div className="flex items-start justify-between p-6 dark:border-b dark:border-gray-800 border-b border-slate-200 flex-shrink-0 bg-darkBg rounded-t-3xl">
           <div>
             <p className="font-mono-pp text-accent text-[10px] uppercase tracking-[0.3em] mb-1">
               {eyebrow}
             </p>
-            <h3 className="font-display text-2xl font-bold text-white">{title}</h3>
+            <h3 className="font-display text-2xl font-bold dark:text-white text-slate-900">{title}</h3>
           </div>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="text-gray-500 hover:text-white transition-colors p-1 flex-shrink-0 mt-1"
+            className="dark:text-gray-500 text-slate-500 dark:hover:text-white hover:text-slate-900 transition-colors p-1 flex-shrink-0 mt-1"
           >
             <CloseIcon />
           </button>
         </div>
 
-        {/* Scrollable grid — bg-darkBg gives contrast so card borders show */}
+        {/* Scrollable grid */}
         <div className="overflow-y-auto scroll-section p-6 bg-darkBg rounded-b-3xl">
           <div className="grid sm:grid-cols-2 gap-5">
             {items.map((item, i) => (

@@ -38,8 +38,6 @@ const WorkExperience = () => {
   const handleOpen = (i) => {
     if (open === i) return;
 
-    // Expand the card first, then after the accordion animation completes
-    // scroll smoothly to bring it fully into view.
     setOpen(i);
 
     setTimeout(() => {
@@ -48,11 +46,11 @@ const WorkExperience = () => {
       const rect   = el.getBoundingClientRect();
       const target = window.scrollY + rect.top - NAV_HEIGHT - TOP_MARGIN;
       window.scrollTo({ top: target, behavior: 'smooth' });
-    }, 400); // matches the 0.38s accordion CSS transition + small buffer
+    }, 400);
   };
 
   return (
-    <section id="experience" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+    <section id="experience" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-100">
       <SectionHeader
         eyebrow="Track Record"
         title="Work Experience"
@@ -70,8 +68,8 @@ const WorkExperience = () => {
             >
               <div className={'rounded-2xl border transition-colors duration-300 overflow-hidden ' + (
                 isOpen
-                  ? 'border-gray-600 bg-cardBg'
-                  : 'border-gray-800 bg-cardBg/40 hover:border-gray-700'
+                  ? 'dark:border-gray-600 border-slate-300 bg-cardBg'
+                  : 'dark:border-gray-800 border-slate-200 bg-cardBg/40 dark:hover:border-gray-700 hover:border-slate-300'
               )}>
 
                 <button
@@ -80,15 +78,15 @@ const WorkExperience = () => {
                 >
                   <div className="flex gap-6 items-center flex-1 min-w-0">
                     <div className="hidden md:flex flex-col items-center gap-1 flex-shrink-0 w-20">
-                      <p className="font-mono-pp text-[10px] text-gray-400 text-center">{job.period}</p>
-                      <div className="w-px h-3 bg-gray-700" />
-                      <p className="font-mono-pp text-[10px] text-gray-400 text-center">{job.periodEnd}</p>
+                      <p className="font-mono-pp text-[10px] dark:text-gray-400 text-slate-500 text-center">{job.period}</p>
+                      <div className="w-px h-3 dark:bg-gray-700 bg-slate-300" />
+                      <p className="font-mono-pp text-[10px] dark:text-gray-400 text-slate-500 text-center">{job.periodEnd}</p>
                     </div>
                     <div className="min-w-0">
                       <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-1">{job.domain}</p>
-                      <h3 className="font-display font-bold text-xl text-white">{job.role}</h3>
-                      <p className="text-gray-400 text-sm">{job.company} · {job.location}</p>
-                      <p className="md:hidden font-mono-pp text-[10px] text-gray-400 mt-1">
+                      <h3 className="font-display font-bold text-xl dark:text-white text-slate-900">{job.role}</h3>
+                      <p className="dark:text-gray-400 text-slate-600 text-sm">{job.company} · {job.location}</p>
+                      <p className="md:hidden font-mono-pp text-[10px] dark:text-gray-400 text-slate-500 mt-1">
                         {job.period} — {job.periodEnd}
                       </p>
                     </div>
@@ -105,10 +103,10 @@ const WorkExperience = () => {
 
                 <div className={'accordion-body ' + (isOpen ? 'open' : '')}>
                   <div className="accordion-inner">
-                    <div className="px-6 md:px-8 pb-8 border-t border-gray-800/60 pt-6">
+                    <div className="px-6 md:px-8 pb-8 border-t dark:border-gray-800/60 border-slate-200 pt-6">
                       <ul className="space-y-3">
                         {job.bullets.map((b, j) => (
-                          <li key={j} className="flex gap-3 text-sm text-gray-400 leading-relaxed">
+                          <li key={j} className="flex gap-3 text-sm dark:text-gray-400 text-slate-600 leading-relaxed">
                             <span className="text-accent mt-0.5 flex-shrink-0">▸</span>
                             <span>{b}</span>
                           </li>
@@ -116,7 +114,7 @@ const WorkExperience = () => {
                       </ul>
                       <div className="flex flex-wrap gap-2 mt-6">
                         {job.tags.map((t) => (
-                          <span key={t} className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-gray-900 border border-gray-800 text-gray-400">
+                          <span key={t} className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-400 text-slate-600">
                             {t}
                           </span>
                         ))}

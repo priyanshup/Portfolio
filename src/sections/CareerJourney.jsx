@@ -9,7 +9,7 @@ import SectionHeader from '../components/ui/SectionHeader';
 import { timeline, typeStyle } from '../data/timeline';
 
 const CareerJourney = () => (
-  <section id="journey" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+  <section id="journey" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-100">
     <SectionHeader
       eyebrow="The Arc"
       title="Engineer → Analyst → Product Leader"
@@ -26,17 +26,17 @@ const CareerJourney = () => (
             >
               <span className="font-mono-pp text-[10px] font-bold">{item.year}</span>
             </div>
-            <div className="flex-1 p-6 rounded-2xl bg-cardBg border border-gray-800 hover:border-gray-600 transition-colors">
+            <div className="flex-1 p-6 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 dark:hover:border-gray-600 hover:border-slate-300 transition-colors">
               <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
                 <div>
-                  <h3 className="font-display font-bold text-lg text-white">{item.role}</h3>
-                  <p className="text-gray-400 text-sm">{item.company}</p>
+                  <h3 className="font-display font-bold text-lg dark:text-white text-slate-900">{item.role}</h3>
+                  <p className="dark:text-gray-400 text-slate-600 text-sm">{item.company}</p>
                 </div>
                 <span className={'text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border font-mono-pp flex-shrink-0 glass-badge ' + badge}>
                   {label}
                 </span>
               </div>
-              <p className="text-gray-400 text-sm mt-2 leading-relaxed">{item.note}</p>
+              <p className="dark:text-gray-400 text-slate-600 text-sm mt-2 leading-relaxed">{item.note}</p>
             </div>
           </div>
         );

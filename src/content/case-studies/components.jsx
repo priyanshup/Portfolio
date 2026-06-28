@@ -20,19 +20,19 @@
 /* ── Typography ─────────────────────────────────────────────────── */
 
 export const H2 = ({ children }) => (
-  <h2 className="font-display text-2xl md:text-3xl font-bold text-white mt-14 mb-5 leading-tight">
+  <h2 className="font-display text-2xl md:text-3xl font-bold dark:text-white text-slate-900 mt-14 mb-5 leading-tight">
     {children}
   </h2>
 );
 
 export const H3 = ({ children }) => (
-  <h3 className="font-display text-xl font-bold text-white mt-10 mb-4 leading-tight">
+  <h3 className="font-display text-xl font-bold dark:text-white text-slate-800 mt-10 mb-4 leading-tight">
     {children}
   </h3>
 );
 
 export const P = ({ children }) => (
-  <p className="text-gray-400 text-base leading-relaxed mb-5">{children}</p>
+  <p className="dark:text-slate-300 text-slate-700 text-base leading-relaxed mb-5">{children}</p>
 );
 
 /* ── Highlight blocks ───────────────────────────────────────────── */
@@ -44,11 +44,11 @@ export const P = ({ children }) => (
  *   accent   optional boolean — makes the border accent-coloured
  */
 export const Callout = ({ label, accent = false, children }) => (
-  <div className={`my-8 p-6 rounded-2xl bg-cardBg border ${accent ? 'border-accent/40' : 'border-gray-800'}`}>
+  <div className={`my-8 p-6 rounded-2xl bg-cardBg border ${accent ? 'border-accent/40' : 'dark:border-gray-800 border-slate-200'}`}>
     {label && (
       <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-3">{label}</p>
     )}
-    <p className="text-white text-lg leading-relaxed">{children}</p>
+    <p className="dark:text-slate-300 text-slate-700 text-lg leading-relaxed">{children}</p>
   </div>
 );
 
@@ -56,23 +56,16 @@ export const Callout = ({ label, accent = false, children }) => (
  * MetricRow — a row of headline metrics
  * Props:
  *   metrics  array of { val, label }
- *
- * Example:
- *   <MetricRow metrics={[
- *     { val: "7%",  label: "Conversion Lift" },
- *     { val: "23%", label: "Cost Reduction" },
- *     { val: "60h", label: "Saved Per Week" },
- *   ]} />
  */
 export const MetricRow = ({ metrics }) => (
   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 my-10">
     {metrics.map(({ val, label }) => (
       <div
         key={label}
-        className="p-5 rounded-2xl bg-cardBg border border-gray-800 text-center"
+        className="p-5 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 text-center"
       >
         <p className="font-display text-3xl font-bold text-accent">{val}</p>
-        <p className="font-mono-pp text-gray-500 text-[10px] uppercase tracking-widest mt-1">
+        <p className="font-mono-pp dark:text-gray-500 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
           {label}
         </p>
       </div>
@@ -88,18 +81,14 @@ export const MetricRow = ({ metrics }) => (
  *   src      import the image at the top of your index.jsx, pass it here
  *   alt      alt text (required for accessibility)
  *   caption  optional caption below the image
- *
- * Example in index.jsx:
- *   import heroImg from './assets/hero.png';
- *   <ImageFull src={heroImg} alt="Architecture diagram" caption="System overview" />
  */
 export const ImageFull = ({ src, alt, caption }) => (
   <figure className="my-10">
-    <div className="rounded-2xl overflow-hidden border border-gray-800">
+    <div className="rounded-2xl overflow-hidden dark:border dark:border-gray-800 border border-slate-200">
       <img src={src} alt={alt} className="w-full h-auto" loading="lazy" />
     </div>
     {caption && (
-      <figcaption className="font-mono-pp text-gray-600 text-[10px] uppercase tracking-widest text-center mt-3">
+      <figcaption className="font-mono-pp dark:text-gray-600 text-slate-500 text-[10px] uppercase tracking-widest text-center mt-3">
         {caption}
       </figcaption>
     )}
@@ -116,11 +105,11 @@ export const ImageHalf = ({ left, right }) => (
   <div className="grid sm:grid-cols-2 gap-4 my-10">
     {[left, right].map((img, i) => (
       <figure key={i}>
-        <div className="rounded-2xl overflow-hidden border border-gray-800">
+        <div className="rounded-2xl overflow-hidden dark:border dark:border-gray-800 border border-slate-200">
           <img src={img.src} alt={img.alt} className="w-full h-auto" loading="lazy" />
         </div>
         {img.caption && (
-          <figcaption className="font-mono-pp text-gray-600 text-[10px] uppercase tracking-widest text-center mt-2">
+          <figcaption className="font-mono-pp dark:text-gray-600 text-slate-500 text-[10px] uppercase tracking-widest text-center mt-2">
             {img.caption}
           </figcaption>
         )}
@@ -135,17 +124,11 @@ export const ImageHalf = ({ left, right }) => (
  * BulletList — styled unordered list
  * Props:
  *   items   array of strings or JSX
- *
- * Example:
- *   <BulletList items={[
- *     "Reduced manual hours by 60+/week",
- *     "Achieved 7% conversion lift in 30 days",
- *   ]} />
  */
 export const BulletList = ({ items }) => (
   <ul className="space-y-3 my-6">
     {items.map((item, i) => (
-      <li key={i} className="flex gap-3 text-gray-400 text-base leading-relaxed">
+      <li key={i} className="flex gap-3 dark:text-slate-300 text-slate-700 text-base leading-relaxed">
         <span className="text-accent mt-1 flex-shrink-0">▸</span>
         <span>{item}</span>
       </li>
@@ -156,5 +139,5 @@ export const BulletList = ({ items }) => (
 /* ── Misc ───────────────────────────────────────────────────────── */
 
 export const Divider = () => (
-  <div className="border-t border-gray-800 my-12" />
+  <div className="border-t dark:border-gray-800 border-slate-200 my-12" />
 );

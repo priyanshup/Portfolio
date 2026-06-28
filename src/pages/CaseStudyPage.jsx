@@ -25,11 +25,11 @@ const BACK_LABEL = '← Back to Portfolio';
 /* ── Loading skeleton ── */
 const LoadingSkeleton = () => (
   <div className="space-y-6 animate-pulse">
-    <div className="h-4 bg-gray-800 rounded w-1/4" />
-    <div className="h-8 bg-gray-800 rounded w-3/4" />
-    <div className="h-4 bg-gray-800 rounded w-full" />
-    <div className="h-4 bg-gray-800 rounded w-5/6" />
-    <div className="h-4 bg-gray-800 rounded w-full" />
+    <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-1/4" />
+    <div className="h-8 dark:bg-gray-800 bg-slate-200 rounded w-3/4" />
+    <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-full" />
+    <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-5/6" />
+    <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-full" />
   </div>
 );
 
@@ -47,7 +47,7 @@ const CaseStudyContent = ({ slug }) => {
   }, [slug]);
 
   if (error) return (
-    <p className="text-gray-500 text-sm">
+    <p className="dark:text-gray-500 text-slate-500 text-sm">
       Content file not found. Make sure{' '}
       <code className="font-mono-pp text-accent">
         src/content/case-studies/{slug}/index.jsx
@@ -130,10 +130,10 @@ const CaseStudyPage = () => {
       <div className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center space-y-4">
           <p className="font-mono-pp text-accent text-xs uppercase tracking-widest">404</p>
-          <h1 className="font-display text-4xl font-bold text-white">
+          <h1 className="font-display text-4xl font-bold dark:text-white text-slate-900">
             Case study not found
           </h1>
-          <p className="text-gray-400 text-sm">
+          <p className="dark:text-gray-400 text-slate-600 text-sm">
             This case study doesn't exist or hasn't been published yet.
           </p>
           <Link
@@ -167,7 +167,7 @@ const CaseStudyPage = () => {
           ref={topLinkRef}
           to="/"
           state={backState}
-          className="font-mono-pp text-accent text-xs uppercase tracking-widest hover:text-white transition-colors mb-10 inline-flex items-center gap-2"
+          className="font-mono-pp text-accent text-xs uppercase tracking-widest dark:hover:text-white hover:text-slate-900 transition-colors mb-10 inline-flex items-center gap-2"
         >
           {BACK_LABEL}
         </Link>
@@ -177,10 +177,10 @@ const CaseStudyPage = () => {
           <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.3em]">
             {cs.company}
           </p>
-          <h1 className="font-display text-4xl md:text-5xl font-bold text-white leading-tight">
+          <h1 className="font-display text-4xl md:text-5xl font-bold dark:text-white text-slate-900 leading-tight">
             {cs.title}
           </h1>
-          <p className="text-gray-400 text-xl leading-relaxed border-l-2 border-gray-800 pl-6">
+          <p className="dark:text-gray-400 text-slate-700 text-xl leading-relaxed border-l-2 dark:border-gray-800 border-slate-200 pl-6">
             {cs.teaser}
           </p>
 
@@ -188,26 +188,26 @@ const CaseStudyPage = () => {
             {cs.tags.map((t) => (
               <span
                 key={t}
-                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded bg-gray-900 border border-gray-800 text-gray-400"
+                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded dark:bg-gray-900 bg-slate-800 dark:border dark:border-gray-800 border border-slate-700 text-white"
               >
                 {t}
               </span>
             ))}
           </div>
 
-          <div className="border-t border-gray-800 pt-2" />
+          <div className="border-t dark:border-gray-800 border-slate-200 pt-2" />
         </div>
 
         {/* Dynamically loaded content */}
         <CaseStudyContent slug={slug} />
 
         {/* Static bottom back link */}
-        <div className="border-t border-gray-800 mt-16 pt-10">
+        <div className="border-t dark:border-gray-800 border-slate-200 mt-16 pt-10">
           <Link
             ref={bottomLinkRef}
             to="/"
             state={backState}
-            className="font-mono-pp text-accent text-xs uppercase tracking-widest hover:text-white transition-colors inline-flex items-center gap-2"
+            className="font-mono-pp text-accent text-xs uppercase tracking-widest dark:hover:text-white hover:text-slate-900 transition-colors inline-flex items-center gap-2"
           >
             {BACK_LABEL}
           </Link>

@@ -50,12 +50,12 @@ src/
 ├── sections/                      # Homepage sections (reorder in App.jsx > HomePage)
 │   ├── Hero.jsx
 │   ├── StatsBar.jsx
-│   ├── CareerJourney.jsx
 │   ├── WorkExperience.jsx
-│   ├── CoreDNA.jsx
+│   ├── CareerJourney.jsx
 │   ├── Projects.jsx
-│   ├── ImpactStories.jsx          # Impact Stories section (between Projects and CaseStudies)
+│   ├── ImpactStories.jsx
 │   ├── CaseStudies.jsx
+│   ├── CoreDNA.jsx                # Pre-close: "who I am, not just what I did"
 │   ├── Testimonials.jsx
 │   └── Certifications.jsx
 ├── pages/
@@ -64,7 +64,7 @@ src/
 │   ├── layout/                    # Nav, Footer, MobileMenu
 │   ├── modals/                    # TestimonialModal, ViewMoreModal
 │   └── ui/                        # BrandLogo, Carousel, Icons, ScrollToTop, etc.
-└── hooks/                         # useScrollReveal, useScrollTracking, useSectionTracking
+└── hooks/                         # useScrollReveal, useScrollTracking, useSectionTracking, useTheme
 ```
 
 ---
@@ -182,10 +182,81 @@ Ordering rule: **reverse chronological by company tenure** — most recent compa
 
 ---
 
-## Key Conventions
+## Theme System (Dark / Light Mode)
 
-- **Content lives in `src/data/`** — never hardcode content in section components
-- **Sections are pure layout** — `App.jsx > HomePage` just stacks them; to reorder sections, change the order there
-- **Styles** — Tailwind utility classes; global overrides in `src/index.css`
-- **Static assets** — resume PDF and OG image live in `/public/`
-- **No TypeScript** — plain `.js` / `.jsx` throughout
+### How it works
+
+Class-based on `<html>`: `dark` class = dark mode; absent = light mode.
+
+| Priority | Source |
+|---|---|
+| 1st | `localStorage.getItem('theme')` (`'dark'` or `'light'`) |
+| 2nd | `window.matchMedia('(prefers-color-scheme: dark)')` |
+| 3rd | Default to `'dark'` |
+
+**Flash prevention**: `index.html` has an inline `<script>` in `<head>` that sets the class synchronously before the first paint. This prevents the white flash on dark-mode page load.
+
+### Key files
+
+- **`src/hooks/useTheme.js`** — reads localStorage on init, applies/removes `dark` on `<html>`, saves on toggle. Returns `[theme, toggleTheme]`.
+- **`src/App.jsx`** — calls `useTheme()` at the root and passes `theme` + `toggleTheme` as props to `<Nav />`.
+- **`src/components/layout/Nav.jsx`** — renders a pill-shaped Sun/Moon toggle with ambient glow (left of Resume button). Props: `{ theme, toggleTheme }`. Dark mode: emerald glow. Light mode: amber glow. Glow is always visible at rest; intensifies on hover.
+- **`src/index.css`** — `@variant dark` directive + CSS variable overrides for light mode (`--color-darkBg`, `--color-cardBg`, `--color-accent`).
+- **`src/styles/globals.css`** — `html { transition: color 300ms, background-color 300ms }` + light mode overrides for all custom CSS classes (§22).
+
+### Adding new theme-aware components
+
+Use the `dark:` Tailwind prefix for anything that should differ between modes:
+
+```jsx
+// Headings
+<h2 className="dark:text-white text-slate-900">
+
+// Body text
+<p className="dark:text-gray-400 text-slate-600">
+
+// Muted / secondary
+<p className="dark:text-gray-500 text-slate-500">
+
+// Card borders
+<div className="border dark:border-gray-800 border-slate-200">
+
+// Tag chips
+<span className="dark:bg-gray-900 bg-slate-100 dark:border-gray-800 border-slate-200 dark:text-gray-400 text-slate-600">
+
+// Accent text (same token, works in both modes automatically)
+<p className="text-accent">
+```
+
+CSS custom properties (`--color-darkBg`, `--color-cardBg`, `--color-accent`) auto-adapt via `html:not(.dark)` overrides in `index.css` — no `dark:` prefix needed for classes that use these tokens (e.g. `bg-darkBg`, `bg-cardBg`, `text-accent`).
+
+### Strict color convention
+
+**Every hardcoded color class must have both a dark mode and a light mode value.** Never write a single color without a `dark:` counterpart.
+
+```jsx
+// CORRECT
+className="dark:text-white text-slate-900"
+className="dark:border-gray-800 border-slate-200"
+className="dark:hover:text-white hover:text-slate-900"
+className="dark:group-hover:text-white group-hover:text-slate-900"
+
+// WRONG — breaks in light mode
+className="text-white"
+className="border-gray-800"
+className="hover:text-white"
+```
+
+Exception: classes using CSS custom property tokens (`bg-darkBg`, `bg-cardBg`, `text-accent`) auto-adapt and need no `dark:` prefix.
+
+### Custom CSS classes in globals.css
+
+Classes defined in `globals.css` (`.resume-btn`, `.scroll-top-btn`, `.floating-back-btn`, `.cs-locked-overlay`, `.modal-backdrop`, etc.) cannot use Tailwind's `dark:` prefix — they are CSS, not JSX. Light mode overrides go in **§22** of `globals.css` using `html:not(.dark)` selectors:
+
+```css
+/* §22. Light mode overrides */
+html:not(.dark) .my-custom-class {
+  background: #e2e8f0;
+  color: #334155;
+}
+```

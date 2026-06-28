@@ -19,20 +19,20 @@ import { VIEW_MORE_THRESHOLD } from '../config';
 
 /* ── Project card — shared between inline grid and modal ── */
 export const ProjectCard = ({ p }) => (
-  <div className="h-full p-5 sm:p-8 rounded-3xl bg-cardBg border border-gray-800 hover:border-gray-600 transition-colors flex flex-col gap-3 sm:gap-5">
+  <div className="h-full p-5 sm:p-8 rounded-3xl bg-cardBg border dark:border-gray-800 border-slate-200 dark:hover:border-gray-600 hover:border-slate-300 transition-colors flex flex-col gap-3 sm:gap-5">
     <div>
       <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-1 sm:mb-2">{p.domain}</p>
-      <h3 className="font-display text-lg sm:text-xl font-bold text-white leading-tight">{p.title}</h3>
-      <p className="text-gray-400 text-xs mt-1 font-mono-pp">{p.company}</p>
+      <h3 className="font-display text-lg sm:text-xl font-bold dark:text-white text-slate-900 leading-tight">{p.title}</h3>
+      <p className="dark:text-gray-400 text-slate-500 text-xs mt-1 font-mono-pp">{p.company}</p>
     </div>
 
-    <div className="border-t border-gray-800 pt-3 sm:pt-5">
-      <p className="font-mono-pp text-[10px] uppercase tracking-widest text-gray-400 mb-1 sm:mb-2">Problem</p>
-      <p className="text-gray-400 text-sm leading-snug sm:leading-relaxed">{p.problem}</p>
+    <div className="border-t dark:border-gray-800 border-slate-200 pt-3 sm:pt-5">
+      <p className="font-mono-pp text-[10px] uppercase tracking-widest dark:text-gray-400 text-slate-500 mb-1 sm:mb-2">Problem</p>
+      <p className="dark:text-gray-400 text-slate-600 text-sm leading-snug sm:leading-relaxed">{p.problem}</p>
     </div>
 
-    <div className="border-t border-gray-800 pt-3 sm:pt-5">
-      <p className="font-mono-pp text-[10px] uppercase tracking-widest text-gray-400 mb-2">Outcomes</p>
+    <div className="border-t dark:border-gray-800 border-slate-200 pt-3 sm:pt-5">
+      <p className="font-mono-pp text-[10px] uppercase tracking-widest dark:text-gray-400 text-slate-500 mb-2">Outcomes</p>
       <div className="flex flex-wrap gap-1.5 sm:gap-2">
         {p.outcomes.map((o) => (
           <span key={o} className="text-xs font-bold px-2 sm:px-3 py-1 rounded-full border border-accent/30 text-accent bg-accent/10">
@@ -44,7 +44,7 @@ export const ProjectCard = ({ p }) => (
 
     <div className="mt-auto pt-1 sm:pt-2 flex flex-wrap gap-1.5 sm:gap-2">
       {p.stack.map((s) => (
-        <span key={s} className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-gray-900 border border-gray-800 text-gray-400">
+        <span key={s} className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-400 text-slate-600">
           {s}
         </span>
       ))}
@@ -60,7 +60,7 @@ const Projects = () => {
   const hasMore = projects.length > VIEW_MORE_THRESHOLD;
 
   return (
-    <section id="projects" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+    <section id="projects" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-100">
       <SectionHeader
         eyebrow="Shipped Work"
         title="Key Projects"
@@ -97,7 +97,7 @@ const Projects = () => {
               <div className="flex justify-center mt-8">
                 <button
                   onClick={() => setShowAll(true)}
-                  className="font-mono-pp text-xs border border-gray-700 text-gray-400 px-6 py-3 rounded-full hover:border-accent hover:text-accent transition-all uppercase tracking-widest"
+                  className="font-mono-pp text-xs dark:border-gray-700 border-slate-400 dark:text-gray-400 text-slate-700 dark:bg-transparent bg-slate-100 border px-6 py-3 rounded-full hover:border-accent hover:text-accent dark:hover:bg-transparent hover:bg-slate-200 transition-all uppercase tracking-widest"
                 >
                   View All Projects ({projects.length}) ↗
                 </button>

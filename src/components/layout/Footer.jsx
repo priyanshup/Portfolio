@@ -24,17 +24,17 @@ const SOCIAL_LINKS = [
 ];
 
 const Footer = () => (
-  <footer className="py-16 px-6 border-t border-gray-900">
+  <footer className="py-16 px-6 border-t dark:border-gray-900 border-slate-200">
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
 
       <div className="flex flex-col items-center md:items-start gap-2">
         <BrandLogo className="h-10 w-10" />
-        <p className="font-mono-pp text-gray-500 text-xs uppercase tracking-widest">
+        <p className="font-mono-pp dark:text-gray-500 text-slate-600 text-xs uppercase tracking-widest">
           Technical Product Leader
         </p>
       </div>
 
-      <div className="flex items-center gap-6 text-gray-500">
+      <div className="flex items-center gap-6 dark:text-gray-500 text-slate-600">
         {SOCIAL_LINKS.map(({ href, icon, label, onClick }) => (
           <a
             key={label}
@@ -43,14 +43,14 @@ const Footer = () => (
             rel="noopener"
             aria-label={label}
             onClick={onClick}
-            className="hover:text-white transition-colors"
+            className="dark:hover:text-white hover:text-slate-900 transition-colors"
           >
             {icon()}
           </a>
         ))}
       </div>
 
-      <p className="font-mono-pp text-gray-500 text-[10px] uppercase tracking-[0.3em]">
+      <p className="font-mono-pp dark:text-gray-500 text-slate-600 text-[10px] uppercase tracking-[0.3em]">
         © 2026 Priyanshu Pushpam
       </p>
     </div>

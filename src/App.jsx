@@ -20,7 +20,7 @@
 
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { useScrollReveal, useScrollTracking, useSectionTracking } from './hooks';
+import { useScrollReveal, useScrollTracking, useSectionTracking, useTheme } from './hooks';
 import { trackPageView } from './utils/analytics.js';
 
 /* Layout */
@@ -97,12 +97,12 @@ const HomePage = () => {
     <main>
       <Hero />
       <StatsBar />
-      <CareerJourney />
       <WorkExperience />
-      <CoreDNA />
+      <CareerJourney />
       <Projects />
       <ImpactStories />
       <CaseStudies />
+      <CoreDNA />
       <Testimonials />
       <Certifications />
     </main>
@@ -124,10 +124,13 @@ const App = () => {
     if (!existing) document.head.appendChild(link);
   }, []);
 
+  /* Theme management — sets dark/light class on <html>, syncs localStorage */
+  const [theme, toggleTheme] = useTheme();
+
   return (
     <div className="min-h-screen selection:bg-accent selection:text-white">
       {/* Nav is always visible on every page */}
-      <Nav />
+      <Nav theme={theme} toggleTheme={toggleTheme} />
 
       {/*
         RouteTracker lives inside the router context (provided by HashRouter

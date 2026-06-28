@@ -16,12 +16,12 @@ const SectionHeader = ({ eyebrow, title, subtitle, center = false }) => (
       <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.3em] mb-3">
         {eyebrow}
       </p>
-      <h2 className="font-display text-3xl md:text-4xl font-bold">{title}</h2>
+      <h2 className="font-display text-3xl md:text-4xl font-bold dark:text-white text-slate-900">{title}</h2>
     </div>
 
     {subtitle && (
       <div className="reveal d1 mt-3">
-        <p className={`text-gray-400 text-sm leading-relaxed max-w-xl ${center ? 'mx-auto' : ''}`}>
+        <p className={`dark:text-gray-400 text-slate-600 text-sm leading-relaxed max-w-xl ${center ? 'mx-auto' : ''}`}>
           {subtitle}
         </p>
       </div>

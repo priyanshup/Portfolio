@@ -13,7 +13,7 @@ import { useIsMobile } from '../hooks';
 
 /* Shared card renderer — same for both mobile and desktop */
 const DNACard = ({ item, hover = false }) => (
-  <div className={'h-full p-8 rounded-3xl bg-cardBg border border-gray-800 flex flex-col gap-4 min-h-56 ' + (hover ? 'hover:border-gray-600 transition-colors' : '')}>
+  <div className={'h-full p-8 rounded-3xl bg-cardBg border dark:border-gray-800 border-slate-200 flex flex-col gap-4 min-h-56 ' + (hover ? 'dark:hover:border-gray-600 hover:border-slate-300 transition-colors' : '')}>
     <div
       className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
       style={{
@@ -23,10 +23,10 @@ const DNACard = ({ item, hover = false }) => (
         boxShadow: 'inset 0 1px 0 rgba(16,185,129,0.12)',
       }}
     >
-      {item.icon}
+      <item.icon />
     </div>
-    <h3 className="font-display text-xl font-bold text-white">{item.title}</h3>
-    <p className="text-gray-400 text-sm leading-relaxed flex-1">{item.desc}</p>
+    <h3 className="font-display text-xl font-bold dark:text-white text-slate-900">{item.title}</h3>
+    <p className="dark:text-gray-400 text-slate-600 text-sm leading-relaxed flex-1">{item.desc}</p>
   </div>
 );
 

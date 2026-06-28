@@ -25,21 +25,21 @@ const Testimonials = () => {
   const renderCard = (t, i) => (
     <button
       onClick={() => setExpanded(i)}
-      className="w-full h-full text-left p-8 rounded-3xl bg-cardBg border border-gray-800 hover:border-accent/40 transition-colors flex flex-col gap-4 min-h-64 cursor-pointer group"
+      className="w-full h-full text-left p-8 rounded-3xl bg-cardBg border dark:border-gray-800 border-slate-200 hover:border-accent/40 transition-colors flex flex-col gap-4 min-h-64 cursor-pointer group"
     >
-      <p className="text-4xl text-gray-600 group-hover:text-gray-500 font-serif leading-none select-none">
+      <p className="text-4xl dark:text-gray-600 text-slate-300 group-hover:text-slate-400 font-serif leading-none select-none">
         "
       </p>
-      <p className="text-gray-300 text-sm leading-relaxed flex-1 -mt-3 line-clamp-4">
+      <p className="dark:text-gray-300 text-slate-700 text-sm leading-relaxed flex-1 -mt-3 line-clamp-4">
         {t.text}
       </p>
-      <div className="border-t border-gray-800 pt-4 mt-auto">
-        <p className="text-white font-bold text-sm">{t.name}</p>
-        <p className="text-gray-400 text-xs mt-1">{t.title} · {t.company}</p>
-        <p className="font-mono-pp text-gray-500 text-[10px] uppercase tracking-widest mt-1">
+      <div className="border-t dark:border-gray-800 border-slate-200 pt-4 mt-auto">
+        <p className="dark:text-white text-slate-900 font-bold text-sm">{t.name}</p>
+        <p className="dark:text-gray-400 text-slate-600 text-xs mt-1">{t.title} · {t.company}</p>
+        <p className="font-mono-pp dark:text-gray-500 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
           {t.relation}
         </p>
-        <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mt-3 group-hover:text-white transition-colors">
+        <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mt-3 dark:group-hover:text-white group-hover:text-emerald-700 transition-colors">
           Read full ↗
         </p>
       </div>
@@ -47,7 +47,7 @@ const Testimonials = () => {
   );
 
   return (
-    <section id="testimonials" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+    <section id="testimonials" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-100">
       <SectionHeader
         eyebrow="Social Proof"
         title="What People Say"

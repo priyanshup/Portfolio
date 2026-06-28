@@ -36,7 +36,7 @@ const StatsBar = () => (
                 {s.val}
               </h3>
             </div>
-            <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-widest mt-2 font-mono-pp">
+            <p className="text-[10px] md:text-xs dark:text-gray-400 text-slate-500 uppercase tracking-widest mt-2 font-mono-pp">
               {s.label}
             </p>
           </div>

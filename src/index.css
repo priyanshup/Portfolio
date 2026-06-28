@@ -3,6 +3,9 @@
  *
  * Tailwind v4 directives + theme colour tokens.
  *
+ * Dark mode: class-based via `dark` on <html>.
+ *   Light mode overrides use html:not(.dark) selectors.
+ *
  * Glass strategy:
  *   The three radial gradients on the body give the dark background
  *   subtle colour variation. backdrop-filter blur on cards then has
@@ -15,6 +18,9 @@
 
 @import "tailwindcss";
 @source "./**/*.{js,jsx}";
+
+/* Tell Tailwind v4 that dark: prefix applies inside .dark class */
+@variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-darkBg: #0f172a;
@@ -38,4 +44,26 @@ body {
 .bg-cardBg {
   background-color: rgba(30, 41, 59, 0.50) !important;
   backdrop-filter: blur(16px);
+}
+
+/* ── Light mode: CSS variable overrides ───────────────────────── */
+html:not(.dark) {
+  --color-darkBg: #f1f5f9;
+  --color-cardBg: #ffffff;
+  --color-accent: #059669;
+}
+
+html:not(.dark) body {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  background-image:
+    radial-gradient(ellipse at 15% 60%, rgba(16, 185, 129, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 15%, rgba(30, 80, 160, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 55% 88%, rgba(100, 60, 180, 0.02) 0%, transparent 60%);
+}
+
+html:not(.dark) .bg-cardBg {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
 }
