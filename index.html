@@ -71,8 +71,20 @@
 
     <!-- ── Theme colour (browser chrome on mobile) ───────────────────── -->
     <meta name="theme-color" content="#0f172a" />
-    <script type="module" crossorigin src="/Portfolio/assets/index-BQVJYEYe.js"></script>
-    <link rel="stylesheet" crossorigin href="/Portfolio/assets/index-DpYK8C25.css">
+
+    <!-- ── Flash prevention: set dark class before first paint ───────── -->
+    <script>
+      (function() {
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/Portfolio/assets/index-DRuVRwIJ.js"></script>
+    <link rel="stylesheet" crossorigin href="/Portfolio/assets/index-tMuOnNtE.css">
   </head>
   <body>
     <div id="root"></div>
