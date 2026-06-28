@@ -40,33 +40,30 @@ export const caseStudies = [
     slug: "techmojo-sportsbook-gtm",
   },
   {
-   
-    title: "Zero Risk at Scale: Engineering a Zero-Downtime Cross-System Migration",
+    title: "Zero-Downtime Migration Across 28 States",
     company: "UnitedHealth Group · Healthcare",
     teaser:
-      "How I led a high-stakes cross-system migration for a critical healthcare platform — coordinating multiple engineering teams to achieve 100% rollout success with zero production downtime.",
+      "Migrated dental vendor March Vision from a proprietary claims format to the industry-standard 837 across 28 US states — with zero disruption to claim processing.",
     tags: ["Risk Management", "Technical Leadership", "Stakeholder Alignment", "Healthcare"],
-    published: false,
+    published: true,
     slug: "uhg-zero-downtime-migration",
   },
   {
-    
-    title: "Shipping Faster Without Breaking Things: Building a QA Automation Product for Healthcare Systems",
+    title: "30% Faster QA Cycles Through Smart Data Mocking",
     company: "UnitedHealth Group · Healthcare",
     teaser:
-      "How I identified a QA bottleneck slowing every release cycle, built a mock-data automation product to eliminate it, and reduced QA cycle time by 30% — unlocking faster, more confident releases across the engineering organisation.",
+      "Built an Excel macro-based PHI-safe test data generator that auto-created database queries for QA teams, cutting QA cycle time by 30% and eliminating compliance risk.",
     tags: ["Internal Tooling", "Developer Experience", "Process Innovation", "Healthcare"],
-    published: false,
+    published: true,
     slug: "uhg-qa-cycle-automation",
   },
   {
- 
-    title: "Transforming Claims at Scale: Four Enterprise Initiatives That Moved Healthcare Operations Forward",
+    title: "Improving Payment Cycles by ~20% Through Claims Intelligence",
     company: "UnitedHealth Group · Healthcare",
     teaser:
-      "How I orchestrated four simultaneous enterprise transformation initiatives for US healthcare claims processing — achieving 25% operational efficiency improvement, 20% faster payment cycles, and a meaningful reduction in manual processing errors.",
+      "Designed logic to auto-derive missing claim fields, detect and correct provider typos, and reduce rejections — resulting in ~20% faster payment cycles tracked by the analytics team.",
     tags: ["Enterprise Transformation", "Stakeholder Management", "Process Redesign", "Healthcare"],
-    published: false,
+    published: true,
     slug: "uhg-claims-transformation",
   },
 ];

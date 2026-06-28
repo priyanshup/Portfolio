@@ -42,4 +42,11 @@ export const testimonials = [
     company: "Techmojo Solutions",
     relation: "Worked with Priyanshu at Techmojo",
   },
+  {
+    text: "I had the pleasure of working closely with Priyanshu, and he has consistently been my go-to person for all functional and product-related discussions. As a Business Analyst and Product Owner, he brings exceptional domain knowledge, a strong understanding of business needs, and the ability to translate complex requirements into clear, actionable outcomes. His articulation skills are outstanding, enabling him to effectively bridge the gap between business stakeholders, customers, and development teams. What sets Priyanshu apart is his passion for product development and his ownership mindset. He plays a pivotal role in shaping product direction, driving requirement clarity, and ensuring successful execution. His contributions to competitor analysis have been particularly valuable, helping us gain market insights and make informed product decisions. Priyanshu is proactive, dependable, and always willing to go the extra mile, making him an invaluable asset to any product team. I highly recommend him to any organization looking for a talented and driven product professional.",
+    name: "Sai Kiran Marripati",
+    title: "Engineering Manager & Solution Architect",
+    company: "Techmojo",
+    relation: "Worked directly together",
+  },
 ];

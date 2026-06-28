@@ -37,6 +37,7 @@ import CareerJourney  from './sections/CareerJourney';
 import WorkExperience from './sections/WorkExperience';
 import CoreDNA        from './sections/CoreDNA';
 import Projects       from './sections/Projects';
+import ImpactStories  from './sections/ImpactStories';
 import CaseStudies    from './sections/CaseStudies';
 import Testimonials   from './sections/Testimonials';
 import Certifications from './sections/Certifications';
@@ -100,6 +101,7 @@ const HomePage = () => {
       <WorkExperience />
       <CoreDNA />
       <Projects />
+      <ImpactStories />
       <CaseStudies />
       <Testimonials />
       <Certifications />
