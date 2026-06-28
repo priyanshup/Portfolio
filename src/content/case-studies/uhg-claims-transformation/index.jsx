@@ -32,8 +32,7 @@ const UHGClaimsCaseStudy = () => (
     {/* ── HEADLINE METRICS ── */}
     <MetricRow metrics={[
       { val: "~20%", label: "Faster Payment Cycles" },
-      { val: "4",    label: "Intelligence Logic Types Built" },
-      { val: "0",    label: "Silent Claim Drops" },
+      { val: "M+",   label: "Claims Processed — No Silent Drops" },
     ]} />
 
     <Divider />

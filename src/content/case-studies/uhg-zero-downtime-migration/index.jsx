@@ -185,7 +185,7 @@ const UHGMigrationCaseStudy = () => (
     <Divider />
 
     {/* ── WHAT WE BUILT ── */}
-    <H2>What Was Delivered</H2>
+    <H2>What We Built</H2>
 
     <P>
       The core deliverable was a complete, verified migration from a proprietary

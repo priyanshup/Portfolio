@@ -23,8 +23,7 @@ export const impactStories = [
     context:
       "Product listings were manually written and translated, taking 3 weeks per launch. After automating title, description, key highlights, and multilingual translation using AI, products reached the website faster with richer, more relevant content — directly improving purchase decisions.",
     outcomes: [
-      "7% increase in monthly conversion trend for newly launched products",
-      "Product launch time reduced from 3 weeks to 3 days",
+      "Product launch time cut from 3 weeks to 3 days",
       "Multilingual content generated automatically across target languages",
     ],
   },
@@ -35,10 +34,9 @@ export const impactStories = [
     context:
       "Across 300,000+ SKUs stored in Cloudinary, mandatory compliance images (Prop 65, topple warning, safety warning) were duplicated inside every individual SKU folder — by design. This created massive redundancy at scale.",
     outcomes: [
-      "Migrated all compliance images to a single shared location in Cloudinary",
-      "SKUs now reference shared assets — no duplication",
-      "21% reduction in storage consumption and cloud storage costs",
-      "Zero impact on image rendering or compliance requirements",
+      "21% reduction in cloud storage costs",
+      "300,000+ SKUs decoupled from duplicate assets",
+      "Zero impact on compliance image rendering",
     ],
   },
   {
@@ -49,8 +47,8 @@ export const impactStories = [
       "Inherited a queue of 900+ manual access provisioning tickets for an operations team with high attrition. Built an automated form-based onboarding, update, and offboarding workflow integrated with the SBM (Serena Business Manager) ticketing system.",
     outcomes: [
       "92% reduction in ticket inflow",
-      "Team shifted focus entirely to the remaining edge-case 8%",
-      "Automated onboarding, access updates, and offboarding end-to-end",
+      "900+ backlog cleared through automation",
+      "Team refocused entirely on edge-case 8%",
     ],
   },
   {
@@ -60,9 +58,9 @@ export const impactStories = [
     context:
       "Led four concurrent compliance-critical initiatives at UHG under a tight deadline. Restructured the team into project-specific responsibility zones — each senior member owned one initiative end-to-end, minimising context switching.",
     outcomes: [
-      "All four projects delivered on time",
-      "Zero compliance misses",
-      "Single point of accountability to management maintained throughout",
+      "All 4 projects delivered on deadline",
+      "Zero compliance misses across all initiatives",
+      "Cross-functional team restructured for zero context switching",
     ],
   },
   {
@@ -72,9 +70,9 @@ export const impactStories = [
     context:
       "Support team was manually executing 25+ SQL and shell scripts daily at varying frequencies. As a developer at UHG, designed and built a forever-running shell script cron engine scheduled via TWS (Tivoli Workload Scheduler).",
     outcomes: [
-      "Fully automated script execution and email notifications",
-      "Built-in resume logic ensured no missed executions after system restarts",
-      "Eliminated daily manual effort for the entire support team",
+      "Eliminated daily manual execution for entire support team",
+      "Zero missed schedules — auto-resumes after system restart",
+      "25+ scripts automated across SQL and shell",
     ],
   },
 ];
