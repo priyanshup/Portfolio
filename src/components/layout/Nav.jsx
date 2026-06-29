@@ -44,6 +44,8 @@ const SOCIAL_LINKS = [
   { href: CONFIG.social.facebook,  icon: () => <FB />, label: 'Facebook',  track: trackFacebookClick  },
 ];
 
+/* Social links kept for mobile dropdown only — removed from desktop nav */
+
 /* ── Animated 3-bar hamburger icon ─────────────────────────────── */
 const Hamburger = ({ open }) => (
   <span
@@ -108,23 +110,6 @@ const Nav = ({ theme, toggleTheme }) => {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Desktop social icons */}
-          <div className="hidden md:flex items-center gap-3 dark:text-gray-500 text-slate-700">
-            {SOCIAL_LINKS.map(({ href, icon, label, track }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                onClick={track}
-                className="rounded-lg p-1.5 -m-1 dark:hover:text-white hover:text-slate-900 dark:hover:bg-slate-700/50 hover:bg-slate-200 transition-all"
-              >
-                {icon()}
-              </a>
-            ))}
-          </div>
-
           {/* Theme toggle — all breakpoints */}
           <button
             onClick={toggleTheme}

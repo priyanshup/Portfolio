@@ -29,16 +29,23 @@
  */
 
 /* ── 1. Google Fonts ─────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+/*
+ * Font stack:
+ *   Plus Jakarta Sans — display headings (narrower + more refined than Syne;
+ *     professional without being heavy; suits a product leadership context)
+ *   Inter            — body text (industry standard for clarity)
+ *   IBM Plex Mono    — labels, tags, eyebrows (technical precision)
+ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
 
 /* ── 2. Font utilities ───────────────────────────────────────────── */
-.font-display { font-family: 'Syne', sans-serif !important; }
+.font-display { font-family: 'Plus Jakarta Sans', sans-serif !important; }
 .font-mono-pp { font-family: 'IBM Plex Mono', monospace !important; }
 
 /* ── 3. Base reset ───────────────────────────────────────────────── */
 html,
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
@@ -378,6 +385,7 @@ html {
  * Note: bg-cardBg/40 (Tailwind opacity modifier) is a separate class
  * and is NOT affected — inactive accordion items stay more transparent.
  */
+.rounded-xl.bg-cardBg,
 .rounded-2xl.bg-cardBg,
 .rounded-3xl.bg-cardBg {
   background: rgba(30, 41, 59, 0.45) !important;
@@ -469,6 +477,7 @@ html {
 /* ── 22. Light mode overrides ────────────────────────────────────── */
 
 /* Glass card: override dark semi-transparent style */
+html:not(.dark) .rounded-xl.bg-cardBg,
 html:not(.dark) .rounded-2xl.bg-cardBg,
 html:not(.dark) .rounded-3xl.bg-cardBg {
   background: rgba(255, 255, 255, 0.85) !important;
@@ -477,6 +486,7 @@ html:not(.dark) .rounded-3xl.bg-cardBg {
     0 2px 8px rgba(0, 0, 0, 0.06),
     0 4px 24px rgba(0, 0, 0, 0.05) !important;
 }
+html:not(.dark) .rounded-xl.bg-cardBg:hover,
 html:not(.dark) .rounded-2xl.bg-cardBg:hover,
 html:not(.dark) .rounded-3xl.bg-cardBg:hover {
   border-color: rgba(0, 0, 0, 0.12) !important;
@@ -591,4 +601,110 @@ html:not(.dark) .floating-back-btn:hover {
   color: #0f172a;             /* slate-900 */
   background: #cbd5e1;        /* slate-300 */
   border-color: #94a3b8;      /* slate-400 */
+}
+
+/* ── 23. Card lift hover ─────────────────────────────────────────── */
+/*
+ * Add class "card-lift" to any card wrapper that should rise on hover.
+ * Pairs with the glass card treatment for the shadow escalation.
+ */
+.card-lift {
+  transition:
+    transform 0.30s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.30s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.20s ease;
+}
+.card-lift:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.30),
+    0 4px 16px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+html:not(.dark) .card-lift:hover {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.10),
+    0 4px 16px rgba(0, 0, 0, 0.07) !important;
+}
+
+/* ── 24. Hero accent line ────────────────────────────────────────── */
+/*
+ * Vertical accent gradient beside the hero photo.
+ */
+.hero-accent-line {
+  position: absolute;
+  left: -20px;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(16, 185, 129, 0.55) 30%,
+    rgba(16, 185, 129, 0.55) 70%,
+    transparent
+  );
+}
+
+/* ── 25. Acts grid (Career Journey) ──────────────────────────────── */
+/*
+ * Horizontal chapter layout.
+ * The gap-px technique uses the container background as divider lines.
+ */
+.acts-grid {
+  display: grid;
+  gap: 1px;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.acts-grid-cell {
+  transition: background 0.25s ease;
+}
+
+/* ── 26. Closing CTA section ─────────────────────────────────────── */
+.cta-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
+}
+.cta-btn-primary:hover {
+  background: #34d399;
+  box-shadow: 0 0 32px rgba(16, 185, 129, 0.45);
+  transform: translateY(-2px);
+}
+.cta-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
+}
+.cta-btn-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.40);
+  color: #fff;
+  transform: translateY(-2px);
+}
+html:not(.dark) .cta-btn-secondary {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+html:not(.dark) .cta-btn-secondary:hover {
+  border-color: #94a3b8;
+  color: #0f172a;
 }

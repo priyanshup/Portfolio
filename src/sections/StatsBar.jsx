@@ -1,48 +1,37 @@
 /**
  * sections/StatsBar.jsx
  *
- * Continuous rAF carousel, no arrows.
- * Stats are not clickable so mobile tap-to-slow is active.
- * Numbers wrapped in glass-metric for the accent-tinted glass highlight.
+ * Bold static number grid — replaces the old scrolling ticker.
  *
- * Gap fix: glass-metric uses w-full so every cell is the same width
- * and the px-3 padding on each slot produces consistent gaps.
+ * Layout:
+ *   Mobile  — 2-column grid (3 rows of 2)
+ *   Desktop — 3-column grid (2 rows of 3)
+ *
+ * Each cell uses a glass card (bg-cardBg) so the numbers sit on a
+ * clearly bounded surface on every viewport size. Font sizes are
+ * scaled down on mobile (text-3xl) to prevent overflow in 2-col cells.
  */
 
-import Carousel from '../components/ui/Carousel';
 import { stats } from '../data/stats';
 
 const StatsBar = () => (
-  <section className="border-y dark:border-gray-900 border-slate-100 bg-cardBg/10 py-5 md:py-10 px-6">
-    <div className="max-w-5xl mx-auto">
-      <Carousel
-        items={stats}
-        desktopItems={4}
-        tabletItems={3}
-        mobileItems={2}
-        autoPlay
-        desktopSpeed={38}
-        hoverSpeed={11}
-        mobileSpeed={28}
-        tapSlowMultiplier={0.25}
-        clickable={false}
-        showArrows={false}
-        disableSwipe={true}
-        draggable={true}
-        renderItem={(s) => (
-          <div className="text-center py-2">
-            {/* Full-width wrapper ensures consistent slot sizing */}
-            <div className="glass-metric w-full py-3 px-2">
-              <h3 className="font-display text-2xl md:text-3xl font-bold text-accent">
-                {s.val}
-              </h3>
-            </div>
-            <p className="text-[10px] md:text-xs dark:text-gray-400 text-slate-500 uppercase tracking-widest mt-2 font-mono-pp">
+  <section className="py-10 md:py-16 px-6 border-y dark:border-gray-900 border-slate-200">
+    <div className="max-w-6xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+        {stats.map((s, i) => (
+          <div
+            key={i}
+            className={'bg-cardBg rounded-2xl px-4 py-7 md:px-6 md:py-10 text-center reveal d' + ((i % 3) + 1)}
+          >
+            <p className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-accent leading-none">
+              {s.val}
+            </p>
+            <p className="font-mono-pp text-[10px] md:text-[11px] uppercase tracking-widest dark:text-gray-500 text-slate-500 mt-3 leading-tight">
               {s.label}
             </p>
           </div>
-        )}
-      />
+        ))}
+      </div>
     </div>
   </section>
 );

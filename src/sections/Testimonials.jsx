@@ -1,12 +1,13 @@
 /**
  * sections/Testimonials.jsx
  *
- * Desktop: continuous rAF autoscroll, NO arrows.
- *   - Pauses automatically when any testimonial modal is open
- *     (externalPaused prop). Resumes from the same position on close.
+ * Desktop: static 2-column grid of pull-quote cards.
+ *   - Oversized quotation mark (text-8xl) as visual anchor
+ *   - More text visible (line-clamp-6 vs old line-clamp-4)
+ *   - Hover lift via card-lift class
+ *   - "Read full" link removed — whole card is clickable, opening the modal
  *
- * Mobile: discrete smooth swipe, NO autoscroll, NO arrows.
- *   - Same snap-swipe experience as Projects and CaseStudies.
+ * Mobile: discrete smooth swipe, no autoscroll (unchanged from before).
  */
 
 import { useState, useCallback } from 'react';
@@ -21,26 +22,28 @@ const Testimonials = () => {
   const [expanded, setExpanded] = useState(null);
   const closeModal = useCallback(() => setExpanded(null), []);
 
-  /* Shared card renderer — used in both desktop and mobile carousels */
+  /* Shared card renderer — used in both desktop grid and mobile carousel */
   const renderCard = (t, i) => (
     <button
       onClick={() => setExpanded(i)}
-      className="w-full h-full text-left p-8 rounded-3xl bg-cardBg border dark:border-gray-800 border-slate-200 hover:border-accent/40 transition-colors flex flex-col gap-4 min-h-64 cursor-pointer group"
+      className="w-full h-full text-left p-7 sm:p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 hover:border-accent/40 card-lift flex flex-col gap-3 cursor-pointer group"
     >
-      <p className="text-4xl dark:text-gray-600 text-slate-300 group-hover:text-slate-400 font-serif leading-none select-none">
+      {/* Oversized quote mark — visual anchor */}
+      <p className="font-serif text-8xl dark:text-gray-800 text-slate-200 leading-none select-none -mb-4 group-hover:text-accent/20 transition-colors duration-300">
         "
       </p>
-      <p className="dark:text-gray-300 text-slate-700 text-sm leading-relaxed flex-1 -mt-3 line-clamp-4">
+
+      {/* Quote body — more lines visible */}
+      <p className="dark:text-gray-300 text-slate-700 text-sm leading-relaxed flex-1 line-clamp-6">
         {t.text}
       </p>
-      <div className="border-t dark:border-gray-800 border-slate-200 pt-4 mt-auto">
+
+      {/* Attribution */}
+      <div className="border-t dark:border-gray-800 border-slate-200 pt-4 mt-1">
         <p className="dark:text-white text-slate-900 font-bold text-sm">{t.name}</p>
-        <p className="dark:text-gray-400 text-slate-600 text-xs mt-1">{t.title} · {t.company}</p>
-        <p className="font-mono-pp dark:text-gray-500 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
+        <p className="dark:text-gray-400 text-slate-500 text-xs mt-0.5">{t.title} · {t.company}</p>
+        <p className="font-mono-pp dark:text-gray-600 text-slate-400 text-[10px] uppercase tracking-widest mt-1">
           {t.relation}
-        </p>
-        <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mt-3 dark:group-hover:text-white group-hover:text-emerald-700 transition-colors">
-          Read full ↗
         </p>
       </div>
     </button>
@@ -74,21 +77,12 @@ const Testimonials = () => {
             renderItem={renderCard}
           />
         ) : (
-          /* Desktop: continuous, no arrows, pauses while modal is open */
-          <Carousel
-            items={testimonials}
-            desktopItems={3}
-            tabletItems={2}
-            mobileItems={1}
-            autoPlay
-            desktopSpeed={36}
-            hoverSpeed={10}
-            showArrows={false}
-            clickable={true}
-            draggable={true}
-            externalPaused={expanded !== null}
-            renderItem={renderCard}
-          />
+          /* Desktop: static 2-column pull-quote grid */
+          <div className="grid md:grid-cols-2 gap-5">
+            {testimonials.map((t, i) => (
+              <div key={i}>{renderCard(t, i)}</div>
+            ))}
+          </div>
         )}
       </div>
     </section>
