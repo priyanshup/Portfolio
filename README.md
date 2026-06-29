@@ -213,11 +213,11 @@ Two modes driven by the `autoPlay` prop:
 
 Props: `{ testimonials, startIndex, onClose }` — full array + starting index.
 
-Navigation: left/right pill arrows, ArrowLeft/ArrowRight keyboard, touch swipe (>50 px), dot position indicator. 150 ms opacity fade between testimonials.
+Navigation: left/right arrows at card edges, ArrowLeft/ArrowRight keyboard, touch swipe anywhere on the overlay (>50 px), dot position indicator. 150 ms opacity fade between testimonials.
 
 ### Work Experience Accordion (`src/sections/WorkExperience.jsx`)
 
-`rect.top` is captured *before* `setOpen(i)` so the scroll target is computed against the pre-expansion layout. Both `window.scrollTo` and `setOpen` fire in the same event handler — card header scrolls into position and expands simultaneously with no jerk.
+`setOpen(i)` fires first, then a `setTimeout(400)` calls `scrollIntoView` after the expansion transition settles — the scroll target reads the final DOM layout so the card header always lands cleanly below the nav.
 
 ---
 

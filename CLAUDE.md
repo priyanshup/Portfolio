@@ -290,10 +290,12 @@ html:not(.dark) .my-custom-class {
 **Navigation:**
 - Left `‹` / right `›` arrows on the modal edges (hidden when `testimonials.length <= 1`)
 - Keyboard: `ArrowLeft` / `ArrowRight` navigate; `Escape` closes
-- Touch swipe: `touchstart` + `touchend` on the modal card; `|dx| > 50px` triggers prev/next
+- Touch swipe: `touchstart` + `touchend` on the **backdrop** (not the card), so swiping anywhere on the overlay works; `|dx| > 50px` triggers prev/next
 - Dot indicators at the bottom; clicking a dot jumps directly to that testimonial
 
 **Transition:** 150ms opacity fade (`visible` state) — content fades out, index updates, content fades in. Rapid consecutive navigations are debounced via `navigating` ref.
+
+**Scroll lock:** Uses `position: fixed` + saved `scrollY` (not just `overflow: hidden`) because iOS Safari ignores `overflow: hidden` on `body` for momentum scroll. On close, restores styles and calls `window.scrollTo(0, scrollY)`.
 
 ---
 
@@ -301,6 +303,8 @@ html:not(.dark) .my-custom-class {
 
 `src/sections/WorkExperience.jsx`
 
-**Pattern:** capture `el.getBoundingClientRect()` *before* calling `setOpen(i)`, then fire `window.scrollTo({ behavior: 'smooth' })` and `setOpen(i)` in the same synchronous handler. Both the scroll animation and the accordion expand animation start in the same frame with no post-animation correction.
+**Pattern:** call `setOpen(i)` first, then in a `setTimeout(400)` call `scrollIntoView({ behavior: 'smooth', block: 'start' })` on the card element. Waiting for the `grid-template-rows` transition to settle (~380ms) means `scrollIntoView` reads the final DOM layout — the scroll target is always accurate.
 
-**Do not** call `setOpen` first and then scroll in a `setTimeout` — the layout shift from expansion changes `rect.top` mid-animation, causing a visible jerk.
+`scrollMarginTop: (NAV_HEIGHT + TOP_MARGIN) + 'px'` on each card wrapper keeps the header 16px below the fixed nav.
+
+**Do not** try to capture `rect.top` before `setOpen` and fire `window.scrollTo` simultaneously — the expansion shifts the card mid-scroll, jerking the page in the wrong direction.

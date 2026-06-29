@@ -20,7 +20,10 @@ const ScrollToTop = () => {
 
   return (
     <button
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      onClick={() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.history.replaceState(null, '', '#/');
+      }}
       aria-label="Scroll to top"
       className={`scroll-top-btn ${visible ? 'visible' : ''}`}
     >
