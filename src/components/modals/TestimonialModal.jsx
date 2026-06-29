@@ -59,9 +59,12 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
 
   const showNav = count > 1;
 
+  // Mobile: small centred button. Desktop: full card-height edge strip.
+  // Header (z-20) and dots (z-20) sit above the arrow buttons (z-10) so they stay clickable.
   const arrowCls =
-    'absolute top-1/2 -translate-y-1/2 flex items-center justify-center ' +
-    'w-10 h-12 text-3xl leading-none z-10 select-none ' +
+    'absolute top-1/2 -translate-y-1/2 md:top-0 md:translate-y-0 md:h-full ' +
+    'flex items-center justify-center ' +
+    'w-10 h-12 md:w-12 text-3xl leading-none z-10 select-none ' +
     'dark:text-slate-400 dark:hover:text-white text-slate-400 hover:text-slate-900 ' +
     'transition-colors';
 
@@ -72,7 +75,7 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
         style={{ maxHeight: '82vh' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-8 pt-8 pb-4 flex-shrink-0">
+        <div className="relative z-20 flex items-center justify-between px-8 pt-8 pb-4 flex-shrink-0">
           <p className="text-4xl dark:text-gray-600 text-slate-500 font-serif leading-none select-none">"</p>
           <button onClick={onClose} aria-label="Close"
             className="dark:text-gray-500 text-slate-600 dark:hover:text-white hover:text-slate-900 transition-colors">
@@ -96,13 +99,13 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
 
         {showNav && (
           <>
-            <button onClick={prev} aria-label="Previous testimonial" className={arrowCls + ' left-2'}>‹</button>
-            <button onClick={next} aria-label="Next testimonial"     className={arrowCls + ' right-2'}>›</button>
+            <button onClick={prev} aria-label="Previous testimonial" className={arrowCls + ' left-2 md:left-0'}>‹</button>
+            <button onClick={next} aria-label="Next testimonial"     className={arrowCls + ' right-2 md:right-0'}>›</button>
           </>
         )}
 
         {showNav && (
-          <div className="flex justify-center gap-2 pb-4 flex-shrink-0">
+          <div className="relative z-20 flex justify-center gap-2 pb-4 flex-shrink-0">
             {testimonials.map((_, i) => (
               <button key={i} onClick={() => navigate(i)}
                 aria-label={'Go to testimonial ' + (i + 1)}

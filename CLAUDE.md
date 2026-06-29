@@ -288,7 +288,10 @@ html:not(.dark) .my-custom-class {
 **Props:** `{ testimonials, startIndex, onClose }` — full array + starting index (not a single object)
 
 **Navigation:**
-- Left `‹` / right `›` arrows on the modal edges (hidden when `testimonials.length <= 1`)
+- Left `‹` / right `›` arrows (hidden when `testimonials.length <= 1`)
+  - **Mobile:** small centred button (`w-10 h-12`, `left-2`/`right-2`) — swipe is the primary input
+  - **Desktop (`md+`):** full card-height edge strip (`h-full`, `left-0`/`right-0`, `w-12`) — entire left/right edge is clickable
+  - Header and dots carry `relative z-20` so they stay interactive above the `z-10` arrow buttons
 - Keyboard: `ArrowLeft` / `ArrowRight` navigate; `Escape` closes
 - Touch swipe: `touchstart` + `touchend` on the **backdrop** (not the card), so swiping anywhere on the overlay works; `|dx| > 50px` triggers prev/next
 - Dot indicators at the bottom; clicking a dot jumps directly to that testimonial

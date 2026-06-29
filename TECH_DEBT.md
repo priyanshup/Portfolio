@@ -79,6 +79,18 @@ Tracks identified tech debt, when it was fixed, and what changed.
 
 ---
 
+---
+
+### 2026-06-29 (session 2)
+
+#### 11. Testimonial modal arrow hit area too small on desktop
+- **File:** `src/components/modals/TestimonialModal.jsx`
+- **Problem:** Prev/next arrow buttons were `w-10 h-12` (40×48px) positioned at `left-2`/`right-2`, vertically centred. Tiny click target, especially on desktop where a mouse cursor requires precision.
+- **Fix:** On `md+` screens, buttons expand to full card height (`md:h-full md:top-0 md:translate-y-0`) and anchor flush to the card edges (`md:left-0` / `md:right-0`, `md:w-12`). Mobile behaviour is unchanged (still centred, small, swipe-first).
+- **z-index note:** The header div and dots div both received `relative z-20` to stay interactive above the full-height arrow buttons (`z-10`). Without this, the close button and dot indicators would have been blocked by the arrows.
+
+---
+
 ## Open / Future
 
 _Nothing tracked yet. Add entries here as new debt is identified._
