@@ -48,7 +48,7 @@ const Footer = () => (
         </h2>
 
         <p className="dark:text-gray-400 text-slate-600 text-lg max-w-md mx-auto leading-relaxed mb-10">
-          Looking for senior product and GTM roles. Especially interested in technically complex, high-scale domains.
+          Senior product roles where engineering depth meets commercial scale.
         </p>
 
         <div className="flex flex-wrap gap-4 justify-center">

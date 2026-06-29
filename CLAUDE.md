@@ -267,11 +267,12 @@ html:not(.dark) .my-custom-class {
 
 `src/components/ui/Carousel.jsx` has two modes:
 
-### Continuous carousels (`autoPlay=true`) — StatsBar, Testimonials desktop, CoreDNA desktop
+### Continuous carousels (`autoPlay=true`) — Testimonials desktop, CoreDNA desktop
 - **Auto-scroll**: rAF loop driven by `speedRef` (px/s)
 - **Hover-slow**: `onMouseEnter` halves speed; `onMouseLeave` restores instantly
 - **Drag-to-scrub** (`draggable={true}` prop): desktop mouse grab (`cursor-grab`/`cursor-grabbing`) + mobile touch drag scrub in real time; auto-scroll resumes 1.5s after release
-- StatsBar also sets `disableSwipe={true}` to block the old swipe-to-jump path (drag is the only touch interaction)
+
+> **Note:** StatsBar is no longer a carousel. It is a static `grid grid-cols-2 md:grid-cols-3` of glass cards (`bg-cardBg rounded-2xl`). No Carousel component involved.
 
 ### Card carousels on mobile (discrete, `autoPlay=false`)
 - Swipeable with live drag-follow and smooth snap on release
@@ -311,3 +312,66 @@ html:not(.dark) .my-custom-class {
 `scrollMarginTop: (NAV_HEIGHT + TOP_MARGIN) + 'px'` on each card wrapper keeps the header 16px below the fixed nav.
 
 **Do not** try to capture `rect.top` before `setOpen` and fire `window.scrollTo` simultaneously — the expansion shifts the card mid-scroll, jerking the page in the wrong direction.
+
+---
+
+## Design System (modernize-design branch)
+
+### Font stack
+
+| Role | Family | Class |
+|---|---|---|
+| Display / headings | Plus Jakarta Sans | `font-display` |
+| Body | Inter | default (no class needed) |
+| Monospace / labels | IBM Plex Mono | `font-mono-pp` |
+
+Google Fonts import lives in `src/styles/globals.css`. The old Syne + DM Sans stack has been replaced — do not reintroduce them.
+
+### Card conventions
+
+All content cards use this base pattern:
+
+```jsx
+<div className="bg-cardBg rounded-2xl border dark:border-gray-800 border-slate-200 card-lift">
+```
+
+- `card-lift` — CSS class in `globals.css` §23: `transform: translateY(-5px)` + shadow escalation on hover. Apply to every interactive card.
+- `rounded-2xl` — standard card radius. Do not use `rounded-3xl` (too bubbly).
+- No internal gradient accent bars at the top of cards — they add visual noise. Hierarchy is carried by spacing and typography.
+
+### Section layout patterns
+
+| Section | Desktop layout | Mobile layout |
+|---|---|---|
+| StatsBar | `grid-cols-3` static glass cards | `grid-cols-2` static glass cards |
+| CareerJourney | `grid-cols-4` glass cards (Acts I–IV) | single-column stack |
+| Projects | `grid-cols-2` static grid + ViewMoreModal | swipeable Carousel |
+| ImpactStories | `grid-cols-2` static grid + ViewMoreModal | swipeable Carousel |
+| CaseStudies | single-column full-width editorial stack | swipeable Carousel |
+| Testimonials | static `grid-cols-2` pull-quote grid | swipeable Carousel |
+
+### CareerJourney scaling
+
+Currently 4 Acts (`lg:grid-cols-4`). When a 5th role is added, convert to a **horizontally scrollable strip** — cards in a single `flex-row` with `overflow-x-auto` and drag-to-scrub on desktop, swipeable carousel on mobile. The card design stays identical; only the container changes.
+
+### Hero layout
+
+CSS Grid, not flexbox. The photo column has an explicit pixel width so the text column can never bleed into it:
+
+```
+md: grid-cols-[1fr_300px]
+lg: grid-cols-[1fr_360px]
+```
+
+Photo is visible on all viewports — stacks below text on mobile (`flex justify-center md:justify-end`). Ambient glow and accent line are `hidden md:block` (desktop only).
+
+The subtitle line ("Technical Product Leader · 10 Years") uses two spans to prevent wrapping on narrow screens:
+- Mobile (`sm:hidden`): shorter variant — "Product Leader · 10 Years"
+- Desktop (`hidden sm:inline`): full string
+
+### Footer CTA copy
+
+- Eyebrow: "Open to Opportunities"
+- Headline: "Ready to build something ambitious?"
+- Subtext: "Senior product roles where engineering depth meets commercial scale."
+- CTAs: Connect on LinkedIn ↗ · Download Resume

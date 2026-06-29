@@ -22,7 +22,7 @@ const Hero = () => (
     id="about"
     className="relative min-h-screen flex items-center pt-24 pb-20 px-6 max-w-6xl mx-auto"
   >
-    <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_360px] gap-12 lg:gap-20 w-full items-center">
+    <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_360px] gap-8 md:gap-12 lg:gap-20 w-full items-center">
 
       {/* ── Text column ── */}
       <div className="space-y-7 min-w-0">
@@ -50,7 +50,8 @@ const Hero = () => (
           <div className="mt-5 flex items-center gap-4">
             <div className="h-px w-10 dark:bg-gray-700 bg-slate-300 flex-shrink-0" />
             <p className="font-mono-pp text-[11px] uppercase tracking-[0.22em] dark:text-gray-500 text-slate-500">
-              Technical Product Leader · 10 Years
+              <span className="sm:hidden">Product Leader · 10 Years</span>
+              <span className="hidden sm:inline">Technical Product Leader · 10 Years</span>
             </p>
           </div>
         </div>
@@ -91,16 +92,16 @@ const Hero = () => (
       </div>
 
       {/* ── Photo column ── */}
-      <div className="hidden md:flex justify-end">
-        <div className="relative">
-          {/* Ambient glow */}
-          <div className="absolute -inset-6 bg-accent/8 rounded-3xl blur-3xl" />
+      <div className="flex justify-center md:justify-end">
+        <div className="relative w-full md:w-auto">
+          {/* Ambient glow — desktop only */}
+          <div className="absolute -inset-6 bg-accent/8 rounded-3xl blur-3xl hidden md:block" />
 
-          {/* Accent line */}
-          <div className="hero-accent-line" />
+          {/* Accent line — desktop only */}
+          <div className="hero-accent-line hidden md:block" />
 
           {/* Photo */}
-          <div className="relative w-full h-[400px] lg:h-[480px] rounded-2xl overflow-hidden border dark:border-gray-700/60 border-slate-200 shadow-2xl">
+          <div className="relative w-full h-[280px] sm:h-[340px] md:h-[400px] lg:h-[480px] rounded-2xl overflow-hidden border dark:border-gray-700/60 border-slate-200 shadow-2xl">
             <img
               src="me.jpg"
               alt="Priyanshu Pushpam"
