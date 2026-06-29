@@ -23,13 +23,21 @@ const ViewMoreModal = ({ title, eyebrow, items, renderItem, onClose }) => {
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
-    // Lock scroll on both html and body for cross-browser reliability
+    // position:fixed is required for iOS Safari — overflow:hidden alone is ignored
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top      = `-${scrollY}px`;
+    document.body.style.width    = '100%';
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     return () => {
       window.removeEventListener('keydown', handler);
+      document.body.style.position = '';
+      document.body.style.top      = '';
+      document.body.style.width    = '';
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+      window.scrollTo(0, scrollY);
     };
   }, [onClose]);
 

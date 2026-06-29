@@ -1,21 +1,18 @@
-/**
- * hooks/useIsMobile.js
- *
- * Returns true when the viewport is below the mobile breakpoint (640px).
- * Used to switch between carousel and grid layouts at runtime.
- */
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const useIsMobile = () => {
-  const [mobile, setMobile] = useState(
-    () => typeof window !== 'undefined' ? window.innerWidth < 640 : false
+  const mqRef = useRef(
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 639px)') : null
   );
 
+  const [mobile, setMobile] = useState(() => mqRef.current ? mqRef.current.matches : false);
+
   useEffect(() => {
-    const handler = () => setMobile(window.innerWidth < 640);
-    window.addEventListener('resize', handler);
-    return () => window.removeEventListener('resize', handler);
+    const mq = mqRef.current;
+    if (!mq) return;
+    const handler = (e) => setMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
   }, []);
 
   return mobile;

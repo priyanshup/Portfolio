@@ -34,7 +34,7 @@ const CoreDNA = () => {
   const isMobile = useIsMobile();
 
   return (
-    <section className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t border-gray-900">
+    <section className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-100">
       <SectionHeader
         eyebrow="What I Bring"
         title="Core DNA"

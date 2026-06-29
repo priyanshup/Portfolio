@@ -13,7 +13,7 @@ import Carousel from '../components/ui/Carousel';
 import { stats } from '../data/stats';
 
 const StatsBar = () => (
-  <section className="border-y border-gray-900 bg-cardBg/10 py-5 md:py-10 px-6">
+  <section className="border-y dark:border-gray-900 border-slate-100 bg-cardBg/10 py-5 md:py-10 px-6">
     <div className="max-w-5xl mx-auto">
       <Carousel
         items={stats}

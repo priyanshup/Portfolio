@@ -138,19 +138,11 @@ const CaseStudies = () => {
   return (
     <section id="case-studies" className="py-12 md:py-24 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-100">
 
-      {/* Section header */}
-      <div className="mb-10">
-        <div className="reveal">
-          <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.3em] mb-3">Deep Dives</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold dark:text-white text-slate-900">Case Studies</h2>
-        </div>
-        <div className="reveal d1 mt-3 flex flex-wrap items-center gap-3">
-          <p className="dark:text-gray-400 text-slate-600 text-sm">Full written case studies are in progress.</p>
-          <span className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border dark:border-yellow-400/30 border-yellow-700/40 dark:text-yellow-400 text-yellow-700 dark:bg-yellow-400/10 bg-yellow-700/10">
-            Publishing Soon
-          </span>
-        </div>
-      </div>
+      <SectionHeader
+        eyebrow="Deep Dives"
+        title="Case Studies"
+        subtitle="Structured accounts of the problem, the approach, and what actually shipped."
+      />
 
       {/* View All overlay — cards inside pass fromOverlay: true */}
       {showAll && (

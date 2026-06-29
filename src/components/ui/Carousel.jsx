@@ -76,7 +76,6 @@ const Carousel = ({
   const [dragX, setDragX]     = useState(0);
   const [dragging, setDragging] = useState(false);
   const resumeRef = useRef(null);
-  const hoverRef  = useRef(null);
 
   // Wrapper that keeps curRef in sync with React state
   const setCur = useCallback((fn) => {
@@ -204,12 +203,12 @@ const Carousel = ({
   // ── HOVER ─────────────────────────────────────────────────────────
   const onMouseEnter = useCallback(() => {
     if (continuous) { speedRef.current = hoverSpeed; }
-    else { clearTimeout(hoverRef.current); setHovPaused(true); }
+    else { setHovPaused(true); }
   }, [continuous, hoverSpeed]);
 
   const onMouseLeave = useCallback(() => {
     if (continuous) { speedRef.current = isMobile ? mobileSpeed : desktopSpeed; }
-    else { hoverRef.current = setTimeout(() => setHovPaused(false), 30000); }
+    else { setHovPaused(false); }
   }, [continuous, isMobile, mobileSpeed, desktopSpeed]);
 
   // ── CONTINUOUS DRAG ───────────────────────────────────────────────

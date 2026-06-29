@@ -95,7 +95,7 @@ const Hero = () => (
               className="w-full h-full object-cover object-top transition duration-700 scale-105 group-hover:scale-100 md:grayscale md:group-hover:grayscale-0 select-none pointer-events-none"
               draggable={false}
               onContextMenu={(e) => e.preventDefault()}
-              onError={(e) => { e.target.src = 'https://via.placeholder.com/400x500?text=Profile+Photo'; }}
+              onError={(e) => { e.target.style.display = 'none'; }}
             />
           </div>
         </div>

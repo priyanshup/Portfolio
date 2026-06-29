@@ -115,7 +115,7 @@ const Nav = ({ theme, toggleTheme }) => {
                 key={label}
                 href={href}
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
                 aria-label={label}
                 onClick={track}
                 className="rounded-lg p-1.5 -m-1 dark:hover:text-white hover:text-slate-900 dark:hover:bg-slate-700/50 hover:bg-slate-200 transition-all"
@@ -190,7 +190,7 @@ const Nav = ({ theme, toggleTheme }) => {
               key={label}
               href={href}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               aria-label={label}
               onClick={() => { track(); close(); }}
               className="flex items-center justify-center w-9 h-9 rounded-xl dark:text-gray-500 text-slate-500 dark:hover:text-white hover:text-slate-900 dark:hover:bg-white/5 hover:bg-black/5 transition-all"
