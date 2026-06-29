@@ -31,12 +31,21 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
       if (e.key === 'ArrowRight')  { next();    return; }
     };
     window.addEventListener('keydown', onKey);
-    document.body.style.overflow            = 'hidden';
+    // iOS Safari ignores overflow:hidden on body — position:fixed is the reliable lock.
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top      = `-${scrollY}px`;
+    document.body.style.width    = '100%';
+    document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow            = '';
+      document.body.style.position = '';
+      document.body.style.top      = '';
+      document.body.style.width    = '';
+      document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+      window.scrollTo(0, scrollY);
     };
   }, [onClose, prev, next]);
 
@@ -57,13 +66,11 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
     'transition-colors';
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <div
         className="modal-card relative w-full max-w-lg flex flex-col rounded-3xl bg-cardBg dark:border-gray-600 border-slate-200 border shadow-2xl"
         style={{ maxHeight: '82vh' }}
         onClick={(e) => e.stopPropagation()}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
       >
         <div className="flex items-center justify-between px-8 pt-8 pb-4 flex-shrink-0">
           <p className="text-4xl dark:text-gray-600 text-slate-500 font-serif leading-none select-none">"</p>

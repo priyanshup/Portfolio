@@ -516,9 +516,9 @@ const Carousel = ({
     ? arrowMargin
     : 'overflow-hidden ' + arrowMargin;
 
-  const transform = dragX !== 0
-    ? 'translateX(calc(-' + ((cur * 100) / peekIpv) + '% + ' + dragX + 'px))'
-    : 'translateX(-' + ((cur * 100) / peekIpv) + '%)';
+  // Always use calc() so the transform function is syntactically identical
+  // during drag and after snap — prevents browsers from jumping between forms.
+  const transform = 'translateX(calc(-' + ((cur * 100) / peekIpv) + '% + ' + dragX + 'px))';
 
   const transition = (trans && !dragging)
     ? 'transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
