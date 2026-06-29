@@ -260,3 +260,47 @@ html:not(.dark) .my-custom-class {
   color: #334155;
 }
 ```
+
+---
+
+## Carousel Behavior Conventions
+
+`src/components/ui/Carousel.jsx` has two modes:
+
+### Continuous carousels (`autoPlay=true`) — StatsBar, Testimonials desktop, CoreDNA desktop
+- **Auto-scroll**: rAF loop driven by `speedRef` (px/s)
+- **Hover-slow**: `onMouseEnter` halves speed; `onMouseLeave` restores instantly
+- **Drag-to-scrub** (`draggable={true}` prop): desktop mouse grab (`cursor-grab`/`cursor-grabbing`) + mobile touch drag scrub in real time; auto-scroll resumes 1.5s after release
+- StatsBar also sets `disableSwipe={true}` to block the old swipe-to-jump path (drag is the only touch interaction)
+
+### Card carousels on mobile (discrete, `autoPlay=false`)
+- Swipeable with live drag-follow and smooth snap on release
+- **Infinite loop via triple-clone**: `extended = [...items, ...items, ...items]`; starts at copy-B (`cur = len`); `onTransEnd` silently snaps from copy-A/C back to copy-B after each wrap animation
+- **Seamless wrap**: `onTransitionEnd` filtered by `e.propertyName === 'transform'`; transition re-enabled via `setTimeout(50)` (more reliable than double-rAF on mobile)
+- `peek={true}` shows a sliver of the next card (`peekIpv = ipv + 0.15`)
+
+---
+
+## Testimonial Modal Behavior
+
+`src/components/modals/TestimonialModal.jsx`
+
+**Props:** `{ testimonials, startIndex, onClose }` — full array + starting index (not a single object)
+
+**Navigation:**
+- Left `‹` / right `›` arrows on the modal edges (hidden when `testimonials.length <= 1`)
+- Keyboard: `ArrowLeft` / `ArrowRight` navigate; `Escape` closes
+- Touch swipe: `touchstart` + `touchend` on the modal card; `|dx| > 50px` triggers prev/next
+- Dot indicators at the bottom; clicking a dot jumps directly to that testimonial
+
+**Transition:** 150ms opacity fade (`visible` state) — content fades out, index updates, content fades in. Rapid consecutive navigations are debounced via `navigating` ref.
+
+---
+
+## WorkExperience Accordion Scroll
+
+`src/sections/WorkExperience.jsx`
+
+**Pattern:** capture `el.getBoundingClientRect()` *before* calling `setOpen(i)`, then fire `window.scrollTo({ behavior: 'smooth' })` and `setOpen(i)` in the same synchronous handler. Both the scroll animation and the accordion expand animation start in the same frame with no post-animation correction.
+
+**Do not** call `setOpen` first and then scroll in a `setTimeout` — the layout shift from expansion changes `rect.top` mid-animation, causing a visible jerk.

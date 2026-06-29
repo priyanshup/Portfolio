@@ -28,6 +28,7 @@ const StatsBar = () => (
         clickable={false}
         showArrows={false}
         disableSwipe={true}
+        draggable={true}
         renderItem={(s) => (
           <div className="text-center py-2">
             {/* Full-width wrapper ensures consistent slot sizing */}

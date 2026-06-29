@@ -16,7 +16,7 @@
  * Props:
  *   items desktopItems tabletItems mobileItems
  *   autoPlay desktopSpeed hoverSpeed mobileSpeed tapSlowMultiplier
- *   clickable showArrows peek disableSwipe externalPaused interval
+ *   clickable showArrows peek disableSwipe draggable externalPaused interval
  */
 
 import {
@@ -40,6 +40,7 @@ const Carousel = ({
   showArrows        = false,
   peek              = false,
   disableSwipe      = false,
+  draggable         = false,
   externalPaused    = false,
   interval          = 4000,
 }) => {
@@ -93,6 +94,14 @@ const Carousel = ({
   const isDragHorizRef = useRef(false); // determined after first few px
   const tappedRef = useRef(false);
   const tapTimer  = useRef(null);
+
+  // ── Continuous drag refs + state ──────────────────────────────────
+  const isDraggingRef   = useRef(false);
+  const dragStartXRef   = useRef(null);
+  const dragStartOffRef = useRef(0);
+  const dragResumeRef   = useRef(null);
+  const justDraggedRef  = useRef(false); // blocks click events that fire after drag release
+  const [isCsrGrabbing, setIsCsrGrabbing] = useState(false);
 
   // ── CONTINUOUS: measure slot width ───────────────────────────────
   useEffect(() => {
@@ -158,13 +167,13 @@ const Carousel = ({
     setDragX(0);
   }, [ipv, len, continuous]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Re-enable transition after the silent snap
+  // Re-enable transition after the silent snap.
+  // setTimeout(50) is more reliable than double-rAF on mobile — ensures
+  // the browser has committed the new position before transitions resume.
   useEffect(() => {
     if (continuous || trans) return;
-    const id = requestAnimationFrame(() =>
-      requestAnimationFrame(() => setTrans(true))
-    );
-    return () => cancelAnimationFrame(id);
+    const id = setTimeout(() => setTrans(true), 50);
+    return () => clearTimeout(id);
   }, [trans, continuous]);
 
   // Auto-advance
@@ -175,7 +184,8 @@ const Carousel = ({
   }, [continuous, autoPlay, manPaused, hovPaused, needsScroll, interval, setCur]);
 
   // Snap back silently from copy-A or copy-C after CSS transition ends
-  const onTransEnd = useCallback(() => {
+  const onTransEnd = useCallback((e) => {
+    if (e.propertyName !== 'transform') return; // ignore other transitioning properties
     if (continuous) return;
     const c = curRef.current;
     if (c >= 2 * len) {
@@ -201,6 +211,64 @@ const Carousel = ({
     if (continuous) { speedRef.current = isMobile ? mobileSpeed : desktopSpeed; }
     else { hoverRef.current = setTimeout(() => setHovPaused(false), 30000); }
   }, [continuous, isMobile, mobileSpeed, desktopSpeed]);
+
+  // ── CONTINUOUS DRAG ───────────────────────────────────────────────
+  const startDrag = useCallback((clientX) => {
+    isDraggingRef.current   = true;
+    dragStartXRef.current   = clientX;
+    dragStartOffRef.current = offsetRef.current;
+    justDraggedRef.current  = false; // reset on every new drag attempt
+    setIsCsrGrabbing(true);
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+  }, []);
+
+  const moveDrag = useCallback((clientX) => {
+    if (!isDraggingRef.current || dragStartXRef.current === null) return;
+    const dx = clientX - dragStartXRef.current;
+    // Mark as a real drag once the pointer moves more than 5px so that
+    // the click event fired after release can be suppressed.
+    if (Math.abs(dx) > 5) justDraggedRef.current = true;
+    const sw = slotW * len;
+    if (sw > 0) {
+      offsetRef.current = ((dragStartOffRef.current - dx) % sw + sw) % sw;
+      if (trackRef.current) {
+        trackRef.current.style.transform =
+          'translateX(' + (-(sw + offsetRef.current)) + 'px)';
+      }
+    }
+  }, [slotW, len]);
+
+  const endDrag = useCallback(() => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    dragStartXRef.current = null;
+    setIsCsrGrabbing(false);
+    clearTimeout(dragResumeRef.current);
+    dragResumeRef.current = setTimeout(() => {
+      if (!externalPaused && slotW > 0) {
+        lastTsRef.current = null;
+        rafRef.current = requestAnimationFrame(tickRef.current);
+      }
+    }, 1500);
+    // If real movement happened, keep justDraggedRef true long enough to
+    // intercept the click event that the browser fires after mouseup/touchend.
+    if (justDraggedRef.current) {
+      setTimeout(() => { justDraggedRef.current = false; }, 200);
+    }
+  }, [externalPaused, slotW]);
+
+  // Register document-level mouse move/up for drag (handles pointer leaving element)
+  useEffect(() => {
+    if (!draggable || !continuous) return;
+    const onMove = (e) => moveDrag(e.clientX);
+    const onUp   = ()  => endDrag();
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onUp);
+    return () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+    };
+  }, [draggable, continuous, moveDrag, endDrag]);
 
   // ── ARROW NAV ─────────────────────────────────────────────────────
   const jumpOffset = useCallback((dir) => {
@@ -228,13 +296,13 @@ const Carousel = ({
 
   // ── TOUCH: start (React, passive OK) ──────────────────────────────
   const onTouchStart = useCallback((e) => {
-    if (disableSwipe && isMobile) return;
+    if (disableSwipe && isMobile && !draggable) return;
 
     txRef.current = e.touches[0].clientX;
     tyRef.current = e.touches[0].clientY;
     isDragHorizRef.current = false; // undecided until we see movement
 
-    if (continuous) return; // continuous handles swipe in touchEnd only
+    if (continuous && !draggable) return; // continuous drag handled in touchMove/End
 
     /* Normalize cur to copy-B before starting drag.
      * Fast swipes may leave cur in copy-A/C if onTransEnd was skipped. */
@@ -252,13 +320,14 @@ const Carousel = ({
     setDragging(true);
     setTrans(false);
     setDragX(0);
-  }, [disableSwipe, isMobile, continuous, len]);
+  }, [disableSwipe, isMobile, continuous, draggable, len]);
 
   // ── TOUCH: move — attached as NATIVE listener (passive:false) ─────
   // This is registered via useEffect below so we can call preventDefault.
   const onTouchMoveNative = useCallback((e) => {
-    if (disableSwipe && isMobile) return;
-    if (txRef.current === null || continuous) return;
+    if (disableSwipe && isMobile && !draggable) return;
+    if (txRef.current === null) return;
+    if (continuous && !draggable) return;
 
     const dx = e.touches[0].clientX - txRef.current;
     const dy = e.touches[0].clientY - tyRef.current;
@@ -270,6 +339,7 @@ const Carousel = ({
       if (ady > adx) {
         // Vertical scroll — release drag, allow page scroll
         txRef.current = null;
+        if (continuous && isDraggingRef.current) { endDrag(); return; }
         setDragging(false);
         setTrans(true);
         setDragX(0);
@@ -280,21 +350,39 @@ const Carousel = ({
 
     if (isDragHorizRef.current && needsScroll) {
       e.preventDefault(); // blocks page scroll during horizontal swipe
-      setDragX(dx);
+      if (draggable && continuous) {
+        // Live drag on continuous carousel — start drag on first horizontal move
+        if (!isDraggingRef.current) {
+          isDraggingRef.current = true;
+          dragStartXRef.current = txRef.current;
+          dragStartOffRef.current = offsetRef.current;
+          setIsCsrGrabbing(true);
+          if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+        }
+        moveDrag(e.touches[0].clientX);
+      } else {
+        setDragX(dx);
+      }
     }
-  }, [disableSwipe, isMobile, continuous, needsScroll]);
+  }, [disableSwipe, isMobile, continuous, draggable, needsScroll, moveDrag, endDrag]);
 
-  // Register native touchmove listener on track container
+  // Register native touchmove listener — discrete on trackContainer, continuous drag on contWrap
   useEffect(() => {
+    if (continuous) {
+      if (!draggable || !contWrapRef.current) return;
+      const el = contWrapRef.current;
+      el.addEventListener('touchmove', onTouchMoveNative, { passive: false });
+      return () => el.removeEventListener('touchmove', onTouchMoveNative);
+    }
     const el = trackContainerRef.current;
-    if (!el || continuous) return;
+    if (!el) return;
     el.addEventListener('touchmove', onTouchMoveNative, { passive: false });
     return () => el.removeEventListener('touchmove', onTouchMoveNative);
-  }, [onTouchMoveNative, continuous]);
+  }, [onTouchMoveNative, continuous, draggable]);
 
   // ── TOUCH: end (React) ────────────────────────────────────────────
   const onTouchEnd = useCallback((e) => {
-    if (disableSwipe && isMobile) return;
+    if (disableSwipe && isMobile && !draggable) return;
     if (txRef.current === null) return;
 
     const dx = e.changedTouches[0].clientX - txRef.current;
@@ -304,8 +392,11 @@ const Carousel = ({
     isDragHorizRef.current = false;
 
     if (continuous) {
-      // Continuous: swipe adjusts offset
-      if (!disableSwipe && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50 && needsScroll) {
+      // Continuous drag end
+      if (draggable && isDraggingRef.current) {
+        endDrag();
+      } else if (!disableSwipe && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50 && needsScroll) {
+        // Continuous: swipe-to-jump (only when not in draggable mode)
         if (dx > 0) goPrev(); else goNext();
       }
       // Tap-to-slow for non-clickable
@@ -335,8 +426,8 @@ const Carousel = ({
         resumeRef.current = setTimeout(() => setManPaused(false), 7000);
       }
     }
-  }, [disableSwipe, isMobile, continuous, needsScroll, clickable,
-      mobileSpeed, desktopSpeed, tapSlowMultiplier, goNext, goPrev, setCur]);
+  }, [disableSwipe, isMobile, continuous, draggable, needsScroll, clickable,
+      mobileSpeed, desktopSpeed, tapSlowMultiplier, goNext, goPrev, setCur, endDrag]);
 
   // Resume speed on page scroll (tap-to-slow)
   useEffect(() => {
@@ -393,17 +484,21 @@ const Carousel = ({
 
   // ── CONTINUOUS render ─────────────────────────────────────────────
   if (continuous) {
+    const dragCursor = draggable ? (isCsrGrabbing ? ' cursor-grabbing' : ' cursor-grab') : '';
     return (
-      <div className="relative overflow-hidden"
+      <div className={'relative overflow-hidden' + dragCursor}
            onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
         <div ref={contWrapRef} className="overflow-hidden"
              onTouchStart={onTouchStart}
-             onTouchEnd={onTouchEnd}>
+             onTouchEnd={onTouchEnd}
+             onMouseDown={draggable ? (e) => { e.preventDefault(); startDrag(e.clientX); } : undefined}
+             style={isCsrGrabbing ? { userSelect: 'none' } : undefined}>
           <div ref={trackRef} className="flex will-change-transform"
                style={{ transform: 'translateX(' + (-(slotW * len)) + 'px)' }}>
             {extended.map((item, i) => (
               <div key={i} className="px-3 box-border flex-shrink-0"
-                   style={{ width: slotW + 'px' }}>
+                   style={{ width: slotW + 'px' }}
+                   onClickCapture={(e) => { if (justDraggedRef.current) e.stopPropagation(); }}>
                 {renderItem(item, i % len)}
               </div>
             ))}

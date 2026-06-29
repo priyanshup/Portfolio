@@ -37,15 +37,13 @@ const WorkExperience = () => {
 
   const handleOpen = (i) => {
     if (open === i) return;
-
     setOpen(i);
-
+    // Wait for the 0.38s grid-template-rows transition to settle, then
+    // scroll so the header sits just below the nav. scrollIntoView reads
+    // the post-animation layout so the position is always accurate.
     setTimeout(() => {
       const el = cardRefs.current[i];
-      if (!el) return;
-      const rect   = el.getBoundingClientRect();
-      const target = window.scrollY + rect.top - NAV_HEIGHT - TOP_MARGIN;
-      window.scrollTo({ top: target, behavior: 'smooth' });
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 400);
   };
 
@@ -65,6 +63,7 @@ const WorkExperience = () => {
               key={i}
               ref={(el) => { cardRefs.current[i] = el; }}
               className={'reveal d' + Math.min(i + 1, 4)}
+              style={{ scrollMarginTop: (NAV_HEIGHT + TOP_MARGIN) + 'px' }}
             >
               <div className={'rounded-2xl border transition-colors duration-300 overflow-hidden ' + (
                 isOpen

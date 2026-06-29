@@ -56,7 +56,7 @@ const Testimonials = () => {
       />
 
       {expanded !== null && (
-        <TestimonialModal t={testimonials[expanded]} onClose={closeModal} />
+        <TestimonialModal testimonials={testimonials} startIndex={expanded} onClose={closeModal} />
       )}
 
       <div className="reveal">
@@ -85,6 +85,7 @@ const Testimonials = () => {
             hoverSpeed={10}
             showArrows={false}
             clickable={true}
+            draggable={true}
             externalPaused={expanded !== null}
             renderItem={renderCard}
           />

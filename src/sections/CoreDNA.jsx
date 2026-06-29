@@ -70,6 +70,7 @@ const CoreDNA = () => {
             tapSlowMultiplier={0.25}
             clickable={false}
             showArrows={false}
+            draggable={true}
             renderItem={(item) => <DNACard item={item} hover />}
           />
         )}

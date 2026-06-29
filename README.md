@@ -153,7 +153,7 @@ Open `src/data/projects.js` and add an object. If the total exceeds `VIEW_MORE_T
 Open `src/data/impactStories.js` and add an object with `eyebrow`, `company`, `headline`, `context`, and `outcomes` (array of strings). Keep reverse chronological order — most recent company first.
 
 ### Add a new testimonial
-Open `src/data/testimonials.js` and add an object. Paste the full text — the modal handles any length.
+Open `src/data/testimonials.js` and add an object. Paste the full text — the modal handles any length and includes left/right arrow navigation, keyboard (ArrowLeft/ArrowRight), touch swipe, and a dot position indicator automatically.
 
 ### Add a new certification
 Open `src/data/certifications.js` and add an object. Set `link: ""` if the certificate URL isn't available yet.
@@ -190,6 +190,34 @@ Light mode overrides for these same tokens are in `html:not(.dark)` at the botto
 
 ### Change any animation, modal, or layout CSS
 Edit `src/styles/globals.css`. Light mode overrides for custom classes live in §22 at the end of that file.
+
+---
+
+## Interactive Behaviors
+
+### Carousels (`src/components/ui/Carousel.jsx`)
+
+Two modes driven by the `autoPlay` prop:
+
+**Continuous** (StatsBar, Testimonials desktop, CoreDNA desktop):
+- rAF infinite scroll with hover-slow (speed halves on mouse enter)
+- `draggable={true}` enables grab-to-scrub on desktop (cursor changes to grab/grabbing) and live touch drag on mobile; auto-scroll resumes 1.5 s after release
+- StatsBar additionally sets `disableSwipe={true}` to suppress the swipe-to-jump path
+
+**Discrete** (all card carousels on mobile — Projects, ImpactStories, CaseStudies, Testimonials, CoreDNA):
+- Live drag-follow with smooth snap on release
+- Infinite loop via triple-clone (`[...items, ...items, ...items]`); starts in the middle copy; silently snaps back after each wrap
+- `peek={true}` shows a sliver of the adjacent card
+
+### Testimonial Modal (`src/components/modals/TestimonialModal.jsx`)
+
+Props: `{ testimonials, startIndex, onClose }` — full array + starting index.
+
+Navigation: left/right pill arrows, ArrowLeft/ArrowRight keyboard, touch swipe (>50 px), dot position indicator. 150 ms opacity fade between testimonials.
+
+### Work Experience Accordion (`src/sections/WorkExperience.jsx`)
+
+`rect.top` is captured *before* `setOpen(i)` so the scroll target is computed against the pre-expansion layout. Both `window.scrollTo` and `setOpen` fire in the same event handler — card header scrolls into position and expands simultaneously with no jerk.
 
 ---
 
