@@ -26,10 +26,6 @@ import { VIEW_MORE_THRESHOLD } from '../config';
 /* ── Project card — shared between inline grid and modal ── */
 export const ProjectCard = ({ p }) => (
   <div className="h-full rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 dark:hover:border-gray-600 hover:border-slate-300 card-lift flex flex-col overflow-hidden">
-
-    {/* Accent line at top */}
-    <div className="h-[2px] bg-gradient-to-r from-accent/50 via-accent/20 to-transparent flex-shrink-0" />
-
     <div className="p-5 sm:p-8 flex flex-col gap-4 flex-1">
       {/* Header */}
       <div>

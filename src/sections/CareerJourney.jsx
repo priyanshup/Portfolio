@@ -1,21 +1,18 @@
 /**
  * sections/CareerJourney.jsx
  *
- * Horizontal "Acts" layout — replaces the vertical timeline.
+ * Horizontal "Acts" layout — four career chapters in a card grid.
  *
- * Each career chapter is displayed as a full-height panel in a 4-column grid.
- * The gap-px + container-background technique creates divider lines between panels.
+ * Each chapter card uses bg-cardBg (glass) — clear, bounded surfaces
+ * that are consistent with the rest of the site. The gap-px divider
+ * technique has been replaced with a proper gap-4 grid.
+ *
+ * Year color: dark mode uses a very faint accent tint for decoration;
+ * light mode uses slate-300 (visible, not garish).
  *
  * Desktop: 4 panels side by side (Act I → IV)
  * Tablet:  2 × 2 grid
  * Mobile:  1 column stack
- *
- * Each panel shows:
- *   - Act number (Roman numeral, top-left)
- *   - Type badge (top-right)
- *   - Year (large, faded accent — visual anchor)
- *   - Role + company
- *   - Narrative note
  */
 
 import SectionHeader from '../components/ui/SectionHeader';
@@ -32,13 +29,13 @@ const CareerJourney = () => (
     />
 
     <div className="reveal mt-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px dark:bg-gray-800/40 bg-slate-200 rounded-2xl overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {timeline.map((item, i) => {
           const { badge, label } = typeStyle[item.type];
           return (
             <div
               key={i}
-              className="bg-darkBg p-7 md:p-8 flex flex-col gap-5 dark:hover:bg-[#0f1420] hover:bg-white transition-colors duration-200"
+              className="bg-cardBg rounded-2xl p-6 md:p-7 border dark:border-gray-800 border-slate-200 card-lift flex flex-col gap-4"
             >
               {/* Act label + type badge */}
               <div className="flex items-start justify-between gap-2">
@@ -50,14 +47,14 @@ const CareerJourney = () => (
                 </span>
               </div>
 
-              {/* Year — large, faded, visual anchor */}
-              <p className="font-display font-extrabold text-6xl leading-none text-accent/20 select-none">
+              {/* Year — decorative anchor, readable in both modes */}
+              <p className="font-display font-extrabold text-5xl leading-none dark:text-accent/20 text-slate-300 select-none">
                 {item.year}
               </p>
 
               {/* Role + company */}
               <div>
-                <h3 className="font-display font-bold text-lg dark:text-white text-slate-900 leading-tight">
+                <h3 className="font-display font-bold text-base dark:text-white text-slate-900 leading-snug">
                   {item.role}
                 </h3>
                 <p className="font-mono-pp text-xs dark:text-gray-500 text-slate-500 mt-1">

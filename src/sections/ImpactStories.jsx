@@ -25,10 +25,6 @@ import { VIEW_MORE_THRESHOLD } from '../config';
 /* ── Impact card — shared between inline grid and modal ── */
 export const ImpactCard = ({ s }) => (
   <div className="h-full rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 dark:hover:border-gray-600 hover:border-slate-300 card-lift flex flex-col overflow-hidden">
-
-    {/* Wider gradient bar — distinct from ProjectCard's slim line */}
-    <div className="h-[3px] bg-gradient-to-r from-accent via-accent/40 to-transparent flex-shrink-0" />
-
     <div className="p-5 sm:p-8 flex flex-col gap-4 flex-1">
       {/* Eyebrow + headline */}
       <div>

@@ -29,16 +29,23 @@
  */
 
 /* ── 1. Google Fonts ─────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+/*
+ * Font stack:
+ *   Plus Jakarta Sans — display headings (narrower + more refined than Syne;
+ *     professional without being heavy; suits a product leadership context)
+ *   Inter            — body text (industry standard for clarity)
+ *   IBM Plex Mono    — labels, tags, eyebrows (technical precision)
+ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
 
 /* ── 2. Font utilities ───────────────────────────────────────────── */
-.font-display { font-family: 'Syne', sans-serif !important; }
+.font-display { font-family: 'Plus Jakarta Sans', sans-serif !important; }
 .font-mono-pp { font-family: 'IBM Plex Mono', monospace !important; }
 
 /* ── 3. Base reset ───────────────────────────────────────────────── */
 html,
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
