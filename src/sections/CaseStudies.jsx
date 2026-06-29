@@ -7,14 +7,18 @@
  *   On return, this component reads that state via useLocation() and
  *   automatically reopens the overlay — restoring the user's browsing context.
  *
- *   Cards inside the overlay pass fromOverlay: true in their navigation state.
- *   Cards in the main grid pass fromOverlay: false (no overlay to restore).
+ * Card redesign:
+ *   - Single-column full-width layout on desktop (was 2-col grid)
+ *   - Left accent border (3px emerald, animates to full on hover)
+ *   - Faded chapter number (01, 02…) positioned top-right inside each card
+ *   - Larger title (text-2xl → text-3xl) — case studies earn more visual weight
+ *   - Hover lift via card-lift class
  *
  * Analytics:
  *   - trackCaseStudyOpen fires when a published case study card is clicked
  *   - trackViewMoreOpen fires when the "View All" button is clicked
  *
- * Desktop: static 2-col grid + "View All" modal when count > VIEW_MORE_THRESHOLD.
+ * Desktop: single-column stack + "View All" modal when count > VIEW_MORE_THRESHOLD.
  * Mobile:  swipeable carousel.
  */
 
@@ -31,12 +35,17 @@ import { trackCaseStudyOpen, trackViewMoreOpen } from '../utils/analytics.js';
 
 /* ── Case study card ─────────────────────────────────────────────
    Props:
-     cs           – case study data object
-     fromOverlay  – true when rendered inside the ViewMoreModal.
+     cs          – case study data object
+     fromOverlay – true when rendered inside the ViewMoreModal
+     index       – position in the list; drives the chapter number display
+                   (null in carousel/modal — suppresses the chapter number)
 ─────────────────────────────────────────────────────────────────── */
-export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
+export const CaseStudyCard = ({ cs, fromOverlay = false, index = null }) => {
+  const showChapter = index !== null;
+  const chapterNum = showChapter ? String(index + 1).padStart(2, '0') : null;
+
   const tags = (
-    <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+    <div className="flex flex-wrap gap-1.5 pt-1">
       {cs.tags.map((t) => (
         <span
           key={t}
@@ -49,13 +58,26 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
   );
 
   const body = (
-    <div className="p-5 sm:p-8 space-y-3 sm:space-y-4">
+    <div className="relative p-6 sm:p-8 space-y-3 sm:space-y-4">
+      {/* Chapter number — decorative, faded, top-right */}
+      {showChapter && (
+        <span className="absolute top-6 right-6 sm:top-8 sm:right-8 font-display font-extrabold text-7xl sm:text-8xl dark:text-gray-800/70 text-slate-200 leading-none select-none pointer-events-none">
+          {chapterNum}
+        </span>
+      )}
+
       <p className="font-mono-pp text-[10px] uppercase tracking-widest text-accent">{cs.company}</p>
-      <h3 className="font-display text-lg sm:text-xl font-bold dark:text-white text-slate-900 leading-tight group-hover:text-accent transition-colors">
+
+      <h3 className="font-display text-2xl sm:text-3xl font-bold dark:text-white text-slate-900 leading-tight pr-20 group-hover:text-accent transition-colors duration-200">
         {cs.title}
       </h3>
-      <p className="dark:text-gray-400 text-slate-600 text-sm leading-snug sm:leading-relaxed">{cs.teaser}</p>
+
+      <p className="dark:text-gray-400 text-slate-600 text-sm leading-relaxed max-w-2xl">
+        {cs.teaser}
+      </p>
+
       {tags}
+
       {cs.published && (
         <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest pt-1 dark:group-hover:text-white group-hover:text-emerald-700 transition-colors">
           Read Case Study →
@@ -64,17 +86,23 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
     </div>
   );
 
+  const baseCardClass = [
+    'rounded-2xl bg-cardBg border',
+    'dark:border-gray-800 border-slate-200',
+    'border-l-[3px] border-l-accent/35',
+    'dark:hover:border-l-accent hover:border-l-accent',
+    'card-lift h-full group overflow-hidden',
+    'transition-all duration-300',
+  ].join(' ');
+
   /* Published with slug — navigate and pass overlay context */
   if (cs.published && cs.slug) {
     return (
       <Link
         to={`/case-studies/${cs.slug}`}
-        state={{
-          scrollTo:    'case-studies',
-          fromOverlay: fromOverlay,
-        }}
+        state={{ scrollTo: 'case-studies', fromOverlay }}
         onClick={() => trackCaseStudyOpen(cs.slug)}
-        className="block rounded-3xl bg-cardBg dark:border-gray-800 border-slate-200 border hover:border-accent/40 transition-colors h-full group"
+        className={'block ' + baseCardClass}
       >
         {body}
       </Link>
@@ -83,20 +111,16 @@ export const CaseStudyCard = ({ cs, fromOverlay = false }) => {
 
   /* Published but no slug */
   if (cs.published) {
-    return (
-      <div className="rounded-3xl bg-cardBg dark:border-gray-800 border-slate-200 border h-full group">
-        {body}
-      </div>
-    );
+    return <div className={baseCardClass}>{body}</div>;
   }
 
   /* Not published — locked */
   return (
-    <div className="cs-locked rounded-3xl bg-cardBg dark:border-gray-800 border-slate-200 border h-full">
-      <div className="p-5 sm:p-8 space-y-3 sm:space-y-4">
+    <div className={'cs-locked ' + baseCardClass}>
+      <div className="p-6 sm:p-8 space-y-3 sm:space-y-4">
         <p className="font-mono-pp text-[10px] uppercase tracking-widest text-accent">{cs.company}</p>
-        <h3 className="font-display text-lg sm:text-xl font-bold dark:text-white text-slate-900 leading-tight">{cs.title}</h3>
-        <p className="dark:text-gray-400 text-slate-600 text-sm leading-snug sm:leading-relaxed">{cs.teaser}</p>
+        <h3 className="font-display text-2xl sm:text-3xl font-bold dark:text-white text-slate-900 leading-tight">{cs.title}</h3>
+        <p className="dark:text-gray-400 text-slate-600 text-sm leading-relaxed">{cs.teaser}</p>
         {tags}
       </div>
       <div className="cs-locked-overlay">
@@ -168,10 +192,10 @@ const CaseStudies = () => {
           />
         ) : (
           <>
-            {/* Main grid */}
-            <div className="grid md:grid-cols-2 gap-6">
+            {/* Single-column editorial stack on desktop */}
+            <div className="flex flex-col gap-4">
               {visible.map((cs, i) => (
-                <CaseStudyCard key={i} cs={cs} fromOverlay={false} />
+                <CaseStudyCard key={i} cs={cs} fromOverlay={false} index={i} />
               ))}
             </div>
             {hasMore && (
