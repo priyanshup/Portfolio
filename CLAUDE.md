@@ -180,6 +180,8 @@ Ordering rule: **reverse chronological by company tenure** — most recent compa
 - `useSectionTracking` fires `view_section` as each section enters the viewport
 - Analytics utility lives in `src/utils/analytics.js`
 
+**Important:** The initial `gtag('config', ...)` call in `index.html` uses `send_page_view: false` so the GA4 snippet does NOT send an automatic page_view on load. All page views are sent exclusively by `RouteTracker` → `trackPageView()`. Without this, the first page load would be double-counted (one from the snippet, one from `RouteTracker` mounting).
+
 ---
 
 ## Theme System (Dark / Light Mode)
@@ -289,10 +291,9 @@ html:not(.dark) .my-custom-class {
 **Props:** `{ testimonials, startIndex, onClose }` — full array + starting index (not a single object)
 
 **Navigation:**
-- Left `‹` / right `›` arrows (hidden when `testimonials.length <= 1`)
-  - **Mobile:** small centred button (`w-10 h-12`, `left-2`/`right-2`) — swipe is the primary input
-  - **Desktop (`md+`):** full card-height edge strip (`h-full`, `left-0`/`right-0`, `w-12`) — entire left/right edge is clickable
-  - Header and dots carry `relative z-20` so they stay interactive above the `z-10` arrow buttons
+- Left `‹` / right `›` arrows — **desktop (`md+`) only** (`hidden md:flex`). Full card-height edge strip (`h-full`, `left-0`/`right-0`, `w-12`) — entire left/right edge is clickable.
+  - Arrows are intentionally hidden on mobile: swipe gesture + dot indicators are the complete mobile navigation. Adding arrows on mobile clutters a small screen and is redundant.
+  - Header and dots carry `relative z-20` so they stay interactive above the `z-10` arrow buttons on desktop.
 - Keyboard: `ArrowLeft` / `ArrowRight` navigate; `Escape` closes
 - Touch swipe: `touchstart` + `touchend` on the **backdrop** (not the card), so swiping anywhere on the overlay works; `|dx| > 50px` triggers prev/next
 - Dot indicators at the bottom; clicking a dot jumps directly to that testimonial
@@ -335,9 +336,11 @@ All content cards use this base pattern:
 <div className="bg-cardBg rounded-2xl border dark:border-gray-800 border-slate-200 card-lift">
 ```
 
-- `card-lift` — CSS class in `globals.css` §23: `transform: translateY(-5px)` + shadow escalation on hover. Apply to every interactive card.
+- `card-lift` — CSS class in `globals.css` §23: `transform: translateY(-5px)` + shadow escalation on hover. Apply to every interactive card. The `:hover` rules are wrapped in `@media (hover: hover)` so they never fire on touch devices — mobile carousel swipes will not trigger the pop-up animation.
 - `rounded-2xl` — standard card radius. Do not use `rounded-3xl` (too bubbly).
 - No internal gradient accent bars at the top of cards — they add visual noise. Hierarchy is carried by spacing and typography.
+
+**Mobile hover rule:** All CSS `:hover` transforms/shadows on cards must be inside `@media (hover: hover) { ... }`. This applies to both `.card-lift:hover` and the glass card border/shadow escalations (`.rounded-2xl.bg-cardBg:hover`). Without this guard, iOS/Android touch events trigger `:hover` on tap, causing cards to visually pop during carousel swipes.
 
 ### Section layout patterns
 
@@ -374,4 +377,6 @@ The subtitle line ("Technical Product Leader · 10 Years") uses two spans to pre
 - Eyebrow: "Open to Opportunities"
 - Headline: "Ready to build something ambitious?"
 - Subtext: "Senior product roles where engineering depth meets commercial scale."
-- CTAs: Connect on LinkedIn ↗ · Download Resume
+- CTAs: Connect on LinkedIn `<ArrowUpRight />` · Download Resume
+
+The LinkedIn CTA uses the `<ArrowUpRight />` SVG icon (from `src/components/ui/Icons.jsx`), not the Unicode `↗` character — iOS renders `↗` as a colour emoji, which looks out of place.

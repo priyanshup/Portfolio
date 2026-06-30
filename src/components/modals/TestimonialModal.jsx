@@ -61,9 +61,10 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
 
   // Mobile: small centred button. Desktop: full card-height edge strip.
   // Header (z-20) and dots (z-20) sit above the arrow buttons (z-10) so they stay clickable.
+  // Mobile: arrows hidden — swipe + dots are sufficient. Desktop: full card-height edge strip.
   const arrowCls =
     'absolute top-1/2 -translate-y-1/2 md:top-0 md:translate-y-0 md:h-full ' +
-    'flex items-center justify-center ' +
+    'hidden md:flex items-center justify-center ' +
     'w-10 h-12 md:w-12 text-3xl leading-none z-10 select-none ' +
     'dark:text-slate-400 dark:hover:text-white text-slate-400 hover:text-slate-900 ' +
     'transition-colors';
