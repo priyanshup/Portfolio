@@ -68,7 +68,7 @@ export const CaseStudyCard = ({ cs, fromOverlay = false, index = null }) => {
 
       <p className="font-mono-pp text-[10px] uppercase tracking-widest text-accent">{cs.company}</p>
 
-      <h3 className="font-display text-2xl sm:text-3xl font-bold dark:text-white text-slate-900 leading-tight pr-20 group-hover:text-accent transition-colors duration-200">
+      <h3 className={`font-display text-2xl sm:text-3xl font-bold dark:text-white text-slate-900 leading-tight transition-colors duration-200 group-hover:text-accent${showChapter ? ' pr-20' : ''}`}>
         {cs.title}
       </h3>
 

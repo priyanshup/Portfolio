@@ -26,20 +26,20 @@ const Testimonials = () => {
   const renderCard = (t, i) => (
     <button
       onClick={() => setExpanded(i)}
-      className="w-full h-full text-left p-7 sm:p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 hover:border-accent/40 card-lift flex flex-col gap-3 cursor-pointer group"
+      className="w-full h-full text-left p-6 sm:p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 hover:border-accent/40 card-lift flex flex-col gap-3 cursor-pointer group relative overflow-hidden"
     >
-      {/* Oversized quote mark — visual anchor */}
-      <p className="font-serif text-8xl dark:text-gray-800 text-slate-200 leading-none select-none -mb-4 group-hover:text-accent/20 transition-colors duration-300">
+      {/* Oversized quote mark — absolute so it doesn't push content down */}
+      <span aria-hidden="true" className="absolute top-3 left-5 sm:top-4 sm:left-6 font-serif text-6xl sm:text-8xl dark:text-gray-800 text-slate-200 leading-none select-none pointer-events-none group-hover:text-accent/20 transition-colors duration-300">
         "
-      </p>
+      </span>
 
-      {/* Quote body — more lines visible */}
-      <p className="dark:text-gray-300 text-slate-700 text-sm leading-relaxed flex-1 line-clamp-6">
+      {/* Quote body — starts at top of card, no dead space */}
+      <p className="dark:text-gray-300 text-slate-700 text-sm leading-relaxed flex-1 line-clamp-6 pt-7 sm:pt-9 relative z-10">
         {t.text}
       </p>
 
       {/* Attribution */}
-      <div className="border-t dark:border-gray-800 border-slate-200 pt-4 mt-1">
+      <div className="border-t dark:border-gray-800 border-slate-200 pt-4 mt-1 relative z-10">
         <p className="dark:text-white text-slate-900 font-bold text-sm">{t.name}</p>
         <p className="dark:text-gray-400 text-slate-500 text-xs mt-0.5">{t.title} · {t.company}</p>
         <p className="font-mono-pp dark:text-gray-600 text-slate-400 text-[10px] uppercase tracking-widest mt-1">

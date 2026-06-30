@@ -14,7 +14,7 @@
 
 import { CONFIG } from '../../config';
 import BrandLogo from '../ui/BrandLogo';
-import { LI, GH, IG, FB, DL } from '../ui/Icons';
+import { LI, GH, IG, FB, DL, ArrowUpRight } from '../ui/Icons';
 import {
   trackResumeDownload,
   trackLinkedInClick,
@@ -59,7 +59,7 @@ const Footer = () => (
             onClick={trackLinkedInClick}
             className="cta-btn-primary"
           >
-            Connect on LinkedIn ↗
+            Connect on LinkedIn <ArrowUpRight />
           </a>
           <a
             href={CONFIG.resumeUrl}
