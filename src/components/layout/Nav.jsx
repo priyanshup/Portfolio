@@ -122,7 +122,8 @@ const Nav = ({ theme, toggleTheme }) => {
           {/* Resume glass pill — all breakpoints */}
           <a
             href={CONFIG.resumeUrl}
-            download
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={trackResumeDownload}
             className="resume-btn font-mono-pp"
           >

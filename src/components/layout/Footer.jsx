@@ -63,11 +63,12 @@ const Footer = () => (
           </a>
           <a
             href={CONFIG.resumeUrl}
-            download
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={trackResumeDownload}
             className="cta-btn-secondary"
           >
-            <DL /> Download Resume
+            <DL /> View Resume
           </a>
         </div>
       </div>
