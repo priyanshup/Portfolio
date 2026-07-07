@@ -4,7 +4,9 @@
  * Key projects for the Projects section.
  * Each project appears as a card.
  *
- * No links needed — all work is under NDA.
+ * No links needed — all client work is under NDA. The one exception is
+ * personal/open-source projects (`openSource: true`), which carry a
+ * `links` array rendered as clickable chips on the card.
  * Add new projects freely. If the total count exceeds VIEW_MORE_THRESHOLD
  * (defined in config/index.js), a "View All" button appears automatically.
  */
@@ -61,5 +63,20 @@ export const projects = [
       "Zero execution errors",
     ],
     stack: ["SQL", "Shell", "CRON", "Java"],
+  },
+  {
+    title: "Quor",
+    company: "Personal Project",
+    domain: "Developer Tools · Python · Open Source",
+    problem:
+      "AI coding assistants burn through their context window on repetitive, low-signal command output — build logs, stack traces, verbose CLI noise — leaving less room for the code that actually matters.",
+    outcomes: ["983 tests passing", "Published on PyPI", "Apache 2.0"],
+    stack: ["Python", "CLI", "PyPI"],
+    openSource: true,
+    links: [
+      { label: "GitHub", url: "https://github.com/priyanshup/Quor" },
+      { label: "PyPI", url: "https://pypi.org/project/quor/" },
+      { label: "Docs", url: "https://github.com/priyanshup/Quor#readme" },
+    ],
   },
 ];

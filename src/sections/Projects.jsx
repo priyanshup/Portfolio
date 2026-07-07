@@ -19,17 +19,41 @@ import { useState } from 'react';
 import SectionHeader from '../components/ui/SectionHeader';
 import Carousel from '../components/ui/Carousel';
 import ViewMoreModal from '../components/modals/ViewMoreModal';
+import { GH, Package, IconDocs } from '../components/ui/Icons';
 import { useIsMobile } from '../hooks';
 import { projects } from '../data/projects';
 import { VIEW_MORE_THRESHOLD } from '../config';
+import { trackProjectLinkClick } from '../utils/analytics';
+
+const LINK_ICONS = {
+  GitHub: GH,
+  PyPI: Package,
+  Docs: IconDocs,
+};
 
 /* ── Project card — shared between inline grid and modal ── */
-export const ProjectCard = ({ p }) => (
+export const ProjectCard = ({ p }) => {
+  // For open-source cards, only the last " · " segment (e.g. "Open Source")
+  // gets its own pill — the rest stays plain amber text in the same line.
+  const domainParts = p.domain.split(' · ');
+  const domainLabel = domainParts.slice(0, -1).join(' · ');
+  const domainBadge = domainParts[domainParts.length - 1];
+
+  return (
   <div className="h-full rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 dark:hover:border-gray-600 hover:border-slate-300 card-lift flex flex-col overflow-hidden">
     <div className="p-5 sm:p-8 flex flex-col gap-4 flex-1">
       {/* Header */}
       <div>
-        <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-1">{p.domain}</p>
+        {p.openSource ? (
+          <p className="font-mono-pp text-[10px] uppercase tracking-widest mb-1 dark:text-amber-400 text-amber-700">
+            {domainLabel} ·{' '}
+            <span className="inline-block font-bold px-2 py-0.5 rounded-full border dark:border-amber-400/30 border-amber-600/30 dark:bg-amber-400/10 bg-amber-500/10">
+              {domainBadge}
+            </span>
+          </p>
+        ) : (
+          <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-1">{p.domain}</p>
+        )}
         <h3 className="font-display text-lg sm:text-xl font-bold dark:text-white text-slate-900 leading-tight">{p.title}</h3>
         <p className="dark:text-gray-500 text-slate-500 text-xs mt-1 font-mono-pp">{p.company}</p>
       </div>
@@ -54,9 +78,31 @@ export const ProjectCard = ({ p }) => (
           {s}
         </span>
       ))}
+
+      {p.openSource && p.links?.length > 0 && (
+        <div className="w-full flex flex-wrap gap-1.5 mt-1.5">
+          {p.links.map((l) => {
+            const LinkIcon = LINK_ICONS[l.label];
+            return (
+              <a
+                key={l.label}
+                href={l.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackProjectLinkClick(p.title, l.label)}
+                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900/80 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-500 text-slate-500 dark:hover:text-white hover:text-slate-900 dark:hover:border-gray-600 hover:border-slate-300 transition-colors inline-flex items-center gap-1"
+              >
+                {LinkIcon && <LinkIcon />}
+                {l.label}
+              </a>
+            );
+          })}
+        </div>
+      )}
     </div>
   </div>
-);
+  );
+};
 
 /* ── Section ── */
 const Projects = () => {
@@ -70,7 +116,7 @@ const Projects = () => {
       <SectionHeader
         eyebrow="Shipped Work"
         title="Key Projects"
-        subtitle="All work done under NDA — no links, no screenshots. What's here: the problem, the approach, and the measurable outcome."
+        subtitle="Most of this is under NDA — no links, no screenshots. One open-source exception below. What's here: the problem, the approach, and the measurable outcome."
       />
 
       {showAll && (

@@ -66,6 +66,9 @@ export const trackCaseStudyOpen = (slug) =>
 export const trackViewMoreOpen = (section) =>
   trackEvent('view_more_open', { event_category: 'content', section });
 
+export const trackProjectLinkClick = (project, linkLabel) =>
+  trackEvent('project_link_click', { event_category: 'content', project, link: linkLabel });
+
 /* ── Section visibility tracker ─────────────────────────────────────
    Called by useSectionTracking hook when a section enters the viewport.
 ─────────────────────────────────────────────────────────────────────── */
