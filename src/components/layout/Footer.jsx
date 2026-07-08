@@ -80,7 +80,7 @@ const Footer = () => (
 
         <div className="flex flex-col items-center md:items-start gap-2">
           <BrandLogo className="h-9 w-9" />
-          <p className="font-mono-pp dark:text-gray-600 text-slate-500 text-[10px] uppercase tracking-widest">
+          <p className="font-mono-pp dark:text-gray-400 text-slate-600 text-[10px] uppercase tracking-widest">
             Technical Product Leader
           </p>
         </div>
@@ -101,7 +101,7 @@ const Footer = () => (
           ))}
         </div>
 
-        <p className="font-mono-pp dark:text-gray-600 text-slate-500 text-[10px] uppercase tracking-[0.3em]">
+        <p className="font-mono-pp dark:text-gray-400 text-slate-600 text-[10px] uppercase tracking-[0.3em]">
           © 2026 Priyanshu Pushpam
         </p>
       </div>

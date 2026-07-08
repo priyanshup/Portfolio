@@ -47,7 +47,7 @@ const CaseStudyContent = ({ slug }) => {
   }, [slug]);
 
   if (error) return (
-    <p className="dark:text-gray-500 text-slate-500 text-sm">
+    <p className="dark:text-gray-400 text-slate-600 text-sm">
       Content file not found. Make sure{' '}
       <code className="font-mono-pp text-accent">
         src/content/case-studies/{slug}/index.jsx
@@ -127,7 +127,7 @@ const CaseStudyPage = () => {
   /* ── 404 ── */
   if (!cs) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div id="main-content" className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center space-y-4">
           <p className="font-mono-pp text-accent text-xs uppercase tracking-widest">404</p>
           <h1 className="font-display text-4xl font-bold dark:text-white text-slate-900">
@@ -160,7 +160,7 @@ const CaseStudyPage = () => {
         ← Portfolio
       </Link>
 
-      <article className="max-w-3xl mx-auto px-6 pt-32 pb-24">
+      <article id="main-content" className="max-w-3xl mx-auto px-6 pt-32 pb-24">
 
         {/* Static top back link */}
         <Link
@@ -188,7 +188,7 @@ const CaseStudyPage = () => {
             {cs.tags.map((t) => (
               <span
                 key={t}
-                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded dark:bg-gray-900 bg-slate-800 dark:border dark:border-gray-800 border border-slate-700 text-white"
+                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-white text-slate-800"
               >
                 {t}
               </span>

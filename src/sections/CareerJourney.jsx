@@ -39,7 +39,7 @@ const CareerJourney = () => (
             >
               {/* Act label + type badge */}
               <div className="flex items-start justify-between gap-2">
-                <p className="font-mono-pp text-[10px] uppercase tracking-widest dark:text-gray-600 text-slate-400">
+                <p className="font-mono-pp text-[10px] uppercase tracking-widest dark:text-gray-400 text-slate-600">
                   Act {ROMAN[i]}
                 </p>
                 <span className={'font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border glass-badge flex-shrink-0 ' + badge}>
@@ -57,7 +57,7 @@ const CareerJourney = () => (
                 <h3 className="font-display font-bold text-base dark:text-white text-slate-900 leading-snug">
                   {item.role}
                 </h3>
-                <p className="font-mono-pp text-xs dark:text-gray-500 text-slate-500 mt-1">
+                <p className="font-mono-pp text-xs dark:text-gray-400 text-slate-500 mt-1">
                   {item.company}
                 </p>
               </div>

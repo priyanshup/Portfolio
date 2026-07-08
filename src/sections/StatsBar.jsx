@@ -26,7 +26,7 @@ const StatsBar = () => (
             <p className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-accent leading-none">
               {s.val}
             </p>
-            <p className="font-mono-pp text-[10px] md:text-[11px] uppercase tracking-widest dark:text-gray-500 text-slate-500 mt-3 leading-tight">
+            <p className="font-mono-pp text-[10px] md:text-[11px] uppercase tracking-widest dark:text-gray-400 text-slate-500 mt-3 leading-tight">
               {s.label}
             </p>
           </div>

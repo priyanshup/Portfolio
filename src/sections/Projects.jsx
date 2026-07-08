@@ -55,7 +55,7 @@ export const ProjectCard = ({ p }) => {
           <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-1">{p.domain}</p>
         )}
         <h3 className="font-display text-lg sm:text-xl font-bold dark:text-white text-slate-900 leading-tight">{p.title}</h3>
-        <p className="dark:text-gray-500 text-slate-500 text-xs mt-1 font-mono-pp">{p.company}</p>
+        <p className="dark:text-gray-400 text-slate-500 text-xs mt-1 font-mono-pp">{p.company}</p>
       </div>
 
       {/* Problem */}
@@ -74,7 +74,7 @@ export const ProjectCard = ({ p }) => {
     {/* Stack tags — separated by hairline */}
     <div className="px-5 sm:px-8 pb-5 sm:pb-7 pt-4 border-t dark:border-gray-800/60 border-slate-100 flex flex-wrap gap-1.5">
       {p.stack.map((s) => (
-        <span key={s} className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900/80 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-500 text-slate-500">
+        <span key={s} className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900/80 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-400 text-slate-600">
           {s}
         </span>
       ))}
@@ -90,7 +90,7 @@ export const ProjectCard = ({ p }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackProjectLinkClick(p.title, l.label)}
-                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900/80 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-500 text-slate-500 dark:hover:text-white hover:text-slate-900 dark:hover:border-gray-600 hover:border-slate-300 transition-colors inline-flex items-center gap-1"
+                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900/80 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-400 text-slate-600 dark:hover:text-white hover:text-slate-900 dark:hover:border-gray-600 hover:border-slate-300 transition-colors inline-flex items-center gap-1"
               >
                 {LinkIcon && <LinkIcon />}
                 {l.label}

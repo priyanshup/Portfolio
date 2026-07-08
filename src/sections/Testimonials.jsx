@@ -42,7 +42,7 @@ const Testimonials = () => {
       <div className="border-t dark:border-gray-800 border-slate-200 pt-4 mt-1 relative z-10">
         <p className="dark:text-white text-slate-900 font-bold text-sm">{t.name}</p>
         <p className="dark:text-gray-400 text-slate-500 text-xs mt-0.5">{t.title} · {t.company}</p>
-        <p className="font-mono-pp dark:text-gray-600 text-slate-400 text-[10px] uppercase tracking-widest mt-1">
+        <p className="font-mono-pp dark:text-gray-400 text-slate-600 text-[10px] uppercase tracking-widest mt-1">
           {t.relation}
         </p>
       </div>

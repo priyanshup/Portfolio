@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { CloseIcon } from '../ui/Icons';
+import useFocusTrap from '../../hooks/useFocusTrap';
 
 const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
   const [idx, setIdx]         = useState(startIndex);
   const [visible, setVisible] = useState(true);
   const t     = testimonials[idx];
   const count = testimonials.length;
+
+  const cardRef = useRef(null);
+  useFocusTrap(cardRef);
 
   const swipeTxRef = useRef(null);
   const navigating = useRef(false);
@@ -72,6 +76,11 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
   return (
     <div className="modal-backdrop" onClick={onClose} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <div
+        ref={cardRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Testimonial from ${t.name}`}
+        tabIndex={-1}
         className="modal-card relative w-full max-w-lg flex flex-col rounded-3xl bg-cardBg dark:border-gray-600 border-slate-200 border shadow-2xl"
         style={{ maxHeight: '82vh' }}
         onClick={(e) => e.stopPropagation()}
@@ -92,7 +101,7 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
           <div className="dark:border-gray-700 border-slate-200 border-t px-8 py-5 flex-shrink-0">
             <p className="dark:text-white text-slate-900 font-bold">{t.name}</p>
             <p className="dark:text-gray-400 text-slate-600 text-sm mt-1">{t.title} · {t.company}</p>
-            <p className="font-mono-pp dark:text-gray-500 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
+            <p className="font-mono-pp dark:text-gray-400 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
               {t.relation}
             </p>
           </div>

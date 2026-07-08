@@ -35,6 +35,7 @@ const NAV_LINKS = [
   ['#journey',      'Journey'],
   ['#projects',     'Projects'],
   ['#case-studies', 'Case Studies'],
+  ['#testimonials', 'Testimonials'],
 ];
 
 const SOCIAL_LINKS = [
