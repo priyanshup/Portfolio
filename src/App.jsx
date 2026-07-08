@@ -94,7 +94,7 @@ const HomePage = () => {
   }, [location.state]);
 
   return (
-    <main>
+    <main id="main-content">
       <Hero />
       <StatsBar />
       <WorkExperience />
@@ -129,6 +129,14 @@ const App = () => {
 
   return (
     <div className="min-h-screen selection:bg-accent selection:text-white">
+      {/* Visually hidden until keyboard focus; jumps past the nav to main content */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-accent focus:text-white focus:font-mono-pp focus:text-sm focus:shadow-lg"
+      >
+        Skip to content
+      </a>
+
       {/* Nav is always visible on every page */}
       <Nav theme={theme} toggleTheme={toggleTheme} />
 

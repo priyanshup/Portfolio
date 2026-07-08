@@ -127,7 +127,7 @@ const CaseStudyPage = () => {
   /* ── 404 ── */
   if (!cs) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div id="main-content" className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center space-y-4">
           <p className="font-mono-pp text-accent text-xs uppercase tracking-widest">404</p>
           <h1 className="font-display text-4xl font-bold dark:text-white text-slate-900">
@@ -160,7 +160,7 @@ const CaseStudyPage = () => {
         ← Portfolio
       </Link>
 
-      <article className="max-w-3xl mx-auto px-6 pt-32 pb-24">
+      <article id="main-content" className="max-w-3xl mx-auto px-6 pt-32 pb-24">
 
         {/* Static top back link */}
         <Link
