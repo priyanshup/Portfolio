@@ -25,13 +25,13 @@ const CertCard = ({ c }) => {
       <p className="font-display text-2xl font-extrabold text-accent mb-3">{c.short}</p>
       <p className="dark:text-white text-slate-900 text-xs font-bold leading-tight">{c.full}</p>
       <p className="font-mono-pp dark:text-gray-400 text-slate-500 text-[10px] uppercase tracking-widest mt-2">{c.issuer}</p>
-      <p className="font-mono-pp dark:text-gray-500 text-slate-500 text-[10px] mt-1">{c.year}</p>
+      <p className="font-mono-pp dark:text-gray-400 text-slate-500 text-[10px] mt-1">{c.year}</p>
       {c.link ? (
         <span className="font-mono-pp text-[10px] text-accent mt-3 inline-flex items-center gap-1 dark:group-hover:text-white group-hover:text-slate-900 transition-colors">
           View Certificate <ExtLink />
         </span>
       ) : (
-        <span className="font-mono-pp text-[10px] dark:text-gray-700 text-slate-400 mt-3 inline-block uppercase tracking-widest">
+        <span className="font-mono-pp text-[10px] dark:text-gray-400 text-slate-600 mt-3 inline-block uppercase tracking-widest">
           Link coming soon
         </span>
       )}

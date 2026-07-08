@@ -65,7 +65,7 @@ export const MetricRow = ({ metrics }) => (
         className="p-5 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 text-center"
       >
         <p className="font-display text-3xl font-bold text-accent">{val}</p>
-        <p className="font-mono-pp dark:text-gray-500 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
+        <p className="font-mono-pp dark:text-gray-400 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
           {label}
         </p>
       </div>
@@ -88,7 +88,7 @@ export const ImageFull = ({ src, alt, caption }) => (
       <img src={src} alt={alt} className="w-full h-auto" loading="lazy" />
     </div>
     {caption && (
-      <figcaption className="font-mono-pp dark:text-gray-600 text-slate-500 text-[10px] uppercase tracking-widest text-center mt-3">
+      <figcaption className="font-mono-pp dark:text-gray-400 text-slate-600 text-[10px] uppercase tracking-widest text-center mt-3">
         {caption}
       </figcaption>
     )}
@@ -109,7 +109,7 @@ export const ImageHalf = ({ left, right }) => (
           <img src={img.src} alt={img.alt} className="w-full h-auto" loading="lazy" />
         </div>
         {img.caption && (
-          <figcaption className="font-mono-pp dark:text-gray-600 text-slate-500 text-[10px] uppercase tracking-widest text-center mt-2">
+          <figcaption className="font-mono-pp dark:text-gray-400 text-slate-600 text-[10px] uppercase tracking-widest text-center mt-2">
             {img.caption}
           </figcaption>
         )}

@@ -47,7 +47,7 @@ const CaseStudyContent = ({ slug }) => {
   }, [slug]);
 
   if (error) return (
-    <p className="dark:text-gray-500 text-slate-500 text-sm">
+    <p className="dark:text-gray-400 text-slate-600 text-sm">
       Content file not found. Make sure{' '}
       <code className="font-mono-pp text-accent">
         src/content/case-studies/{slug}/index.jsx

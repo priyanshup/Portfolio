@@ -49,7 +49,7 @@ const Hero = () => (
 
           <div className="mt-5 flex items-center gap-4">
             <div className="h-px w-10 dark:bg-gray-700 bg-slate-300 flex-shrink-0" />
-            <p className="font-mono-pp text-[11px] uppercase tracking-[0.22em] dark:text-gray-500 text-slate-500">
+            <p className="font-mono-pp text-[11px] uppercase tracking-[0.22em] dark:text-gray-400 text-slate-600">
               <span className="sm:hidden">Product Leader · 10 Years</span>
               <span className="hidden sm:inline">Technical Product Leader · 10 Years</span>
             </p>

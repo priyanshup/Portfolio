@@ -67,7 +67,9 @@ body::after {
 html:not(.dark) {
   --color-darkBg: #f1f5f9;
   --color-cardBg: #ffffff;
-  --color-accent: #059669;
+  /* emerald-700 — darker than the dark-mode accent so small text (eyebrows,
+     tags, "Read Case Study") clears WCAG AA 4.5:1 in light mode. */
+  --color-accent: #047857;
 }
 
 html:not(.dark) body {
