@@ -16,10 +16,14 @@
  *   onClose     – callback to close the modal
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { CloseIcon } from '../ui/Icons';
+import useFocusTrap from '../../hooks/useFocusTrap';
 
 const ViewMoreModal = ({ title, eyebrow, items, renderItem, onClose }) => {
+  const cardRef = useRef(null);
+  useFocusTrap(cardRef);
+
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -42,8 +46,13 @@ const ViewMoreModal = ({ title, eyebrow, items, renderItem, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
+    <div className="modal-backdrop" onClick={onClose}>
       <div
+        ref={cardRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
         className="modal-card relative w-full max-w-4xl flex flex-col rounded-3xl bg-darkBg dark:border-gray-700 border-slate-200 border shadow-2xl"
         style={{ maxHeight: '88vh' }}
         onClick={(e) => e.stopPropagation()}
