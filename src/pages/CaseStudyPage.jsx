@@ -188,7 +188,7 @@ const CaseStudyPage = () => {
             {cs.tags.map((t) => (
               <span
                 key={t}
-                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded dark:bg-gray-900 bg-slate-800 dark:border dark:border-gray-800 border border-slate-700 text-white"
+                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-white text-slate-800"
               >
                 {t}
               </span>
