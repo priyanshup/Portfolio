@@ -91,6 +91,45 @@ Tracks identified tech debt, when it was fixed, and what changed.
 
 ---
 
+### 2026-07-09 (session 3) — found during the recruiter/UX sprint's WCAG + consistency audits
+
+#### 12. WCAG AA contrast failure — `WorkExperience.jsx` "Current" badge
+- **File:** `src/sections/WorkExperience.jsx:95`
+- **Problem:** `border-green-400/30 text-green-400 bg-green-400/10` had no `dark:`/light: split — the same bright green-400 rendered in both themes. Computed contrast against white cardBg in light mode: ~1.74:1 (needs 4.5:1) — the badge text was nearly invisible in light mode.
+- **Fix:** Applied the already-correct `dark:text-green-400 text-green-700 dark:border-green-400/30 border-green-700/40 dark:bg-green-400/10 bg-green-700/10` pairing that `src/data/timeline.js`'s `typeStyle.current` already used for the same "current" concept — computed contrast for green-700 on white: ~5.01:1, passes.
+
+#### 13. WCAG AA contrast failure — accordion `ChevronDown` icon
+- **File:** `src/components/ui/Icons.jsx`
+- **Problem:** Unguarded `text-gray-400`, no light-mode value. Computed contrast on white cardBg: ~2.54:1 (needs 3:1 for a UI icon) — too faint in light mode.
+- **Fix:** `dark:text-gray-400 text-slate-600`, matching the sibling `LockIcon`'s existing pattern two lines above it.
+
+#### 14. Visual inconsistency — `CoreDNA.jsx` card radius
+- **File:** `src/sections/CoreDNA.jsx`
+- **Problem:** `rounded-3xl` — the only card on the site not using the `rounded-2xl` convention every other section (Projects, ImpactStories, Testimonials, CaseStudies, Certifications, CareerJourney, WorkExperience) uses. CLAUDE.md explicitly documents `rounded-3xl` as rejected ("too bubbly").
+- **Fix:** Changed to `rounded-2xl`.
+
+#### 15. Visual inconsistency — case-study-page tag chip color
+- **File:** `src/pages/CaseStudyPage.jsx`
+- **Problem:** The tag chips in the case study header used `dark:text-white text-slate-800`, while the visually identical chip is used with `dark:text-gray-400 text-slate-600` everywhere else it appears (`CaseStudies.jsx`, `Projects.jsx`, `WorkExperience.jsx`).
+- **Fix:** Aligned to `dark:text-gray-400 text-slate-600`.
+
+#### 16. Visual inconsistency + contrast gap — `Carousel.jsx` inactive dot indicator
+- **File:** `src/components/ui/Carousel.jsx`
+- **Problem:** Unguarded `bg-gray-700 hover:bg-gray-500`, no light-mode value — would render as a dark dot on a white card in light mode, and didn't match the equivalent dot in `TestimonialModal.jsx`, which already correctly uses `dark:bg-gray-700 bg-slate-300`.
+- **Fix:** Applied the same `dark:bg-gray-700 bg-slate-300` pairing.
+
+#### 17. Visual inconsistency — `ViewMoreModal` eyebrow size
+- **File:** `src/components/modals/ViewMoreModal.jsx`
+- **Problem:** `text-[10px]` for the modal's section eyebrow, while every other section-level eyebrow site-wide (`SectionHeader.jsx`, `Footer.jsx`, `CaseStudyPage.jsx`) uses `text-xs`.
+- **Fix:** Changed to `text-xs`.
+
+#### 18. `document.title` never reset after leaving a case study page
+- **File:** `src/App.jsx`, `src/pages/CaseStudyPage.jsx`
+- **Problem:** `App.jsx`'s title-setting effect had an empty dependency array — it ran once on initial mount and never again. `CaseStudyPage.jsx` updated `document.title` per case study but had no cleanup. Net effect: navigating from a case study back to the homepage left the case study's title in the browser tab indefinitely.
+- **Fix:** `CaseStudyPage.jsx`'s title effect now has a cleanup function that restores `CONFIG.siteTitle` (and the default meta description/canonical) on unmount. Found while implementing backlog item 7 (metadata); fixed as part of the same change since it's the same code path.
+
+---
+
 ## Open / Future
 
 _Nothing tracked yet. Add entries here as new debt is identified._
