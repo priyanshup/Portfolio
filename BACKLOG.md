@@ -58,6 +58,7 @@ Worth considering depending on goals.
 - **Heavy animations / interactions** — Portfolio is already clean. Over-engineering reads as a designer's portfolio, not a PM's. Skipped.
 - **Blog section** — Only if consistently maintained. Risk of stale posts signalling neglect outweighs benefit. Deferred indefinitely.
 - **Scroll-spy URL updates** — Dynamically updating the URL hash as user scrolls through sections. HashRouter conflict, browser history noise, no real shareable value for a portfolio. Rejected.
+- **Nav's global GitHub icon deep-linking to Quor instead of profile root** — [2026-07-09] Flagged during the recruiter/UX sprint, confirmed working as designed. Left as a general profile link. Rejected.
 
 ---
 
@@ -67,8 +68,7 @@ Found while working the sprint below. Not implemented — out of the approved sc
 
 ~~10. **Footer.jsx social links leak referrer**~~ — [DONE 2026-07-09] Approved and fixed. `rel="noopener"` → `rel="noopener noreferrer"` on the footer's 4 social icon links (`src/components/layout/Footer.jsx:94`). See "Recruiter & UX Optimization Sprint" done-log below for the tech-debt cross-reference.
 
-11. **Nav's global GitHub icon points to profile root, not Quor** — Since Quor was just made the one Featured/verifiable project (see sprint item 4 below), the Nav/Footer GitHub icon still links to the general GitHub profile rather than deep-linking to the Quor repo. Worth deciding deliberately either way.
-    *Why flagged, not fixed: changing Nav's global social link behavior wasn't part of the approved Projects-section-only scope for item 4.*
+~~11. **Nav's global GitHub icon points to profile root, not Quor**~~ — [DECIDED 2026-07-09] Confirmed working as designed — kept as a general profile link. See "Decided Against" above.
 
 12. **True social-preview fix for case study links** — `og:title`/`og:description`/`og:image` are still static in `index.html`; the per-page description/canonical added in this sprint only helps on-page correctness and JS-executing crawlers (Googlebot), not link-preview bots (LinkedIn, Slack, X), which don't run JS. Fixing that needs static prerendering or a serverless function per route.
     *Why flagged, not fixed: real infra change, bigger than "low-risk, no UI change."*
@@ -105,6 +105,15 @@ Found while working the sprint below. Not implemented — out of the approved sc
 
 8. **Footer.jsx referrer leak (approved follow-up, 2026-07-09)** — [DONE]. `rel="noopener"` → `rel="noopener noreferrer"` on the footer's 4 social icon links. This was flagged during the sprint above as item 10 in "Needs Your Review"; approved and fixed as a follow-up rather than folded into the original sprint commits. Corrects `TECH_DEBT.md` #6, which had recorded this as already fixed everywhere (it had only been fixed in `Nav.jsx`).
    Files: `src/components/layout/Footer.jsx`.
+
+9. **Resume link 404 guard (approved follow-up, 2026-07-09)** — [DONE]. Looked closer before implementing: `public/404.html` already redirects any unmatched path (including a broken resume link) back into the app, so a filename mismatch was never a true dead end — but it was silent (the resume just never opens, no explanation) and a client-side pre-flight check would need an async fetch before `window.open()`, which risks popup blockers eating the tab. The more valuable, lower-risk fix is catching the mismatch before it ships: added `scripts/check-resume.js`, wired into `predeploy`, which fails the deploy loudly if `CONFIG.resumeUrl` doesn't match a real file in `/public`. Zero runtime behavior changed.
+   Files: `scripts/check-resume.js` (new), `package.json` (`predeploy` script).
+
+10. **Stale resume filename in README.md (approved follow-up, 2026-07-09)** — [DONE]. `README.md`'s project-structure tree still listed `Priyanshu_Pushpam_Senior_Product_Manager.pdf`, the pre-rename filename — `CONFIG.resumeUrl` and the actual file in `/public` both already say `..._Technical_Product_Manager.pdf`. Doc-only fix, no code affected.
+   Files: `README.md`.
+
+11. **Jargon pass on CoreDNA "Product Strategy" card (approved follow-up, 2026-07-09)** — [DONE]. Four unglossed acronyms back to back (RICE, Kano, OKRs, GTM) was the single densest jargon cluster on the page. Added short parenthetical glosses ("prioritization frameworks (RICE, Kano)", "go-to-market (GTM) strategy") without dropping any of the original keywords, so a PM reader still recognizes them instantly while a non-expert isn't lost. **Deliberately left the Hero tagline untouched** ("I bridge C-suite strategy and high-concurrency engineering...") — it's the site's core brand line and its primary audience (technical recruiters/hiring managers) is fluent in that vocabulary; simplifying it risks diluting punch for the audience that matters most for a marginal gain with a secondary audience.
+    Files: `src/data/dna.js`.
 
 ---
 

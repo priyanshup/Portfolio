@@ -9,7 +9,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "node scripts/check-resume.js && npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
