@@ -13,7 +13,7 @@ import { useIsMobile } from '../hooks';
 
 /* Shared card renderer — same for both mobile and desktop */
 const DNACard = ({ item, hover = false }) => (
-  <div className={'h-full p-8 rounded-3xl bg-cardBg border dark:border-gray-800 border-slate-200 flex flex-col gap-4 min-h-56 ' + (hover ? 'dark:hover:border-gray-600 hover:border-slate-300 transition-colors' : '')}>
+  <div className={'h-full p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 flex flex-col gap-4 min-h-56 ' + (hover ? 'dark:hover:border-gray-600 hover:border-slate-300 transition-colors' : '')}>
     <div
       className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
       style={{
