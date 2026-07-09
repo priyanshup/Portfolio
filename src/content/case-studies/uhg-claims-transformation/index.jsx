@@ -15,6 +15,7 @@
 import {
   H2, H3, P,
   Callout, MetricRow,
+  AtAGlance, ProcessFlow,
   BulletList, Divider,
 } from '../components.jsx';
 
@@ -28,6 +29,17 @@ import {
 
 const UHGClaimsCaseStudy = () => (
   <>
+
+    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
+    <AtAGlance
+      summary="Built a four-layer claims intelligence system that derives, corrects, and recovers imperfect data instead of rejecting it outright — cutting payment cycle times by ~20%."
+      problem="Empty non-mandatory fields degraded claim quality, and errors in mandatory fields caused outright rejections — triggering expensive provider follow-up cycles and delayed payment."
+      role="Sr. Business Systems Analyst"
+      team="UHG claims processing team + provider-facing operations"
+      timeline="One of 4 concurrent enterprise transformation initiatives, 2019–2022"
+      primaryMetric={{ val: "~20%", label: "Faster Payment Cycles" }}
+      tech={["SQL", "837 Standard", "Shell"]}
+    />
 
     {/* ── HEADLINE METRICS ── */}
     <MetricRow metrics={[
@@ -112,6 +124,13 @@ const UHGClaimsCaseStudy = () => (
       addressing a different class of data problem — from enriching incomplete
       claims to recovering potentially rejectable ones.
     </P>
+
+    <ProcessFlow steps={[
+      "Non-Mandatory Field Derivation",
+      "Cross-Field Validation & Typo Correction",
+      "Mandatory Field Recovery Logic",
+      "Provider Notification Framework",
+    ]} />
 
     <H3>1. Non-Mandatory Field Derivation</H3>
 

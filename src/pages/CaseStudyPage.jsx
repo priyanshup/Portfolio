@@ -19,6 +19,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { caseStudies } from '../data/caseStudies.js';
+import { CONFIG } from '../config';
 
 const BACK_LABEL = '← Back to Portfolio';
 
@@ -80,11 +81,40 @@ const CaseStudyPage = () => {
   const bottomLinkRef = useRef(null);
   const [showFloating, setShowFloating] = useState(false);
 
-  /* Page title */
+  /*
+   * Page title + share metadata.
+   * NOTE: this updates document.title, <meta name="description"> and
+   * <link rel="canonical"> client-side, which helps on-page correctness and
+   * crawlers that execute JS (Googlebot does). It does NOT change what
+   * link-preview bots (LinkedIn, Slack, X) show when a case study URL is
+   * pasted elsewhere — those bots don't run JS, so they still read the
+   * static tags in index.html. Fixing that would need static prerendering
+   * or a serverless function per route, which is a bigger infra change than
+   * this pass covers.
+   */
   useEffect(() => {
     document.title = cs
       ? `${cs.title} — Priyanshu Pushpam`
       : 'Case Study Not Found — Priyanshu Pushpam';
+
+    const descTag = document.querySelector('meta[name="description"]');
+    if (descTag && cs) descTag.setAttribute('content', cs.teaser);
+
+    let canonicalTag = document.querySelector('link[rel="canonical"]');
+    if (!canonicalTag) {
+      canonicalTag = document.createElement('link');
+      canonicalTag.rel = 'canonical';
+      document.head.appendChild(canonicalTag);
+    }
+    canonicalTag.href = cs
+      ? `${CONFIG.siteUrl}#/case-studies/${cs.slug}`
+      : CONFIG.siteUrl;
+
+    return () => {
+      document.title = CONFIG.siteTitle;
+      if (descTag) descTag.setAttribute('content', CONFIG.siteDescription);
+      if (canonicalTag) canonicalTag.href = CONFIG.siteUrl;
+    };
   }, [cs]);
 
   /* Scroll to top on navigation */
@@ -188,7 +218,7 @@ const CaseStudyPage = () => {
             {cs.tags.map((t) => (
               <span
                 key={t}
-                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-white text-slate-800"
+                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-400 text-slate-600"
               >
                 {t}
               </span>

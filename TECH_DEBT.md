@@ -48,6 +48,7 @@ Tracks identified tech debt, when it was fixed, and what changed.
 - **File:** `src/components/layout/Nav.jsx`
 - **Problem:** Social icon links used `rel="noopener"` without `noreferrer`. `noreferrer` prevents the `Referer` header from being sent to external sites (so LinkedIn/GitHub/etc. don't see the portfolio URL as a referrer). It also implies `noopener` in modern browsers. `Certifications.jsx` already used `noreferrer` — this was an inconsistency.
 - **Fix:** Both the desktop social links and the mobile dropdown social links now use `rel="noopener noreferrer"`.
+- **Correction (2026-07-09):** this fix only ever touched `Nav.jsx`. `Footer.jsx`'s 4 social icon links had the identical `rel="noopener"` gap and were missed at the time — found during the recruiter/UX sprint's review, approved as a follow-up, and fixed. See session 3, #19 below.
 
 ---
 
@@ -88,6 +89,50 @@ Tracks identified tech debt, when it was fixed, and what changed.
 - **Problem:** Prev/next arrow buttons were `w-10 h-12` (40×48px) positioned at `left-2`/`right-2`, vertically centred. Tiny click target, especially on desktop where a mouse cursor requires precision.
 - **Fix:** On `md+` screens, buttons expand to full card height (`md:h-full md:top-0 md:translate-y-0`) and anchor flush to the card edges (`md:left-0` / `md:right-0`, `md:w-12`). Mobile behaviour is unchanged (still centred, small, swipe-first).
 - **z-index note:** The header div and dots div both received `relative z-20` to stay interactive above the full-height arrow buttons (`z-10`). Without this, the close button and dot indicators would have been blocked by the arrows.
+
+---
+
+### 2026-07-09 (session 3) — found during the recruiter/UX sprint's WCAG + consistency audits
+
+#### 12. WCAG AA contrast failure — `WorkExperience.jsx` "Current" badge
+- **File:** `src/sections/WorkExperience.jsx:95`
+- **Problem:** `border-green-400/30 text-green-400 bg-green-400/10` had no `dark:`/light: split — the same bright green-400 rendered in both themes. Computed contrast against white cardBg in light mode: ~1.74:1 (needs 4.5:1) — the badge text was nearly invisible in light mode.
+- **Fix:** Applied the already-correct `dark:text-green-400 text-green-700 dark:border-green-400/30 border-green-700/40 dark:bg-green-400/10 bg-green-700/10` pairing that `src/data/timeline.js`'s `typeStyle.current` already used for the same "current" concept — computed contrast for green-700 on white: ~5.01:1, passes.
+
+#### 13. WCAG AA contrast failure — accordion `ChevronDown` icon
+- **File:** `src/components/ui/Icons.jsx`
+- **Problem:** Unguarded `text-gray-400`, no light-mode value. Computed contrast on white cardBg: ~2.54:1 (needs 3:1 for a UI icon) — too faint in light mode.
+- **Fix:** `dark:text-gray-400 text-slate-600`, matching the sibling `LockIcon`'s existing pattern two lines above it.
+
+#### 14. Visual inconsistency — `CoreDNA.jsx` card radius
+- **File:** `src/sections/CoreDNA.jsx`
+- **Problem:** `rounded-3xl` — the only card on the site not using the `rounded-2xl` convention every other section (Projects, ImpactStories, Testimonials, CaseStudies, Certifications, CareerJourney, WorkExperience) uses. CLAUDE.md explicitly documents `rounded-3xl` as rejected ("too bubbly").
+- **Fix:** Changed to `rounded-2xl`.
+
+#### 15. Visual inconsistency — case-study-page tag chip color
+- **File:** `src/pages/CaseStudyPage.jsx`
+- **Problem:** The tag chips in the case study header used `dark:text-white text-slate-800`, while the visually identical chip is used with `dark:text-gray-400 text-slate-600` everywhere else it appears (`CaseStudies.jsx`, `Projects.jsx`, `WorkExperience.jsx`).
+- **Fix:** Aligned to `dark:text-gray-400 text-slate-600`.
+
+#### 16. Visual inconsistency + contrast gap — `Carousel.jsx` inactive dot indicator
+- **File:** `src/components/ui/Carousel.jsx`
+- **Problem:** Unguarded `bg-gray-700 hover:bg-gray-500`, no light-mode value — would render as a dark dot on a white card in light mode, and didn't match the equivalent dot in `TestimonialModal.jsx`, which already correctly uses `dark:bg-gray-700 bg-slate-300`.
+- **Fix:** Applied the same `dark:bg-gray-700 bg-slate-300` pairing.
+
+#### 17. Visual inconsistency — `ViewMoreModal` eyebrow size
+- **File:** `src/components/modals/ViewMoreModal.jsx`
+- **Problem:** `text-[10px]` for the modal's section eyebrow, while every other section-level eyebrow site-wide (`SectionHeader.jsx`, `Footer.jsx`, `CaseStudyPage.jsx`) uses `text-xs`.
+- **Fix:** Changed to `text-xs`.
+
+#### 18. `document.title` never reset after leaving a case study page
+- **File:** `src/App.jsx`, `src/pages/CaseStudyPage.jsx`
+- **Problem:** `App.jsx`'s title-setting effect had an empty dependency array — it ran once on initial mount and never again. `CaseStudyPage.jsx` updated `document.title` per case study but had no cleanup. Net effect: navigating from a case study back to the homepage left the case study's title in the browser tab indefinitely.
+- **Fix:** `CaseStudyPage.jsx`'s title effect now has a cleanup function that restores `CONFIG.siteTitle` (and the default meta description/canonical) on unmount. Found while implementing backlog item 7 (metadata); fixed as part of the same change since it's the same code path.
+
+#### 19. `Footer.jsx` social links still missing `noreferrer` (gap in #6's original fix)
+- **File:** `src/components/layout/Footer.jsx`
+- **Problem:** Entry #6 above (2026-06-29) recorded the `rel="noopener"` → `rel="noopener noreferrer"` fix as covering "desktop social links and mobile dropdown," but that fix only touched `Nav.jsx`. `Footer.jsx`'s 4 footer-zone social icon links (LinkedIn, GitHub, Instagram, Facebook) had the identical gap and were never updated — found during this sprint's review, flagged for approval, approved, and fixed.
+- **Fix:** `rel="noopener"` → `rel="noopener noreferrer"` on `Footer.jsx`'s social icon row.
 
 ---
 

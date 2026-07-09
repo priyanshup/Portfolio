@@ -564,7 +564,7 @@ const Carousel = ({
               onClick={() => goToDot(i)}
               aria-label={'Go to page ' + (i + 1)}
               className={'h-1.5 rounded-full transition-all duration-300 ' +
-                (i === activePage ? 'bg-accent w-5' : 'bg-gray-700 hover:bg-gray-500 w-1.5')}
+                (i === activePage ? 'bg-accent w-5' : 'dark:bg-gray-700 bg-slate-300 hover:bg-gray-500 w-1.5')}
             />
           ))}
         </div>

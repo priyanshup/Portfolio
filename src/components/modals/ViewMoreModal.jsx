@@ -60,7 +60,7 @@ const ViewMoreModal = ({ title, eyebrow, items, renderItem, onClose }) => {
         {/* Fixed header */}
         <div className="flex items-start justify-between p-6 dark:border-b dark:border-gray-800 border-b border-slate-200 flex-shrink-0 bg-darkBg rounded-t-3xl">
           <div>
-            <p className="font-mono-pp text-accent text-[10px] uppercase tracking-[0.3em] mb-1">
+            <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.3em] mb-1">
               {eyebrow}
             </p>
             <h3 className="font-display text-2xl font-bold dark:text-white text-slate-900">{title}</h3>

@@ -91,7 +91,7 @@ const Footer = () => (
               key={label}
               href={href}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               aria-label={label}
               onClick={onClick}
               className="dark:hover:text-white hover:text-slate-900 transition-colors"

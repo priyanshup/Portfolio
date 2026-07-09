@@ -101,7 +101,7 @@ public/
 ├── me.jpg                          # Profile photo
 ├── logo.png                        # Brand logo — favicon + nav icon
 ├── og-image.png                    # Open Graph image for social sharing (1200×630)
-└── Priyanshu_Pushpam_Senior_Product_Manager.pdf
+└── Priyanshu_Pushpam_Technical_Product_Manager.pdf
 ```
 
 ---

@@ -16,6 +16,7 @@
  */
 
 import { CONFIG } from '../config';
+import { IconPin } from '../components/ui/Icons';
 
 const Hero = () => (
   <header
@@ -60,6 +61,12 @@ const Hero = () => (
         <p className="text-base md:text-lg dark:text-gray-300 text-slate-600 leading-relaxed max-w-lg">
           I bridge C-suite strategy and high-concurrency engineering —
           scaling platforms from zero to global.
+        </p>
+
+        {/* Work preference — location + remote/relocation openness at a glance */}
+        <p className="flex items-center gap-2 font-mono-pp text-[11px] uppercase tracking-[0.2em] dark:text-gray-400 text-slate-500">
+          <IconPin className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+          Hyderabad · Open to Bangalore &amp; Remote
         </p>
 
         {/* Credential tags */}

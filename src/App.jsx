@@ -22,6 +22,7 @@ import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useScrollReveal, useScrollTracking, useSectionTracking, useTheme } from './hooks';
 import { trackPageView } from './utils/analytics.js';
+import { CONFIG } from './config';
 
 /* Layout */
 import Nav         from './components/layout/Nav';
@@ -115,7 +116,7 @@ const HomePage = () => {
 const App = () => {
   /* Set page title and favicon from public/logo.png */
   useEffect(() => {
-    document.title = 'Priyanshu Pushpam — Technical Product Leader';
+    document.title = CONFIG.siteTitle;
     const existing = document.querySelector("link[rel*='icon']");
     const link = existing || document.createElement('link');
     link.rel  = 'icon';

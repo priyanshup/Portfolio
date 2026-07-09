@@ -17,6 +17,7 @@
 import {
   H2, H3, P,
   Callout, MetricRow,
+  AtAGlance, ProcessFlow,
   ImageFull, ImageHalf,
   BulletList, Divider,
 } from '../components.jsx';
@@ -32,6 +33,17 @@ import {
 
 const TechmojoSportsbookCaseStudy = () => (
   <>
+
+    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
+    <AtAGlance
+      summary="Took a white-label sportsbook from MVP to a repeatable playbook that launched five regulated markets in one month and tripled revenue."
+      problem="Stakeholders kept expanding scope on an unlaunched platform, while five target countries each carried different regulatory requirements — risking an indefinite development cycle."
+      role="Product Owner"
+      team="5 Scrum teams · 50+ engineers · 2 Business Analysts"
+      timeline="MVP to 5-country launch in 1 month; revenue growth tracked over the following 3 months"
+      primaryMetric={{ val: "200%", label: "Revenue Growth in 3 Months" }}
+      tech={["AWS", "Java Microservices", "Redis", "React"]}
+    />
 
     {/* ── HEADLINE METRICS ── */}
     <MetricRow metrics={[
@@ -122,6 +134,12 @@ const TechmojoSportsbookCaseStudy = () => (
       To move the product toward launch without sacrificing quality or
       stakeholder trust, I focused on three priorities in parallel.
     </P>
+
+    <ProcessFlow steps={[
+      "Defining a Clear MVP",
+      "Creating a Repeatable Launch Framework",
+      "Coordinating Compliance in Parallel",
+    ]} />
 
     <H3>1. Defining a Clear MVP</H3>
 

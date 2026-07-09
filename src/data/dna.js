@@ -16,7 +16,7 @@ export const dnaItems = [
   {
     icon: IconTarget,
     title: "Product Strategy",
-    desc: "CSPO-certified. Led multi-team (50+) engineering organisations. Expert in RICE, Kano, OKRs, P&L management, GTM strategy, and bridging the gap between business goals and technical execution.",
+    desc: "CSPO-certified. Led multi-team (50+) engineering organisations. Expert in prioritization frameworks (RICE, Kano), OKRs, P&L management, and go-to-market (GTM) strategy — bridging business goals and technical execution.",
   },
   {
     icon: IconZap,

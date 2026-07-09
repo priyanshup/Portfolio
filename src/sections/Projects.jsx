@@ -39,11 +39,20 @@ export const ProjectCard = ({ p }) => {
   const domainLabel = domainParts.slice(0, -1).join(' · ');
   const domainBadge = domainParts[domainParts.length - 1];
 
+  const featuredCls = p.featured
+    ? 'border-l-[3px] border-l-accent/60 dark:hover:border-l-accent hover:border-l-accent'
+    : '';
+
   return (
-  <div className="h-full rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 dark:hover:border-gray-600 hover:border-slate-300 card-lift flex flex-col overflow-hidden">
+  <div className={`h-full rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 dark:hover:border-gray-600 hover:border-slate-300 card-lift flex flex-col overflow-hidden transition-colors ${featuredCls}`}>
     <div className="p-5 sm:p-8 flex flex-col gap-4 flex-1">
       {/* Header */}
       <div>
+        {p.featured && (
+          <p className="font-mono-pp text-accent text-[10px] font-bold uppercase tracking-widest mb-1.5">
+            ★ Featured
+          </p>
+        )}
         {p.openSource ? (
           <p className="font-mono-pp text-[10px] uppercase tracking-widest mb-1 dark:text-amber-400 text-amber-700">
             {domainLabel} ·{' '}
