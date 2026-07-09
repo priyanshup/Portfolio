@@ -10,12 +10,16 @@
  *   <P>           Body paragraph
  *   <Callout>     Highlighted quote or key insight
  *   <MetricRow>   Row of metric stat boxes
+ *   <AtAGlance>   Recruiter-facing 60-second summary block — always first
+ *   <ProcessFlow> Visual step sequence for "My Approach" — mirrors the H3 steps
  *   <ImageFull>   Full-width image with optional caption
  *   <ImageHalf>   Two images side by side
  *   <Divider>     Horizontal rule between sections
  *   <BulletList>  Styled bullet list
  *   <Tag>         Inline tag chip
  */
+
+import { Fragment } from 'react';
 
 /* ── Typography ─────────────────────────────────────────────────── */
 
@@ -69,6 +73,109 @@ export const MetricRow = ({ metrics }) => (
           {label}
         </p>
       </div>
+    ))}
+  </div>
+);
+
+/* ── At a Glance / Process flow ─────────────────────────────────── */
+
+const Field = ({ label, value }) => (
+  <div className="min-w-0">
+    <p className="font-mono-pp dark:text-gray-400 text-slate-500 text-[10px] uppercase tracking-widest mb-1">
+      {label}
+    </p>
+    <p className="dark:text-slate-300 text-slate-700 text-sm leading-relaxed">{value}</p>
+  </div>
+);
+
+/**
+ * AtAGlance — recruiter-facing 60-second summary. Always the first thing
+ * in a case study, above <MetricRow>. The full quantified result set lives
+ * in the <MetricRow> that follows immediately after — this block covers the
+ * qualitative facts (role, team, timeline) plus the single headline metric,
+ * so the two together read as one "spec sheet" without repeating each other.
+ *
+ * Props:
+ *   summary        one-sentence elevator pitch (distinct from the card teaser)
+ *   problem        one-sentence business problem
+ *   role           title held during this project
+ *   team           who was involved — a headcount if one exists, otherwise
+ *                  a plain description of the group (never invented)
+ *   timeline       short, factual timeframe or scope descriptor
+ *   primaryMetric  { val, label } — the single headline result
+ *   tech           array of stack/tool strings
+ */
+export const AtAGlance = ({ summary, problem, role, team, timeline, primaryMetric, tech }) => (
+  <div className="my-8 p-6 sm:p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200">
+    <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-4">At a Glance</p>
+
+    <p className="dark:text-white text-slate-900 text-lg sm:text-xl font-display font-bold leading-snug mb-6">
+      {summary}
+    </p>
+
+    <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5 mb-6">
+      <Field label="Business Problem" value={problem} />
+      <Field label="My Role" value={role} />
+      <Field label="Team" value={team} />
+      <Field label="Timeline" value={timeline} />
+    </div>
+
+    <div className="border-t dark:border-gray-800 border-slate-200 pt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <p className="font-mono-pp dark:text-gray-500 text-slate-500 text-[10px] uppercase tracking-widest mb-1">
+          Primary Success Metric
+        </p>
+        <p className="font-display text-2xl font-bold text-accent">
+          {primaryMetric.val}{' '}
+          <span className="text-xs font-mono-pp dark:text-gray-400 text-slate-600 font-normal uppercase tracking-widest">
+            {primaryMetric.label}
+          </span>
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-1.5 sm:justify-end">
+        {tech.map((t) => (
+          <span
+            key={t}
+            className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-400 text-slate-600"
+          >
+            {t}
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+/**
+ * ProcessFlow — visualises the numbered steps of "My Approach" as a
+ * connected sequence, so a skimmer gets the shape of the approach before
+ * reading the prose underneath. Steps should be the same short phrases as
+ * the <H3> headings that follow — this is a visual index, not new content.
+ * Horizontal with → connectors on desktop; stacks vertically with ↓ on mobile.
+ *
+ * Props:
+ *   steps  array of short strings, one per approach step
+ */
+export const ProcessFlow = ({ steps }) => (
+  <div className="my-10 flex flex-col md:flex-row md:items-stretch gap-3" role="list" aria-label="Approach, step by step">
+    {steps.map((step, i) => (
+      <Fragment key={i}>
+        <div role="listitem" className="flex-1 p-5 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 min-w-0">
+          <p className="font-mono-pp text-accent text-[10px] uppercase tracking-widest mb-1.5">
+            Step {i + 1}
+          </p>
+          <p className="dark:text-white text-slate-900 text-sm font-semibold leading-snug">{step}</p>
+        </div>
+        {i < steps.length - 1 && (
+          <div
+            aria-hidden="true"
+            className="flex items-center justify-center flex-shrink-0 dark:text-gray-700 text-slate-300 font-bold text-lg leading-none"
+          >
+            <span className="md:hidden">↓</span>
+            <span className="hidden md:inline">→</span>
+          </div>
+        )}
+      </Fragment>
     ))}
   </div>
 );

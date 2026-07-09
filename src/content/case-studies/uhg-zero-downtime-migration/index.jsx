@@ -15,6 +15,7 @@
 import {
   H2, H3, P,
   Callout, MetricRow,
+  AtAGlance, ProcessFlow,
   BulletList, Divider,
 } from '../components.jsx';
 
@@ -28,6 +29,17 @@ import {
 
 const UHGMigrationCaseStudy = () => (
   <>
+
+    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
+    <AtAGlance
+      summary="Migrated a dental claims vendor off a proprietary format onto the industry-standard 837 across 28 states, without a single production incident."
+      problem="A proprietary claims format carried an ongoing risk of missing or misrepresented fields, triggering claim rejections and delayed payment — and the migration had to happen with zero disruption to live claims processing."
+      role="Sr. Business Systems Analyst"
+      team="March Vision's technical team + UHG's internal claims processing team"
+      timeline="Sequential rollout, one state at a time, alphabetically, across all 28 states"
+      primaryMetric={{ val: "0", label: "Downtime Incidents Across 28 States" }}
+      tech={["SQL", "Shell", "Java", "837 Standard"]}
+    />
 
     {/* ── HEADLINE METRICS ── */}
     <MetricRow metrics={[
@@ -110,6 +122,13 @@ const UHGMigrationCaseStudy = () => (
       each state individually before touching it, test thoroughly before going
       live, and monitor closely after go-live before moving to the next state.
     </P>
+
+    <ProcessFlow steps={[
+      "State-by-State Format Mapping",
+      "Rolling Alphabetical Migration",
+      "Dev Testing Before Every Cutover",
+      "Post-Go-Live Monitoring Per State",
+    ]} />
 
     <H3>1. State-by-State Format Mapping</H3>
 

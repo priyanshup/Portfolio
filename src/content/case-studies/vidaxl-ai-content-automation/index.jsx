@@ -18,6 +18,7 @@
 import {
   H2, H3, P,
   Callout, MetricRow,
+  AtAGlance, ProcessFlow,
   ImageFull, ImageHalf,
   BulletList, Divider,
 } from '../components.jsx';
@@ -32,6 +33,17 @@ import {
 
 const VidaXLCaseStudy = () => (
   <>
+
+    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
+    <AtAGlance
+      summary="Replaced a 3-week manual content pipeline with an AI system that publishes new products in days, at 10x the original market scale."
+      problem="Manually writing and translating product content for a global catalog took 2–3 weeks per launch, costing 60+ hours of manual work every week."
+      role="Product Owner"
+      team="Content ops, localization, catalog management & e-commerce leadership, plus an engineering partner"
+      timeline="Piloted on 90K SKUs across 12 markets, then expanded to 250K+ SKUs across 30+ markets"
+      primaryMetric={{ val: "3 days", label: "Publishing Time (was 3 weeks)" }}
+      tech={["GCP", "OpenAI", "Python", "Salsify"]}
+    />
 
     {/* ── HEADLINE METRICS — shown first, sets expectations ── */}
     <MetricRow metrics={[
@@ -120,6 +132,13 @@ const VidaXLCaseStudy = () => (
 
     {/* ── APPROACH ── */}
     <H2>My Approach</H2>
+
+    <ProcessFlow steps={[
+      "Validate the AI hypothesis with real LLM experiments",
+      "Design & blind-test prompts against brand guidelines",
+      "Build the automated pipeline into Salsify PIM",
+      "Pilot on 90K SKUs, then scale to 250K+",
+    ]} />
 
     <P>
       With the hypothesis validated, I explored whether generative AI could

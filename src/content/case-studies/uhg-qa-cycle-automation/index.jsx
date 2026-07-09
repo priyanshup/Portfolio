@@ -15,6 +15,7 @@
 import {
   H2, H3, P,
   Callout, MetricRow,
+  AtAGlance, ProcessFlow,
   BulletList, Divider,
 } from '../components.jsx';
 
@@ -28,6 +29,17 @@ import {
 
 const UHGQACaseStudy = () => (
   <>
+
+    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
+    <AtAGlance
+      summary="Replaced a manual, PHI-risk test-data setup step with an Excel-based generator, cutting QA cycle time by 30% with zero compliance exceptions."
+      problem="Every QA cycle required someone to manually create dummy patient data by hand — slow, inconsistent, and redone from scratch for every feature under test."
+      role="Sr. Business Systems Analyst"
+      team="UHG development & QA teams"
+      timeline="Built and adopted within one sprint cycle of release"
+      primaryMetric={{ val: "30%", label: "Faster QA Cycles" }}
+      tech={["Excel (VBA Macros)", "PL/SQL"]}
+    />
 
     {/* ── HEADLINE METRICS ── */}
     <MetricRow metrics={[
@@ -122,6 +134,12 @@ const UHGQACaseStudy = () => (
       removing the manual setup step entirely while keeping QA teams in full
       control of the scenarios they wanted to test.
     </P>
+
+    <ProcessFlow steps={[
+      "Building the Synthetic Data Library",
+      "Automated Query Generation",
+      "Built in Excel — Zero Adoption Friction",
+    ]} />
 
     <H3>1. Building the Synthetic Data Library</H3>
 
