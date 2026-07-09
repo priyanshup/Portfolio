@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Note: this is a HashRouter site (all routes are /#/...). Search engines
+  generally do not treat hash-fragment URLs as independently crawlable
+  pages the way real paths are — this sitemap is a low-risk, low-cost
+  addition, not a fix for that ceiling. Full crawlability of individual
+  case study pages would require switching to path-based routing with
+  server-side (or GitHub Pages 404-redirect) support, which is a bigger
+  change than this pass covers.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://priyanshup.github.io/Portfolio/</loc></url>
+  <url><loc>https://priyanshup.github.io/Portfolio/#/case-studies/vidaxl-ai-content-automation</loc></url>
+  <url><loc>https://priyanshup.github.io/Portfolio/#/case-studies/techmojo-sportsbook-gtm</loc></url>
+  <url><loc>https://priyanshup.github.io/Portfolio/#/case-studies/uhg-zero-downtime-migration</loc></url>
+  <url><loc>https://priyanshup.github.io/Portfolio/#/case-studies/uhg-qa-cycle-automation</loc></url>
+  <url><loc>https://priyanshup.github.io/Portfolio/#/case-studies/uhg-claims-transformation</loc></url>
+</urlset>
