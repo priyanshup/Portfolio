@@ -65,8 +65,7 @@ Worth considering depending on goals.
 
 Found while working the sprint below. Not implemented — out of the approved scope for that sprint, flagged here for a decision before anyone touches them.
 
-10. **Footer.jsx social links leak referrer** — `src/components/layout/Footer.jsx` still uses `rel="noopener"` (missing `noreferrer`) on the desktop social icon row. `TECH_DEBT.md` #6 recorded this exact issue as fixed, but that fix only touched `Nav.jsx` — `Footer.jsx` was never updated. One-line fix.
-    *Why flagged, not fixed: not part of the 7 approved backlog items for the recruiter/UX sprint below.*
+~~10. **Footer.jsx social links leak referrer**~~ — [DONE 2026-07-09] Approved and fixed. `rel="noopener"` → `rel="noopener noreferrer"` on the footer's 4 social icon links (`src/components/layout/Footer.jsx:94`). See "Recruiter & UX Optimization Sprint" done-log below for the tech-debt cross-reference.
 
 11. **Nav's global GitHub icon points to profile root, not Quor** — Since Quor was just made the one Featured/verifiable project (see sprint item 4 below), the Nav/Footer GitHub icon still links to the general GitHub profile rather than deep-linking to the Quor repo. Worth deciding deliberately either way.
     *Why flagged, not fixed: changing Nav's global social link behavior wasn't part of the approved Projects-section-only scope for item 4.*
@@ -103,6 +102,9 @@ Found while working the sprint below. Not implemented — out of the approved sc
 
 7. **Metadata & sharing** — [DONE]. Added `Person` JSON-LD structured data and a default canonical tag to `index.html`; added `public/robots.txt` and `public/sitemap.xml`. `CaseStudyPage.jsx` now updates `<meta name="description">` and `<link rel="canonical">` per case study (in addition to the `document.title` update it already did), and restores the homepage's defaults on unmount. **Bonus fix found while implementing:** `document.title` was never reset when navigating from a case study back to the homepage (`App.jsx`'s title-effect only ran once on initial mount) — the tab kept showing the case study's title. Fixed as part of the same change, since it's the same code path. See "Needs Your Review" above for what this does *not* fix (link-preview unfurling, hash-route crawlability).
    Files: `index.html`, `src/config/index.js` (new `siteUrl`/`siteTitle`/`siteDescription`), `src/App.jsx`, `src/pages/CaseStudyPage.jsx`, `public/robots.txt` (new), `public/sitemap.xml` (new).
+
+8. **Footer.jsx referrer leak (approved follow-up, 2026-07-09)** — [DONE]. `rel="noopener"` → `rel="noopener noreferrer"` on the footer's 4 social icon links. This was flagged during the sprint above as item 10 in "Needs Your Review"; approved and fixed as a follow-up rather than folded into the original sprint commits. Corrects `TECH_DEBT.md` #6, which had recorded this as already fixed everywhere (it had only been fixed in `Nav.jsx`).
+   Files: `src/components/layout/Footer.jsx`.
 
 ---
 

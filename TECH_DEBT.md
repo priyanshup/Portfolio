@@ -48,6 +48,7 @@ Tracks identified tech debt, when it was fixed, and what changed.
 - **File:** `src/components/layout/Nav.jsx`
 - **Problem:** Social icon links used `rel="noopener"` without `noreferrer`. `noreferrer` prevents the `Referer` header from being sent to external sites (so LinkedIn/GitHub/etc. don't see the portfolio URL as a referrer). It also implies `noopener` in modern browsers. `Certifications.jsx` already used `noreferrer` — this was an inconsistency.
 - **Fix:** Both the desktop social links and the mobile dropdown social links now use `rel="noopener noreferrer"`.
+- **Correction (2026-07-09):** this fix only ever touched `Nav.jsx`. `Footer.jsx`'s 4 social icon links had the identical `rel="noopener"` gap and were missed at the time — found during the recruiter/UX sprint's review, approved as a follow-up, and fixed. See session 3, #19 below.
 
 ---
 
@@ -127,6 +128,11 @@ Tracks identified tech debt, when it was fixed, and what changed.
 - **File:** `src/App.jsx`, `src/pages/CaseStudyPage.jsx`
 - **Problem:** `App.jsx`'s title-setting effect had an empty dependency array — it ran once on initial mount and never again. `CaseStudyPage.jsx` updated `document.title` per case study but had no cleanup. Net effect: navigating from a case study back to the homepage left the case study's title in the browser tab indefinitely.
 - **Fix:** `CaseStudyPage.jsx`'s title effect now has a cleanup function that restores `CONFIG.siteTitle` (and the default meta description/canonical) on unmount. Found while implementing backlog item 7 (metadata); fixed as part of the same change since it's the same code path.
+
+#### 19. `Footer.jsx` social links still missing `noreferrer` (gap in #6's original fix)
+- **File:** `src/components/layout/Footer.jsx`
+- **Problem:** Entry #6 above (2026-06-29) recorded the `rel="noopener"` → `rel="noopener noreferrer"` fix as covering "desktop social links and mobile dropdown," but that fix only touched `Nav.jsx`. `Footer.jsx`'s 4 footer-zone social icon links (LinkedIn, GitHub, Instagram, Facebook) had the identical gap and were never updated — found during this sprint's review, flagged for approval, approved, and fixed.
+- **Fix:** `rel="noopener"` → `rel="noopener noreferrer"` on `Footer.jsx`'s social icon row.
 
 ---
 
