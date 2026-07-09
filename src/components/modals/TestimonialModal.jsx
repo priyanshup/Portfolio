@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { CloseIcon } from '../ui/Icons';
 import useFocusTrap from '../../hooks/useFocusTrap';
+import { getInitials } from '../../utils/initials';
 
 const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
   const [idx, setIdx]         = useState(startIndex);
@@ -98,12 +99,20 @@ const TestimonialModal = ({ testimonials, startIndex, onClose }) => {
           <div className="overflow-y-auto scroll-section px-8 pb-4 flex-1">
             <p className="dark:text-gray-200 text-slate-700 text-base leading-relaxed">{t.text}</p>
           </div>
-          <div className="dark:border-gray-700 border-slate-200 border-t px-8 py-5 flex-shrink-0">
-            <p className="dark:text-white text-slate-900 font-bold">{t.name}</p>
-            <p className="dark:text-gray-400 text-slate-600 text-sm mt-1">{t.title} · {t.company}</p>
-            <p className="font-mono-pp dark:text-gray-400 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
-              {t.relation}
-            </p>
+          <div className="dark:border-gray-700 border-slate-200 border-t px-8 py-5 flex-shrink-0 flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="flex-shrink-0 w-11 h-11 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center font-mono-pp font-bold text-accent text-sm"
+            >
+              {getInitials(t.name)}
+            </span>
+            <div className="min-w-0">
+              <p className="dark:text-white text-slate-900 font-bold">{t.name}</p>
+              <p className="dark:text-gray-400 text-slate-600 text-sm mt-1">{t.title} · <span className="font-semibold dark:text-gray-200 text-slate-800">{t.company}</span></p>
+              <p className="font-mono-pp dark:text-gray-400 text-slate-500 text-[10px] uppercase tracking-widest mt-1">
+                {t.relation}
+              </p>
+            </div>
           </div>
         </div>
 

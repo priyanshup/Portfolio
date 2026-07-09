@@ -16,6 +16,7 @@ import Carousel from '../components/ui/Carousel';
 import TestimonialModal from '../components/modals/TestimonialModal';
 import { testimonials } from '../data/testimonials';
 import { useIsMobile } from '../hooks';
+import { getInitials } from '../utils/initials';
 
 const Testimonials = () => {
   const isMobile = useIsMobile();
@@ -39,12 +40,20 @@ const Testimonials = () => {
       </p>
 
       {/* Attribution */}
-      <div className="border-t dark:border-gray-800 border-slate-200 pt-4 mt-1 relative z-10">
-        <p className="dark:text-white text-slate-900 font-bold text-sm">{t.name}</p>
-        <p className="dark:text-gray-400 text-slate-500 text-xs mt-0.5">{t.title} · {t.company}</p>
-        <p className="font-mono-pp dark:text-gray-400 text-slate-600 text-[10px] uppercase tracking-widest mt-1">
-          {t.relation}
-        </p>
+      <div className="border-t dark:border-gray-800 border-slate-200 pt-4 mt-1 relative z-10 flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="flex-shrink-0 w-10 h-10 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center font-mono-pp font-bold text-accent text-xs"
+        >
+          {getInitials(t.name)}
+        </span>
+        <div className="min-w-0">
+          <p className="dark:text-white text-slate-900 font-bold text-sm">{t.name}</p>
+          <p className="dark:text-gray-400 text-slate-500 text-xs mt-0.5">{t.title} · <span className="font-semibold dark:text-gray-300 text-slate-700">{t.company}</span></p>
+          <p className="font-mono-pp dark:text-gray-400 text-slate-600 text-[10px] uppercase tracking-widest mt-1">
+            {t.relation}
+          </p>
+        </div>
       </div>
     </button>
   );
