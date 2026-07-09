@@ -92,7 +92,7 @@ const WorkExperience = () => {
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {job.current && (
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border border-green-400/30 text-green-400 bg-green-400/10 font-mono-pp">
+                      <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border dark:border-green-400/30 border-green-700/40 dark:text-green-400 text-green-700 dark:bg-green-400/10 bg-green-700/10 font-mono-pp">
                         Current
                       </span>
                     )}
