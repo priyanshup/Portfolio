@@ -1,301 +1,213 @@
 /**
  * content/case-studies/vidaxl-ai-content-automation/index.jsx
  *
- * Case Study: Scaling Product Launch Speed —
- * How AI Reduced Product Publishing Time from 3 Weeks to 3 Days
+ * Case study: cutting product publishing time from 3 weeks to 3 days with AI.
  *
- * IMAGES:
- *   Drop any diagrams, screenshots, or gifs into ./assets/ and
- *   import them here. Examples are commented throughout — uncomment
- *   and swap the src when the asset is ready.
+ * Images: put diagrams or screenshots in ./assets/, import them here and use
+ * <ImageFull>. Useful ones would be the manual workflow, the pipeline
+ * architecture and the pilot results.
  *
- *   Suggested assets to create:
- *     assets/manual-workflow.png   — flowchart of the before state
- *     assets/ai-pipeline.png       — architecture diagram of the built system
- *     assets/pilot-results.png     — chart of pilot metrics
+ * Voice: plain first person, British spelling, no dashes as connectors.
+ * See DESIGN.md, "Writing voice".
  */
 
 import {
   H2, H3, P,
-  Callout, MetricRow,
-  AtAGlance, ProcessFlow,
-  ImageFull, ImageHalf,
-  BulletList, Divider,
+  Callout, MetricRow, Collapsible,
+  Snapshot, ProcessFlow,
+  BulletList,
 } from '../components.jsx';
-
-/*
- * Uncomment as you add images to ./assets/
- *
- * import manualWorkflowImg from './assets/manual-workflow.png';
- * import aiPipelineImg     from './assets/ai-pipeline.png';
- * import pilotResultsImg   from './assets/pilot-results.png';
- */
 
 const VidaXLCaseStudy = () => (
   <>
 
-    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
-    <AtAGlance
-      summary="Replaced a 3-week manual content pipeline with an AI system that publishes new products in days, at 10x the original market scale."
-      problem="Manually writing and translating product content for a global catalog took 2–3 weeks per launch, costing 60+ hours of manual work every week."
+    {/* The short version: problem, what I did, result, takeaway */}
+    <Snapshot
+      plain={`VidaXL is an online retailer, and every new product needed its title, description and translations written by hand, a 2 to 3 week job. I owned the product that has AI draft them from data the company already had, so new products now go live in days.`}
+      problem={`Writing and translating product content by hand took 2 to 3 weeks per launch and about 60 hours of manual work every week. New products sat in warehouses instead of selling.`}
+      did={`Ran discovery with four teams, worked with an engineering colleague to test whether AI could write on-brand content from the product data already in the catalogue, designed the prompts, and had the content team review the output blind. Piloted on 90K SKUs before scaling to 250K+.`}
+      result={`Publishing time fell from 2 to 3 weeks to 2 to 3 days. Over 60 hours of manual work a week disappeared, content production cost dropped 23%, and conversion on newly launched products rose 7%.`}
+      takeaway={`AI works best on repetitive tasks where the input data already exists, and a pilot at real scale earns the trust you need to roll it out.`}
       role="Product Owner"
-      team="Content ops, localization, catalog management & e-commerce leadership, plus an engineering partner"
+      team="Content ops, localisation, catalogue management and e-commerce leadership, plus an engineering partner"
       timeline="Piloted on 90K SKUs across 12 markets, then expanded to 250K+ SKUs across 30+ markets"
-      primaryMetric={{ val: "3 days", label: "Publishing Time (was 3 weeks)" }}
       tech={["GCP", "OpenAI", "Python", "Salsify"]}
     />
 
-    {/* ── HEADLINE METRICS — shown first, sets expectations ── */}
     <MetricRow metrics={[
-      { val: "7%",   label: "Conversion Lift" },
-      { val: "23%",  label: "Cost Reduction" },
-      { val: "60h",  label: "Manual Work Saved / Week" },
-      { val: "3d",   label: "Publishing Time (was 3 weeks)" },
+      { val: "7%",   label: "Conversion lift" },
+      { val: "23%",  label: "Cost reduction" },
+      { val: "60h",  label: "Manual work saved per week" },
+      { val: "3d",   label: "Publishing time (was 3 weeks)" },
     ]} />
 
-    <Divider />
-
-    {/* ── THE PROBLEM ── */}
-    <H2>The Problem</H2>
+    <H2>The problem</H2>
 
     <P>
-      At VidaXL, launching a new product online required multiple manual steps
-      before it could appear on the website. After a product was manufactured,
-      the workflow looked like this:
+      At VidaXL, a new product couldn't go on sale until it had a title, a
+      description and translations for each market. After a product was
+      manufactured, the workflow looked like this:
     </P>
 
     <BulletList items={[
-      "Content team manually wrote product titles and descriptions",
-      "Localization team translated the content for each market",
-      "QA team verified the information for accuracy and brand voice",
-      "Content was finally published on the website",
+      "The content team wrote the titles and descriptions by hand.",
+      "The localisation team translated them for each market.",
+      "QA checked the content for accuracy and brand voice.",
+      "The content was finally published on the website.",
     ]} />
 
     <P>
-      This workflow took 2–3 weeks per product. The impact compounded quickly:
-      newly manufactured products sat in warehouses before appearing online,
-      customers were unaware of available inventory, marketing campaigns were
-      delayed, and operations teams spent dozens of hours every week on
-      repetitive content creation. The business was losing valuable selling time
-      on every single product launch.
+      That took 2 to 3 weeks per product. In the meantime, newly manufactured
+      products sat in warehouses, customers couldn't see what was in stock, and
+      marketing campaigns waited. The operations teams spent about 60 hours
+      every week on repetitive content work.
     </P>
 
-    {/*
-      <ImageFull
-        src={manualWorkflowImg}
-        alt="The manual product publishing workflow before automation"
-        caption="Before: a 2–3 week manual process involving four teams"
-      />
-    */}
-
-    <Callout label="The Core Challenge" accent>
-      How might we automatically generate high-quality product content and
-      translations so newly manufactured products can go live within days
-      instead of weeks?
+    <Callout label="The core question" accent>
+      Could we generate good product content and translations automatically, so
+      new products go live within days instead of weeks?
     </Callout>
 
-    <Divider />
-
-    {/* ── DISCOVERY ── */}
-    <H2>Discovery & Stakeholder Alignment</H2>
+    <H2>What I found</H2>
 
     <P>
-      To understand the full scope of the problem, I ran structured discovery
-      sessions across four teams: content operations, the localization team,
-      catalog management, and e-commerce leadership. I also analyzed catalog
-      publishing timelines and measured the operational workload tied to
-      content creation.
+      I ran discovery sessions with four teams: content operations,
+      localisation, catalogue management and e-commerce leadership. I also
+      looked at how long publishing really took and how much work sat behind it.
     </P>
 
     <P>
-      The central hypothesis I wanted to validate was whether AI could generate
-      reliable product content using the structured product attributes already
-      stored in our PIM system — without requiring additional data collection
-      or manual input.
+      My working hypothesis was that AI could write reliable product content
+      from the structured attributes already stored in our PIM system, the
+      database that holds our product information, with no new data collection
+      and no manual input.
     </P>
-
-    <H3>What I Found</H3>
 
     <BulletList items={[
-      "Manual content writing was the single biggest bottleneck — creating titles, descriptions, and product USPs required approximately 60 hours of manual effort every week.",
-      "Structured product data already existed — category, materials, dimensions, and features were all captured in the PIM system. The problem wasn't missing data; it was the manual transformation of that data into customer-facing content.",
-      "Localization multiplied the workload — each product required translation across multiple markets, creating repetitive effort for the localization team that scaled linearly with every new SKU added.",
+      "Writing titles, descriptions and selling points by hand took about 60 hours a week and was the biggest bottleneck.",
+      "The data already existed. Category, materials, dimensions and features were all in the PIM. What was slow was turning that data into text customers would read.",
+      "Translation multiplied the work. Every product had to be translated for every market, so the effort grew in step with the catalogue.",
     ]} />
 
-    <Callout label="Key Insight">
-      The data needed to write great product content already existed.
-      The bottleneck was entirely in the manual transformation step —
-      which meant it was a strong candidate for automation.
+    <Callout label="The insight">
+      The data needed to write good product content was already there. The slow
+      part was turning it into text by hand, which made it a good candidate for
+      automation.
     </Callout>
 
-    <Divider />
-
-    {/* ── APPROACH ── */}
-    <H2>My Approach</H2>
+    <H2>How I approached it</H2>
 
     <ProcessFlow steps={[
-      "Validate the AI hypothesis with real LLM experiments",
-      "Design & blind-test prompts against brand guidelines",
+      "Test the AI hypothesis with real LLM experiments",
+      "Design prompts and blind-test them against brand guidelines",
       "Build the automated pipeline into Salsify PIM",
       "Pilot on 90K SKUs, then scale to 250K+",
     ]} />
 
     <P>
-      With the hypothesis validated, I explored whether generative AI could
-      transform structured product attributes into high-quality marketing
-      content at scale. Working with a colleague from engineering, I ran
-      experiments across several LLM models to find the right fit for
-      our catalog structure and brand requirements.
+      First I checked the hypothesis. With a colleague from engineering, I ran
+      experiments on several large language models (LLMs) to see which one suited our catalogue
+      structure and brand requirements.
     </P>
 
     <P>
-      We designed prompts that combined key product attributes from the catalog,
-      brand style guidelines, instructions for generating titles, descriptions,
-      and USPs, and guardrails to keep the content concise and accurate for
-      e-commerce. We tested the outputs on a representative sample of SKUs and
-      had the content team review them blind.
+      Then we wrote prompts that combined the product attributes, the brand
+      style guide, instructions for titles, descriptions and selling points, and
+      guardrails to keep the copy short and accurate for e-commerce. We tried
+      them on a representative sample of SKUs and asked the content team to
+      review the results blind.
     </P>
 
     <P>
-      The feedback was consistently positive: descriptions were clear and
-      informative, the tone aligned with the brand style guide, and the content
-      was concise and appealing to customers. This validated the core assumption
-      — AI could reliably automate large parts of the content creation workflow.
+      The feedback was consistently good. The descriptions were clear, the tone
+      matched the style guide, and the copy was concise. That validated the core
+      assumption: AI could take over much of the content writing.
     </P>
 
-    <Divider />
-
-    {/* ── WHAT WE BUILT ── */}
-    <H2>What We Built</H2>
+    <Collapsible title="What we built">
 
     <P>
-      We built an AI-powered content generation pipeline integrated directly
-      with Salsify, our Product Information Management system. The end-to-end
-      workflow eliminated every manual step between product attributes and
-      published content:
+      We built a content pipeline inside Salsify, our product information
+      management system. It works like this:
     </P>
 
     <BulletList items={[
-      "Product attributes were fetched automatically from Salsify PIM",
-      "A structured prompt was generated dynamically using those attributes",
-      "The prompt was sent to OpenAI's API for content generation",
-      "AI generated product titles, product descriptions, and key selling points (USPs)",
-      "Generated content was written back to Salsify automatically",
-      "Products then moved through the standard publishing workflow — no manual content step",
+      "It pulls the product attributes from Salsify.",
+      "It builds a prompt from those attributes.",
+      "It sends the prompt to OpenAI's API.",
+      "The API returns a title, a description and key selling points.",
+      "The result is written back to Salsify.",
+      "The product then goes through the normal publishing workflow, with no manual content step.",
     ]} />
 
     <P>
-      To improve efficiency and reduce API costs, all requests were processed
-      in batch jobs, allowing thousands of SKUs to be processed simultaneously
-      rather than one at a time.
+      Requests run in batch jobs, so thousands of SKUs are processed at once.
+      That was more efficient and cut our API costs.
     </P>
 
-    {/*
-      <ImageFull
-        src={aiPipelineImg}
-        alt="The AI content generation pipeline architecture"
-        caption="The automated pipeline: from PIM attributes to published content"
-      />
-    */}
-
-    <H3>Pilot Program</H3>
+    <H3>The pilot</H3>
 
     <P>
-      Before rolling out globally, we ran a structured pilot program to validate
-      quality at scale and build stakeholder confidence before a full commitment.
+      Before rolling out globally, we ran a pilot on 90,000 SKUs (individual products) across 12
+      international markets. The content teams checked the output for product
+      accuracy, brand voice and correct localisation, and we used their feedback
+      to refine the prompts. Once the pilot worked, we expanded to 250,000 SKUs
+      across more than 30 markets.
     </P>
+    </Collapsible>
 
-    <BulletList items={[
-      "Scope: 90,000 SKUs across 12 international markets",
-      "Content teams reviewed AI-generated outputs for product accuracy, brand voice adherence, and correct localization",
-      "Feedback loops were used to refine prompts and improve output quality iteratively",
-    ]} />
-
-    <P>
-      After the pilot proved successful, the solution was expanded to 250,000
-      SKUs across 30+ global markets.
-    </P>
-
-    {/*
-      <ImageFull
-        src={pilotResultsImg}
-        alt="Pilot program results dashboard"
-        caption="Pilot outcomes: quality validation across 90K SKUs and 12 markets"
-      />
-    */}
-
-    <Divider />
-
-    {/* ── RESULTS ── */}
     <H2>Results</H2>
 
-    <P>
-      Within the first month of full deployment, we observed measurable
-      improvements across publishing speed, operational cost, and commercial
-      performance:
-    </P>
+    <P>Within the first month of full rollout:</P>
 
     <BulletList items={[
-      "Product publishing time reduced from 2–3 weeks to 2–3 days",
-      "60+ hours of manual content work eliminated per week",
-      "23% reduction in operational content production costs",
-      "7% increase in conversion rate for newly launched products",
+      "Publishing time fell from 2 to 3 weeks to 2 to 3 days.",
+      "60+ hours of manual content work a week disappeared.",
+      "Content production costs dropped by 23%.",
+      "Conversion rate for newly launched products rose by 7%.",
     ]} />
 
     <P>
-      The speed improvement had a compounding commercial impact: faster
-      publishing meant newly manufactured products could appear online almost
-      immediately after leaving the warehouse, unlocking earlier demand,
-      improving catalog freshness, and reducing the gap between production and
-      revenue.
+      Faster publishing also moved revenue forward. New products could be online
+      almost as soon as they left the warehouse, so demand started earlier and
+      the catalogue stayed fresher.
     </P>
 
-    <Divider />
+    <Collapsible title="What I'd do differently">
 
-    {/* ── REFLECTION ── */}
-    <H2>What I'd Do Differently</H2>
-
-    <H3>Introduce automated quality scoring earlier</H3>
+    <H3>Score quality automatically</H3>
     <P>
-      During the pilot, we relied heavily on manual content validation by the
-      content team. In hindsight, building an automated quality scoring layer —
-      one that flags potential AI issues before content reaches human reviewers —
-      would have reduced the manual review burden and caught edge cases faster.
+      During the pilot the content team checked everything by hand. An automated
+      quality score that flags likely AI problems before a person sees the
+      content would have cut that review work and caught edge cases sooner.
     </P>
 
-    <H3>Structure prompt optimisation as a formal process</H3>
+    <H3>Treat prompt testing as a process</H3>
     <P>
-      We iterated on prompts organically during the pilot phase. A structured
-      prompt testing framework with defined evaluation criteria and tracked
-      experiments would have reduced iteration time and made the improvements
-      more reproducible.
+      We refined prompts as we went. A proper test framework with agreed
+      evaluation criteria and tracked experiments would have shortened the
+      iterations and made the improvements repeatable.
     </P>
 
-    <H3>Enable content experimentation from day one</H3>
+    <H3>Plan for experiments from the start</H3>
     <P>
-      Once the system stabilised, we could have used it to generate multiple
-      content variations per product and run A/B tests to further improve
-      conversion performance. Building that experimentation capability into the
-      initial architecture — rather than treating it as a future enhancement —
-      would have compounded the commercial value significantly.
+      Once the system was stable, we could generate several versions of a
+      product's content and A/B test them for conversion. I'd build that in from
+      the beginning.
     </P>
+    </Collapsible>
 
-    <Divider />
-
-    {/* ── TAKEAWAYS ── */}
-    <H2>Key Takeaways</H2>
+    <H2>What I took from it</H2>
 
     <P>
-      This project reinforced something I now look for in every automation
-      opportunity: the highest-value AI use cases are rarely about generating
-      new data. They are about transforming structured data that already exists
-      but requires manual effort to convert into something useful.
+      The best AI opportunities I've seen are where structured data already
+      exists and people spend their time turning it into something else by hand.
     </P>
 
     <BulletList items={[
-      "AI delivers the most value when applied to structured, repetitive workflows where the input data already exists",
-      "Piloting at meaningful scale before full rollout builds stakeholder trust and surfaces quality issues you can't anticipate in small tests",
-      "Speed compounds commercially — reducing publishing time doesn't just save operational cost, it moves revenue forward",
+      "AI works best on structured, repetitive work where the input data already exists.",
+      "A pilot at real scale builds trust with stakeholders and shows quality problems that small tests miss.",
+      "Speed pays off commercially as well as operationally, because revenue arrives earlier.",
     ]} />
 
   </>

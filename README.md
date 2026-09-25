@@ -1,8 +1,10 @@
 # Priyanshu Pushpam — Portfolio
 
-Personal portfolio website for Priyanshu Pushpam, Technical Product Leader with 10 years of experience across e-commerce, gaming, and healthcare.
+Personal portfolio website for Priyanshu Pushpam, Technical Product Leader with 10 years of experience across healthcare, gaming, and e-commerce — currently Product Owner, Digital Commerce at Heineken.
 
 **Live site:** [priyanshup.github.io/Portfolio](https://priyanshup.github.io/Portfolio/)
+
+Design rules, section budgets and the "adding things" playbook are in [DESIGN.md](DESIGN.md). Architecture notes for contributors (and AI assistants) are in [CLAUDE.md](CLAUDE.md).
 
 ---
 
@@ -13,9 +15,9 @@ Personal portfolio website for Priyanshu Pushpam, Technical Product Leader with 
 | Framework | React 19 + Vite 8 |
 | Styling | Tailwind CSS v4 (Vite plugin) |
 | Routing | React Router v7 (HashRouter) |
-| Fonts | Syne · IBM Plex Mono · DM Sans |
+| Fonts | Plus Jakarta Sans · Inter · IBM Plex Mono — self-hosted via `@fontsource` |
 | Analytics | Google Analytics 4 |
-| Deployment | GitHub Pages via `npm run deploy` |
+| Deployment | GitHub Pages — GitHub Actions on push to `main` (manual fallback: `npm run deploy`) |
 
 ---
 
@@ -23,85 +25,40 @@ Personal portfolio website for Priyanshu Pushpam, Technical Product Leader with 
 
 ```
 src/
-├── App.jsx                         # Root component — routing, layout, theme init
-├── main.jsx                        # Entry point — HashRouter wrapper
-├── index.css                       # Tailwind directives + theme tokens + light mode vars
+├── App.jsx                         # Router + HomePage composition
+├── main.jsx                        # Entry — fonts, CSS, HashRouter
+├── index.css                       # Tailwind + theme tokens (dark/light)
+├── config/index.js                 # Site settings + section budgets
 │
-├── config/
-│   └── index.js                    # Social links, resume URL, VIEW_MORE_THRESHOLD
+├── data/                           # ALL content — edit these to change what's shown
+│   ├── roles.js                    # Career roles (newest first)
+│   ├── work.js                     # Case studies, projects, impact stories
+│   ├── testimonials.js             # Recommendations
+│   ├── certifications.js
+│   ├── dna.js                      # "What I bring"
+│   └── currently.js                # "Currently"
 │
-├── data/                           # All content — edit these to change what's shown
-│   ├── stats.js
-│   ├── timeline.js
-│   ├── experience.js
-│   ├── dna.js
-│   ├── projects.js
-│   ├── impactStories.js            # Impact Stories cards (reverse chronological)
-│   ├── caseStudies.js              # Metadata + published flag — no content here
-│   ├── testimonials.js
-│   └── certifications.js
-│
-├── hooks/                          # Custom React hooks
-│   ├── useScrollReveal.js
-│   ├── useScrollTracking.js
-│   ├── useSectionTracking.js
-│   ├── useIsMobile.js
-│   ├── useTheme.js                 # Dark/light mode — localStorage + system pref
-│   └── index.js
-│
-├── styles/
-│   └── globals.css                 # Custom CSS — animations, modals, carousel, §22 light mode
-│
-├── components/
-│   ├── ui/
-│   │   ├── Icons.jsx               # All SVG icons — no external icon library
-│   │   ├── BrandLogo.jsx
-│   │   ├── Carousel.jsx
-│   │   ├── SectionHeader.jsx
-│   │   └── ScrollToTop.jsx
-│   ├── modals/
-│   │   ├── TestimonialModal.jsx
-│   │   └── ViewMoreModal.jsx
-│   └── layout/
-│       ├── Nav.jsx                 # Fixed nav — links, social icons, theme toggle, resume CTA
-│       └── Footer.jsx
-│
-├── sections/                       # One component per homepage section (order = App.jsx)
-│   ├── Hero.jsx
-│   ├── StatsBar.jsx
-│   ├── WorkExperience.jsx
-│   ├── CareerJourney.jsx
-│   ├── Projects.jsx
-│   ├── ImpactStories.jsx
-│   ├── CaseStudies.jsx
-│   ├── CoreDNA.jsx
-│   ├── Testimonials.jsx
-│   └── Certifications.jsx
+├── sections/                       # Homepage sections (order = App.jsx)
+│   ├── Hero.jsx  Work.jsx  Experience.jsx  WhatIBring.jsx  Recognition.jsx  Currently.jsx
 │
 ├── pages/
-│   └── CaseStudyPage.jsx           # Full case study page at /#/case-studies/:slug
+│   ├── CaseStudyPage.jsx           # /#/case-studies/:slug
+│   └── WorkPage.jsx                # /#/work
 │
-└── content/
-    └── case-studies/               # One folder per published case study
-        ├── components.jsx          # Shared content components (H2, P, Callout, MetricRow…)
-        ├── vidaxl-ai-content-automation/
-        │   ├── index.jsx
-        │   └── assets/
-        ├── techmojo-sportsbook-gtm/
-        │   ├── index.jsx
-        │   └── assets/
-        ├── uhg-zero-downtime-migration/
-        │   └── index.jsx
-        ├── uhg-qa-cycle-automation/
-        │   └── index.jsx
-        └── uhg-claims-transformation/
-            └── index.jsx
+├── components/
+│   ├── layout/                     # Nav, Footer
+│   ├── work/WorkRow.jsx
+│   └── ui/                         # BrandLogo, CompanyLogo, PageBar, Icons, ScrollToTop, SectionHeader, Tag
+│
+├── assets/logos/                   # Original employer SVGs (unmodified)
+├── content/case-studies/           # Full written case studies (+ shared components.jsx)
+├── hooks/                          # scroll reveal/tracking, active section, document meta, theme
+├── utils/                          # analytics, initials
+└── styles/globals.css              # Custom CSS
 
-public/
-├── me.jpg                          # Profile photo
-├── logo.png                        # Brand logo — favicon + nav icon
-├── og-image.png                    # Open Graph image for social sharing (1200×630)
-└── Priyanshu_Pushpam_Technical_Product_Manager.pdf
+public/                             # me.jpg, logo.png, og-image.png (1200×630), resume PDF, robots, sitemap, 404.html
+scripts/                            # check-resume.js · generate-og-image.ps1 · smoke-test.mjs · a11y-audit.mjs
+.github/workflows/deploy.yml        # CI: verify → build → (PR: Lighthouse a11y gate) → (push: deploy)
 ```
 
 ---
@@ -109,154 +66,76 @@ public/
 ## Local Development
 
 ```bash
-# Install dependencies
-npm install --legacy-peer-deps
-
-# Start dev server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build locally
-npm run preview
+npm install --legacy-peer-deps   # install dependencies
+npm run dev                      # dev server → http://localhost:5173/Portfolio/  (the /Portfolio/ base matters)
+npm run build                    # production build → dist/
+npm run preview                  # serve the production build locally (also under /Portfolio/)
+npm run verify                   # resume-file check + ESLint (what CI runs)
+npm run smoke                    # 46 end-to-end checks in a headless browser (dev server must be running)
+npm run a11y                     # axe-core audit, dark + light, desktop + mobile (dev server must be running)
 ```
 
----
-
-## Theme System
-
-The site supports dark and light mode. The active theme is stored in `localStorage` under the key `'theme'`.
-
-**Priority order on load:** `localStorage` → system preference → default dark
-
-Class-based: the `dark` class on `<html>` activates dark mode. Removing it switches to light mode. An inline script in `<head>` sets this synchronously before first paint to prevent a flash.
-
-The theme toggle is in the navigation bar (pill-shaped, left of the Resume button). It shows a Sun icon in dark mode and a Moon icon in light mode, with a colour-matched ambient glow.
-
-**When adding theme-aware styles:**
-- Use `dark:[dark-value] [light-value]` on every hardcoded colour class. Never write a single colour without its counterpart.
-- Classes using CSS tokens (`bg-darkBg`, `bg-cardBg`, `text-accent`) auto-adapt — no `dark:` prefix needed.
-- Custom CSS classes in `globals.css` cannot use Tailwind's `dark:` prefix. Add light mode overrides in **§22** using `html:not(.dark)` selectors.
+`npm run smoke` needs Chrome, Edge or Chromium (set `CHROME_PATH` if it isn't auto-detected) and `BASE_URL` if your dev server isn't on port 5173.
 
 ---
 
 ## Common Tasks
 
-### Add or edit content in any section
-All content lives in `src/data/`. Find the relevant file and edit the array.
+All content lives in `src/data/`. Section sizes ("budgets") live in `src/config/index.js` — the homepage stays the same length however much you add; extra items go to the `/work` page or an inline expander.
 
-### Add a new project
-Open `src/data/projects.js` and add an object. If the total exceeds `VIEW_MORE_THRESHOLD` (in `src/config/index.js`), a "View All" button appears automatically.
-
-### Add an Impact Story
-Open `src/data/impactStories.js` and add an object with `eyebrow`, `company`, `headline`, `context`, and `outcomes` (array of strings). Keep reverse chronological order — most recent company first.
-
-### Add a new testimonial
-Open `src/data/testimonials.js` and add an object. Paste the full text — the modal handles any length and includes left/right arrow navigation, keyboard (ArrowLeft/ArrowRight), touch swipe, and a dot position indicator automatically.
-
-### Add a new certification
-Open `src/data/certifications.js` and add an object. Set `link: ""` if the certificate URL isn't available yet.
-
-### Publish a case study
-1. Open `src/data/caseStudies.js` and set `published: true`
-2. Confirm the `slug` matches the folder name in `src/content/case-studies/`
-3. Write the content in `src/content/case-studies/<slug>/index.jsx`
-4. Drop images into `src/content/case-studies/<slug>/assets/`
-
-The lock overlay disappears and the page goes live at `/#/case-studies/<slug>`.
-
-### Add a case study placeholder (not yet published)
-Add an entry to `src/data/caseStudies.js` with `published: false`. The card appears with a "Publishing Soon" lock overlay.
-
-### Reorder homepage sections
-Edit the `HomePage` component in `src/App.jsx`. Import order and render order are independent — only the JSX order matters.
-
-### Change social links or resume path
-Edit `src/config/index.js`. Update the PDF filename in `/public/` to match.
-
-### Change the colour theme
-Edit the `@theme` block in `src/index.css`:
-
-```css
-@theme {
-  --color-darkBg: #0f172a;   /* page background (dark) */
-  --color-cardBg: #1e293b;   /* card surface (dark) */
-  --color-accent: #10b981;   /* brand accent */
-}
-```
-
-Light mode overrides for these same tokens are in `html:not(.dark)` at the bottom of `src/index.css`.
-
-### Change any animation, modal, or layout CSS
-Edit `src/styles/globals.css`. Light mode overrides for custom classes live in §22 at the end of that file.
+- **Add a role:** put it **first** in `roles.js`; set the previous role's `current: false` and its `end`.
+- **Add a case study:** add an item to `work.js` (with `slug` and `readMinutes`) and create `src/content/case-studies/<slug>/index.jsx`. Use `featured: true` only for the 3 flagship items.
+- **Add an impact story or project:** an item in `work.js` without a `slug` (shows on `/work`).
+- **Add a recommendation:** `testimonials.js` — paste the full text and set `highlight` to one **verbatim** sentence from it.
+- **Add a certification:** `certifications.js`.
+- **Update "Currently":** `currently.js` (bump `updated`).
+- **Change social links / resume path:** `src/config/index.js`; the PDF in `public/` must match `CONFIG.resumeUrl` (the deploy guard checks this).
+- **Reorder homepage sections:** the `HomePage` component in `src/App.jsx`.
 
 ---
 
-## Interactive Behaviors
+## Theme System
 
-### Carousels (`src/components/ui/Carousel.jsx`)
+Dark and light mode, stored in `localStorage` under `'theme'`. Priority on load: `localStorage` → system preference → dark. Class-based: the `dark` class on `<html>`; an inline script in `<head>` sets it before first paint. The toggle is in the nav.
 
-Two modes driven by the `autoPlay` prop:
-
-**Continuous** (StatsBar, Testimonials desktop, CoreDNA desktop):
-- rAF infinite scroll with hover-slow (speed halves on mouse enter)
-- `draggable={true}` enables grab-to-scrub on desktop (cursor changes to grab/grabbing) and live touch drag on mobile; auto-scroll resumes 1.5 s after release
-- StatsBar additionally sets `disableSwipe={true}` to suppress the swipe-to-jump path
-
-**Discrete** (all card carousels on mobile — Projects, ImpactStories, CaseStudies, Testimonials, CoreDNA):
-- Live drag-follow with smooth snap on release
-- Infinite loop via triple-clone (`[...items, ...items, ...items]`); starts in the middle copy; silently snaps back after each wrap
-- `peek={true}` shows a sliver of the adjacent card
-
-### Testimonial Modal (`src/components/modals/TestimonialModal.jsx`)
-
-Props: `{ testimonials, startIndex, onClose }` — full array + starting index.
-
-Navigation: left/right arrows at card edges, ArrowLeft/ArrowRight keyboard, touch swipe anywhere on the overlay (>50 px), dot position indicator. 150 ms opacity fade between testimonials.
-
-### Work Experience Accordion (`src/sections/WorkExperience.jsx`)
-
-`setOpen(i)` fires first, then a `setTimeout(400)` calls `scrollIntoView` after the expansion transition settles — the scroll target reads the final DOM layout so the card header always lands cleanly below the nav.
+When adding theme-aware styles: every hard-coded colour class needs both `dark:` and light values; token classes (`bg-darkBg`, `bg-cardBg`, `text-accent`) adapt automatically. Custom CSS classes can't use `dark:` — add `html:not(.dark)` overrides next to them in `globals.css`.
 
 ---
 
-## Case Studies
+## Interactive Behaviours
 
-All 5 case studies are published:
-
-| Slug | Company |
-|---|---|
-| `vidaxl-ai-content-automation` | VidaXL · E-commerce |
-| `techmojo-sportsbook-gtm` | Techmojo · Gaming |
-| `uhg-zero-downtime-migration` | UnitedHealth Group |
-| `uhg-qa-cycle-automation` | UnitedHealth Group |
-| `uhg-claims-transformation` | UnitedHealth Group |
-
-Each case study page lives at `/#/case-studies/<slug>`.
+- **Experience accordion:** one open at a time, newest role open by default. `setOpen(i)` fires first, then `scrollIntoView` after the 400ms expansion so the row lands cleanly under the nav. Collapsed panels are `inert`.
+- **Recommendations:** each card shows a one-line highlight; "Read full recommendation" expands it in place; one "Show all N" button reveals the rest. No modal.
+- **Work:** the homepage shows the featured items; "All work (N)" opens `/#/work`, which filters by domain (`?domain=`), so a filtered view is linkable.
+- **Inner pages:** a sticky bar under the nav shows the full trail (Portfolio / Work or All work / page) with every level clickable, plus a reading-progress line on case studies. The trail follows where you came from.
+- **Case studies** open with "The short version" — a plain-language line, then problem / what I did / result / takeaway — before the long-form detail.
+- **Employer logos** are inlined theme-aware SVGs (Hero strip, Experience rows, case-study header); the originals are in `src/assets/logos/`. Logos are trademarks of their owners.
+- **Nav:** section links use router state (not `#anchors`) so they work from every page; the link for the section in view is underlined.
+- **Accessibility:** skip link, global focus ring, reduced-motion support, 44px tap targets, print stylesheet (always prints dark-on-white).
 
 ---
 
 ## Deployment
 
-Build and deploy to GitHub Pages:
+**Normal path — CI.** Every push to `main` runs `.github/workflows/deploy.yml`: `npm ci` → `npm run verify` → `npm run build` → deploy to the `gh-pages` branch. Pull requests run the same checks plus a Lighthouse accessibility gate (≥ 95, see `.lighthouserc.json`) and never deploy. CI is the canonical path.
+
+**Manual fallback.** `npm run deploy` runs `verify`, `build`, then pushes `dist/` via the `gh-pages` package. Don't run both for the same commit — they both write to `gh-pages`.
+
+### Social preview image
+
+`public/og-image.png` must be 1200×630 (the size `index.html` declares) and must not be a copy of `logo.png`. Regenerate it with:
 
 ```bash
-npm run deploy
+powershell -ExecutionPolicy Bypass -File scripts/generate-og-image.ps1
 ```
 
-This runs `npm run build` then pushes the `dist/` folder to the `gh-pages` branch via the `gh-pages` package.
-
-After deploying, if you've updated the Open Graph image or meta tags, force a LinkedIn cache refresh at [linkedin.com/post-inspector](https://www.linkedin.com/post-inspector/).
+The card is deliberately evergreen (name, title, domains — no employer or dates). After deploying, force a LinkedIn cache refresh at [linkedin.com/post-inspector](https://www.linkedin.com/post-inspector/).
 
 ---
 
 ## Notes
 
-- **NDA:** No proprietary screenshots, internal dashboards, or client data are included anywhere in this repository. All project descriptions use publicly shareable outcomes and metrics consistent with the resume.
-
+- **NDA:** No proprietary screenshots, internal dashboards, or client data are included anywhere in this repository. All project descriptions use publicly shareable outcomes and metrics consistent with the resume. For the current employer (Heineken) keep descriptions high-level and role-scoped; do not name internal tools, vendors, or unreleased features without clearance.
 - **Image protection:** The profile photo (`me.jpg`) has right-click and drag prevention applied at the component level. This does not prevent access via browser DevTools.
-
-- **HashRouter:** All URLs use the `/#/...` format, required for GitHub Pages compatibility (no server-side routing).
-
-- **Peer dependency note:** `@tailwindcss/vite@4.x` declares a peer dependency on `vite@^5–7`. This project runs on `vite@8`, which is functional but triggers a peer resolution warning. Use `npm install --legacy-peer-deps` to install without errors.
+- **HashRouter:** All URLs use the `/#/...` format, required for GitHub Pages compatibility (no server-side routing). Moving to path-based routes plus prerendering is tracked as BACKLOG #12.
+- **Peer dependency note:** `@tailwindcss/vite@4.x` declares a peer dependency on `vite@^5–7`. This project runs on `vite@8`, which is functional but triggers a peer resolution warning. Use `--legacy-peer-deps` to install without errors.

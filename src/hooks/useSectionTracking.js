@@ -21,16 +21,16 @@ import { trackSectionView } from '../utils/analytics.js';
 /*
  * These match the id attributes already on your section elements:
  *   <section id="about">
- *   <section id="journey">
+ *   <section id="work">
  *   etc.
  */
 const SECTION_IDS = [
   'about',
-  'journey',
+  'work',
   'experience',
-  'projects',
-  'case-studies',
-  'testimonials',
+  'what-i-bring',
+  'recognition',
+  'currently',
 ];
 
 const useSectionTracking = () => {

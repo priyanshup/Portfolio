@@ -1,110 +1,95 @@
 /*
  * styles/globals.css
  *
- * All custom CSS for the portfolio.
- * Imported once in main.jsx.
+ * All custom CSS for the portfolio. Imported once in main.jsx.
+ * Rules of the house (see DESIGN.md):
+ *   - No backdrop-filter on content cards. Blur only on the floating layer
+ *     (nav, dropdown, scroll-to-top, back button).
+ *   - Nothing below 12px (0.75rem). Sizes are rem-based so browser text-size
+ *     settings are respected.
+ *   - Every animation has a prefers-reduced-motion answer (§3).
  *
  * Sections:
- *  1.  Google Fonts
+ *  1.  Fonts (self-hosted via @fontsource, imported in main.jsx)
  *  2.  Font utilities
- *  3.  Base reset
- *  4.  Scroll-reveal animation
- *  5.  Timeline vertical line
- *  6.  Case study locked overlay
- *  7.  Nav underline
- *  8.  Scrollbar
- *  9.  Accordion
- * 10.  Modals
- * 11.  Carousel arrows — icon only, no background, no shadow
- * 12.  Mobile slide-in menu — frosted glass
- * 13.  Scroll-to-top button
- * 14.  Floating back-to-portfolio button
- * 15.  Animated hamburger (3-bar to X morph)
- * 16.  Compact frosted-glass dropdown menu
- * 17.  Glass card treatment
- * 18.  Glass stat / metric highlight
- * 19.  Glass timeline year bubble
- * 20.  Resume CTA glass pill button
- * 21.  Glass accent badge
+ *  3.  Base: focus, selection, reduced motion
+ *  4.  Scroll-reveal
+ *  5.  Nav underline
+ *  6.  Scrollbar
+ *  7.  Accordion
+ *  8.  Scroll-to-top button
+ *  9.  Hamburger + mobile dropdown
+ * 10.  Buttons (hero / footer CTAs, nav resume pill)
+ * 11.  Card lift (clickable cards only)
+ * 12.  Hero accent line
+ * 13.  Print
+ * 14.  Company logos
+ * 15.  Toggle chip + accent link + button states
  */
-
-/* ── 1. Google Fonts ─────────────────────────────────────────────── */
-/*
- * Font stack:
- *   Plus Jakarta Sans — display headings (narrower + more refined than Syne;
- *     professional without being heavy; suits a product leadership context)
- *   Inter            — body text (industry standard for clarity)
- *   IBM Plex Mono    — labels, tags, eyebrows (technical precision)
- */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
 
 /* ── 2. Font utilities ───────────────────────────────────────────── */
-.font-display { font-family: 'Plus Jakarta Sans', sans-serif !important; }
-.font-mono-pp { font-family: 'IBM Plex Mono', monospace !important; }
+.font-display { font-family: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+.font-mono-pp { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important; }
 
-/* ── 3. Base reset ───────────────────────────────────────────────── */
 html,
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  /* clip, not hidden: overflow-x:hidden turns body into a scroll container and
+     breaks position:sticky (the PageBar). clip hides overflow without that. */
   overflow-x: hidden;
+}
+@supports (overflow: clip) {
+  html,
+  body { overflow-x: clip; }
 }
 
 /* Smooth colour transition on theme switch */
 html {
   transition: color 300ms, background-color 300ms;
+  scroll-behavior: smooth;
+}
+
+/* ── 3. Base: focus, selection, reduced motion ───────────────────── */
+
+/* One visible, consistent keyboard focus ring for every interactive element. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+/* Mouse/touch focus stays clean; only keyboard focus shows the ring. */
+:focus:not(:focus-visible) { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
 }
 
 /* ── 4. Scroll-reveal ────────────────────────────────────────────── */
 .reveal {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(20px);
   transition:
-    opacity  0.75s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity  0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reveal.in-view { opacity: 1; transform: none; }
 
-.d1 { transition-delay: 0.10s; }
-.d2 { transition-delay: 0.20s; }
-.d3 { transition-delay: 0.30s; }
-.d4 { transition-delay: 0.40s; }
+.d1 { transition-delay: 0.08s; }
+.d2 { transition-delay: 0.16s; }
+.d3 { transition-delay: 0.24s; }
+.d4 { transition-delay: 0.32s; }
 
-/* ── 5. Timeline vertical line ───────────────────────────────────── */
-.tl-line::before {
-  content: '';
-  position: absolute;
-  left: 27px;
-  top: 56px;
-  bottom: 0;
-  width: 1px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.10),
-    rgba(255, 255, 255, 0.04) 80%,
-    transparent
-  );
-}
-
-/* ── 6. Case study locked overlay ────────────────────────────────── */
-.cs-locked {
-  position: relative;
-  overflow: hidden;
-}
-.cs-locked-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(10, 10, 10, 0.80);
-  backdrop-filter: blur(4px);
-  border-radius: inherit;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-/* ── 7. Nav underline hover ──────────────────────────────────────── */
+/* ── 5. Nav underline hover / active ─────────────────────────────── */
 .nav-link { position: relative; }
 .nav-link::after {
   content: '';
@@ -116,24 +101,27 @@ html {
   background: currentColor;
   transition: width 0.25s ease;
 }
-.nav-link:hover::after { width: 100%; }
+.nav-link:hover::after,
+.nav-link[aria-current='true']::after { width: 100%; }
 
-/* ── 8. Custom scrollbar ─────────────────────────────────────────── */
+/* ── 6. Scrollbar ────────────────────────────────────────────────── */
 .scroll-section {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.10) transparent;
 }
-.scroll-section::-webkit-scrollbar { width: 5px; }
+.scroll-section::-webkit-scrollbar { width: 5px; height: 5px; }
 .scroll-section::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 4px;
 }
+html:not(.dark) .scroll-section { scrollbar-color: rgba(0, 0, 0, 0.12) transparent; }
+html:not(.dark) .scroll-section::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.12); }
 
-/* ── 9. Accordion ────────────────────────────────────────────────── */
+/* ── 7. Accordion ────────────────────────────────────────────────── */
 /*
  * IMPORTANT: .reveal and .accordion-body must NEVER be on the same element.
  * .reveal goes on the outer wrapper div.
- * overflow-hidden goes on the inner card div.
+ * overflow-hidden (.accordion-inner) goes on the inner div.
  */
 .accordion-body {
   display: grid;
@@ -143,155 +131,81 @@ html {
 .accordion-body.open { grid-template-rows: 1fr; }
 .accordion-inner { overflow: hidden; }
 
-/* ── 10. Modals ──────────────────────────────────────────────────── */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: fadeIn 0.2s ease;
-}
-.modal-card {
-  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes fadeIn  {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.94); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-/* ── 11. Carousel arrows — ICON ONLY ─────────────────────────────── */
-/*
- * Full-height click target, zero background, zero shadow.
- * Matches the remotestar.io aesthetic.
- */
-.car-arrow {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 10;
-  width: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.30);
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  transition: color 0.2s ease;
-  user-select: none;
-  padding: 0;
-}
-.car-arrow:hover { color: rgba(255, 255, 255, 0.85); }
-.car-arrow-left  { left: 0; }
-.car-arrow-right { right: 0; }
-
-/* ── 12. Mobile slide-in menu — frosted glass ─────────────────────── */
-.mobile-menu {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(4, 8, 20, 0.94);
-  backdrop-filter: blur(24px);
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.mobile-menu.open { transform: translateX(0); }
-
-/* ── 13. Scroll-to-top button ────────────────────────────────────── */
+/* ── 8. Scroll-to-top button (floating layer: blur OK) ── */
 .scroll-top-btn {
   position: fixed;
-  bottom: 28px;
-  right: 24px;
+  /* keep clear of the iPhone home bar / rounded corners (needs viewport-fit=cover) */
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  right: calc(24px + env(safe-area-inset-right, 0px));
   z-index: 90;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.60);
+  color: rgba(255, 255, 255, 0.75);
   cursor: pointer;
   transition: all 0.25s ease;
   opacity: 0;
   pointer-events: none;
 }
-.scroll-top-btn.visible {
-  opacity: 1;
-  pointer-events: all;
-}
+.scroll-top-btn.visible,
+.scroll-top-btn:focus-visible { opacity: 1; pointer-events: all; }
 .scroll-top-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.26);
   transform: translateY(-2px);
 }
-
-/* ── 14. Floating back-to-portfolio button ───────────────────────── */
-.floating-back-btn {
-  position: fixed;
-  bottom: 28px;
-  left: 24px;
-  z-index: 90;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10px);
-  color: rgba(255, 255, 255, 0.60);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-decoration: none;
-  cursor: pointer;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-  transition: opacity 0.3s ease, transform 0.3s ease, color 0.2s ease,
-              background 0.2s ease, border-color 0.2s ease;
+html:not(.dark) .scroll-top-btn {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  color: #334155;
 }
-.floating-back-btn.visible {
-  opacity: 1;
-  pointer-events: all;
-  transform: translateY(0);
-}
-.floating-back-btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
+html:not(.dark) .scroll-top-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+  border-color: #94a3b8;
 }
 
-/* ── 15. Animated hamburger (3-bar to X morph) ───────────────────── */
-/*
- * Three bars animate on open:
- *   bar 1 - slides to centre + rotates 45 deg  = top arm of X
- *   bar 2 - fades and collapses                = invisible
- *   bar 3 - slides to centre + rotates -45 deg = bottom arm of X
- *
- * Apply .hbar-N-open to trigger each bar's open state.
- * Usage in JSX: <span className={`hbar ${open ? 'hbar-1-open' : ''}`} />
- */
+
+/* ── 8b. Nav that steps aside on phones ──────────────────────────────
+ * On phones the fixed nav slides away while the reader scrolls down and comes
+ * back on the first scroll up (or on keyboard focus). Nav.jsx sets
+ * html[data-nav-hidden]. The sticky page bar on inner pages moves up into the
+ * freed space, so it stays put while the nav is away. Tablets and desktops
+ * keep the nav visible. */
+.site-nav { transition: transform 0.25s ease; }
+.page-bar { top: 4rem; transition: top 0.25s ease; }
+@media (max-width: 767px) {
+  html[data-nav-hidden='true'] .site-nav { transform: translateY(-100%); }
+  html[data-nav-hidden='true'] .page-bar { top: 0; }
+}
+
+/* ── 8c. Small-screen reading helpers ────────────────────────────────
+ * Meta lines (company, domain, dates) read as sentence-case 13px on phones;
+ * the ALL-CAPS 12px mono eyebrow look is kept for larger screens. Use this on
+ * true meta lines only. Real captions stay text-xs. */
+.meta-line { font-size: 0.8125rem; letter-spacing: 0.01em; line-height: 1.4; }
+@media (min-width: 768px) {
+  .meta-line { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; }
+}
+
+/* With viewport-fit=cover the page can draw under the notch (landscape) and the
+   home bar. Keep content and the fixed nav clear of both. */
+body {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.site-nav {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+/* ── 9. Hamburger + mobile dropdown ──────────────────────────────── */
 .hamburger {
   width: 22px;
   height: 14px;
@@ -304,7 +218,7 @@ html {
   position: absolute;
   left: 0;
   right: 0;
-  height: 1.5px;
+  height: 2px;
   background: currentColor;
   border-radius: 2px;
   transition:
@@ -316,302 +230,155 @@ html {
 .hbar:nth-child(1) { top: 0; }
 .hbar:nth-child(2) { top: 50%; transform: translateY(-50%); }
 .hbar:nth-child(3) { bottom: 0; }
-.hbar-1-open { top: 50%;    transform: translateY(-50%) rotate(45deg); }
-.hbar-2-open { opacity: 0;  transform: translateY(-50%) scaleX(0); }
-.hbar-3-open { bottom: 50%; transform: translateY(50%) rotate(-45deg); }
+.hbar.hbar-1-open { top: 50%;    transform: translateY(-50%) rotate(45deg); }
+.hbar.hbar-2-open { opacity: 0;  transform: translateY(-50%) scaleX(0); }
+.hbar.hbar-3-open { bottom: 50%; transform: translateY(50%) rotate(-45deg); }
 
-/* ── 16. Compact frosted-glass dropdown menu ─────────────────────── */
-/*
- * 280px panel anchored top-right below the nav.
- * Scales in from the top-right corner.
- * Used by Nav.jsx — toggled via .mobile-dropdown.open
- */
+/* Non-modal navigation disclosure, anchored below the nav. */
 .mobile-dropdown {
   position: fixed;
   top: 68px;
   right: 14px;
-  width: 280px;
+  width: min(300px, calc(100vw - 28px));
   z-index: 200;
-  background: rgba(4, 8, 20, 0.97);
-  backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(8, 12, 24, 0.98);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 1.25rem;
   padding: 8px;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.20),
-    0 20px 50px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
   transform-origin: top right;
-  transform: scale(0.88) translateY(-10px);
+  transform: scale(0.92) translateY(-8px);
   opacity: 0;
-  pointer-events: none;
+  visibility: hidden;
   transition:
-    transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity   0.20s ease;
+    transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity   0.18s ease,
+    visibility 0s linear 0.24s;
 }
 .mobile-dropdown.open {
   transform: scale(1) translateY(0);
   opacity: 1;
-  pointer-events: all;
+  visibility: visible;
+  transition-delay: 0s;
 }
 .dd-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
   padding: 10px 14px;
   border-radius: 0.75rem;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.80);
+  font-size: 1rem;
   font-weight: 500;
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .dd-link:hover,
-.dd-link:focus {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.92);
-  outline: none;
+.dd-link[aria-current='true'] {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
 }
 .dd-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   margin: 6px 4px;
 }
-
-/* ── 17. Glass card treatment ────────────────────────────────────── */
-/*
- * Applied to every .bg-cardBg element that has rounded corners.
- * Semi-transparent + backdrop-filter over the body gradients = glass.
- * inset box-shadow = bright top edge of a glass pane.
- *
- * Note: bg-cardBg/40 (Tailwind opacity modifier) is a separate class
- * and is NOT affected — inactive accordion items stay more transparent.
- */
-.rounded-xl.bg-cardBg,
-.rounded-2xl.bg-cardBg,
-.rounded-3xl.bg-cardBg {
-  background: rgba(30, 41, 59, 0.45) !important;
-  backdrop-filter: blur(18px) !important;
-  border-color: rgba(255, 255, 255, 0.07) !important;
-  box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+html:not(.dark) .mobile-dropdown {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.14);
 }
-@media (hover: hover) {
-  .rounded-2xl.bg-cardBg:hover,
-  .rounded-3xl.bg-cardBg:hover {
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
-  }
+html:not(.dark) .dd-link { color: #334155; }
+html:not(.dark) .dd-link:hover,
+html:not(.dark) .dd-link[aria-current='true'] {
+  background: rgba(0, 0, 0, 0.05);
+  color: #0f172a;
 }
+html:not(.dark) .dd-divider { background: rgba(0, 0, 0, 0.08); }
 
-/* ── 18. Glass stat / metric highlight ───────────────────────────── */
+/* ── 10. Buttons ─────────────────────────────────────────────────── */
 /*
- * Add class "glass-metric" to any stat number wrapper.
- * Accent-tinted glass with a faint green glow ring.
+ * Primary buttons use DARK text on the emerald fill in dark mode
+ * (#0b0d14 on #10b981 = 7.6:1) and white on the darker emerald in light mode
+ * (#fff on #047857 = 5.5:1). White-on-#10b981 was 2.5:1 and failed AA.
  */
-.glass-metric {
-  background: rgba(16, 185, 129, 0.07);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(16, 185, 129, 0.18);
-  border-radius: 0.75rem;
-  box-shadow:
-    0 0 0 1px rgba(16, 185, 129, 0.04),
-    0 4px 20px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(16, 185, 129, 0.08);
+.cta-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  color: #0b0d14;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
 }
-
-/* ── 19. Glass timeline year bubble ──────────────────────────────── */
-/*
- * Add class "tl-bubble" to the year circle in CareerJourney.
- * The badge colour class provides border + text; this adds the glass layer.
- */
-.tl-bubble {
-  background: rgba(8, 14, 28, 0.55) !important;
-  backdrop-filter: blur(12px);
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+.cta-btn-primary:hover {
+  background: #34d399;
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
 }
+html:not(.dark) .cta-btn-primary { color: #fff; }
+html:not(.dark) .cta-btn-primary:hover { background: #065f46; box-shadow: 0 6px 20px rgba(4, 120, 87, 0.3); }
 
-/* ── 20. Resume CTA glass pill button ────────────────────────────── */
-/*
- * Add class "resume-btn" to the resume download link in Nav.
- * Replaces the plain border + text style with an accent-tinted glass pill.
- */
+.cta-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
+}
+.cta-btn-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+  transform: translateY(-2px);
+}
+html:not(.dark) .cta-btn-secondary { border-color: #cbd5e1; color: #334155; }
+html:not(.dark) .cta-btn-secondary:hover { border-color: #64748b; color: #0f172a; }
+
+/* Nav resume pill */
 .resume-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 16px;
+  min-height: 36px;
+  padding: 6px 16px;
   border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.28);
-  backdrop-filter: blur(10px);
-  color: #10b981;
-  font-size: 11px;
+  background: rgba(16, 185, 129, 0.10);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: var(--color-accent);
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  box-shadow: inset 0 1px 0 rgba(16, 185, 129, 0.10);
 }
 .resume-btn:hover {
-  background: rgba(16, 185, 129, 0.16);
-  border-color: rgba(16, 185, 129, 0.55);
-  color: #fff;
-  box-shadow: 0 0 18px rgba(16, 185, 129, 0.20), inset 0 1px 0 rgba(16, 185, 129, 0.14);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #0b0d14;
 }
+html:not(.dark) .resume-btn:hover { color: #fff; }
 
-/* ── 21. Glass accent badge ──────────────────────────────────────── */
-/*
- * Add class "glass-badge" alongside existing colour classes on badge chips.
- * Example: className="glass-badge text-accent border-accent/30 bg-accent/10"
- */
-.glass-badge {
-  backdrop-filter: blur(10px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-/* ── 22. Light mode overrides ────────────────────────────────────── */
-
-/* Glass card: override dark semi-transparent style */
-html:not(.dark) .rounded-xl.bg-cardBg,
-html:not(.dark) .rounded-2xl.bg-cardBg,
-html:not(.dark) .rounded-3xl.bg-cardBg {
-  background: rgba(255, 255, 255, 0.85) !important;
-  border-color: rgba(0, 0, 0, 0.07) !important;
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.06),
-    0 4px 24px rgba(0, 0, 0, 0.05) !important;
-}
-@media (hover: hover) {
-  html:not(.dark) .rounded-xl.bg-cardBg:hover,
-  html:not(.dark) .rounded-2xl.bg-cardBg:hover,
-  html:not(.dark) .rounded-3xl.bg-cardBg:hover {
-    border-color: rgba(0, 0, 0, 0.12) !important;
-    box-shadow:
-      0 4px 12px rgba(0, 0, 0, 0.08),
-      0 8px 32px rgba(0, 0, 0, 0.07) !important;
-  }
-}
-
-/* Timeline vertical line */
-html:not(.dark) .tl-line::before {
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.08),
-    rgba(0, 0, 0, 0.02) 80%,
-    transparent
-  );
-}
-
-/* Timeline year bubble */
-html:not(.dark) .tl-bubble {
-  background: rgba(241, 245, 249, 0.85) !important;
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.80);
-}
-
-/* Mobile dropdown */
-html:not(.dark) .mobile-dropdown {
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.06),
-    0 20px 50px rgba(0, 0, 0, 0.12);
-}
-html:not(.dark) .dd-link {
-  color: rgba(15, 23, 42, 0.65);
-}
-html:not(.dark) .dd-link:hover,
-html:not(.dark) .dd-link:focus {
-  background: rgba(0, 0, 0, 0.04);
-  color: rgba(15, 23, 42, 0.92);
-}
-html:not(.dark) .dd-divider {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-/* Carousel arrows */
-html:not(.dark) .car-arrow {
-  color: rgba(0, 0, 0, 0.20);
-}
-html:not(.dark) .car-arrow:hover {
-  color: rgba(0, 0, 0, 0.65);
-}
-
-/* Scroll-to-top button — visible at rest, not just on hover */
-html:not(.dark) .scroll-top-btn {
-  background: #e2e8f0;        /* slate-200 */
-  border: 1px solid #cbd5e1;  /* slate-300 */
-  color: #334155;             /* slate-700 */
-}
-html:not(.dark) .scroll-top-btn.visible { opacity: 1; }
-html:not(.dark) .scroll-top-btn:hover {
-  background: #cbd5e1;        /* slate-300 */
-  color: #0f172a;             /* slate-900 */
-  border-color: #94a3b8;      /* slate-400 */
-  transform: translateY(-2px);
-}
-
-/* Custom scrollbar */
-html:not(.dark) .scroll-section {
-  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
-}
-html:not(.dark) .scroll-section::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
-}
-
-/* Glass metric highlight */
-html:not(.dark) .glass-metric {
-  background: rgba(5, 150, 105, 0.07);
-  border: 1px solid rgba(5, 150, 105, 0.18);
-  box-shadow:
-    0 0 0 1px rgba(5, 150, 105, 0.04),
-    0 4px 20px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(5, 150, 105, 0.08);
-}
-
-/* Modal backdrop — lighter scrim in light mode */
-html:not(.dark) .modal-backdrop {
-  background: rgba(0, 0, 0, 0.40);
-}
-
-/* Locked case study overlay — frosted light panel in light mode */
-html:not(.dark) .cs-locked-overlay {
-  background: rgba(241, 245, 249, 0.92);
-}
-
-/* Resume button — solid green hover in light mode so white text stays readable */
-html:not(.dark) .resume-btn:hover {
-  background: #059669;
-  border-color: #059669;
-  color: #fff;
-  box-shadow: 0 0 18px rgba(5, 150, 105, 0.25), inset 0 1px 0 rgba(16, 185, 129, 0.14);
-}
-
-/* Floating back button — use slate palette in light mode */
-html:not(.dark) .floating-back-btn {
-  background: #e2e8f0;        /* slate-200 */
-  border: 1px solid #cbd5e1;  /* slate-300 */
-  color: #475569;             /* slate-600 */
-}
-html:not(.dark) .floating-back-btn:hover {
-  color: #0f172a;             /* slate-900 */
-  background: #cbd5e1;        /* slate-300 */
-  border-color: #94a3b8;      /* slate-400 */
-}
-
-/* ── 23. Card lift hover ─────────────────────────────────────────── */
-/*
- * Add class "card-lift" to any card wrapper that should rise on hover.
- * Pairs with the glass card treatment for the shadow escalation.
- */
+/* ── 11. Card lift — CLICKABLE cards only ────────────────────────── */
 .card-lift {
   transition:
     transform 0.30s cubic-bezier(0.16, 1, 0.3, 1),
@@ -620,23 +387,14 @@ html:not(.dark) .floating-back-btn:hover {
 }
 @media (hover: hover) {
   .card-lift:hover {
-    transform: translateY(-5px);
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.30),
-      0 4px 16px rgba(0, 0, 0, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    transform: translateY(-3px);
+    border-color: var(--color-accent);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
   }
-  html:not(.dark) .card-lift:hover {
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.10),
-      0 4px 16px rgba(0, 0, 0, 0.07) !important;
-  }
+  html:not(.dark) .card-lift:hover { box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12); }
 }
 
-/* ── 24. Hero accent line ────────────────────────────────────────── */
-/*
- * Vertical accent gradient beside the hero photo.
- */
+/* ── 12. Hero accent line ────────────────────────────────────────── */
 .hero-accent-line {
   position: absolute;
   left: -20px;
@@ -652,65 +410,80 @@ html:not(.dark) .floating-back-btn:hover {
   );
 }
 
-/* ── 25. Acts grid (Career Journey) ──────────────────────────────── */
-/*
- * Horizontal chapter layout.
- * The gap-px technique uses the container background as divider lines.
- */
-.acts-grid {
-  display: grid;
-  gap: 1px;
-  border-radius: 1rem;
-  overflow: hidden;
-}
-.acts-grid-cell {
-  transition: background 0.25s ease;
-}
+/* ── 14. Company logos ───────────────────────────────────────────── */
+/* Inline SVG sized by the wrapper's height; colour = the wrapper's text colour
+   (theme-aware). See components/ui/CompanyLogo.jsx. */
+.company-logo { display: inline-flex; align-items: center; flex-shrink: 0; }
+.company-logo svg { height: 100%; width: auto; display: block; }
 
-/* ── 26. Closing CTA section ─────────────────────────────────────── */
-.cta-btn-primary {
+/* ── 15. Toggle chip + accent text link (one system with the buttons) ── */
+.chip-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 32px;
+  min-height: 44px;
+  padding: 8px 18px;
   border-radius: 9999px;
-  background: var(--color-accent);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-  white-space: nowrap;
+  border: 1px solid #cbd5e1;
+  background: transparent;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.15s ease;
 }
-.cta-btn-primary:hover {
-  background: #34d399;
-  box-shadow: 0 0 32px rgba(16, 185, 129, 0.45);
-  transform: translateY(-2px);
-}
-.cta-btn-secondary {
+.chip-toggle:hover { border-color: #64748b; color: #0f172a; }
+.chip-toggle:active { transform: scale(0.97); }
+.chip-toggle[aria-pressed='true'] { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+html.dark .chip-toggle { border-color: rgba(255, 255, 255, 0.22); color: rgba(255, 255, 255, 0.86); }
+html.dark .chip-toggle:hover { border-color: rgba(255, 255, 255, 0.5); color: #fff; }
+html.dark .chip-toggle[aria-pressed='true'] { color: #0b0d14; }
+/* narrower padding on phones so the filter row fits in two lines, not three */
+@media (max-width: 767px) { .chip-toggle { padding: 8px 14px; } }
+
+.link-accent {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 32px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 700;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
-  white-space: nowrap;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  text-underline-offset: 4px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  transition: text-decoration-color 0.2s ease;
 }
-.cta-btn-secondary:hover {
-  border-color: rgba(255, 255, 255, 0.40);
-  color: #fff;
-  transform: translateY(-2px);
+.link-accent:hover { text-decoration-color: var(--color-accent); }
+
+/* Pressed state + disabled state for the button system */
+.cta-btn-primary:active,
+.cta-btn-secondary:active { transform: scale(0.98); }
+.cta-btn-primary:disabled,
+.cta-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Touch devices: every control reaches 44px */
+@media (pointer: coarse) {
+  .resume-btn { min-height: 44px; }
 }
-html:not(.dark) .cta-btn-secondary {
-  border-color: #cbd5e1;
-  color: #475569;
-}
-html:not(.dark) .cta-btn-secondary:hover {
-  border-color: #94a3b8;
-  color: #0f172a;
+/* ── 13. Print ───────────────────────────────────────────────────── */
+/* Recruiters print/PDF portfolios. The dark class is removed for printing in
+   App.jsx (beforeprint/afterprint) so text is dark-on-white. */
+@media print {
+  nav,
+  .scroll-top-btn,
+    .mobile-dropdown,
+  .no-print { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .accordion-body { grid-template-rows: 1fr !important; }
+  .accordion-inner { overflow: visible !important; }
+  .accordion-inner[inert] { display: block !important; }
+  .bg-cardBg { box-shadow: none !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; }
+  a { text-decoration: none; }
+  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 0.7em; word-break: break-all; }
+  section { break-inside: auto; padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
 }

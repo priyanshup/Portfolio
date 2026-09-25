@@ -1,17 +1,25 @@
 # Priyanshu Portfolio — CLAUDE.md
 
+Read **DESIGN.md** first: it holds the section budgets, content model, visual rules and
+the "adding things" playbook. This file covers architecture and the non-obvious bits.
+
 ## Tech Stack
 
 - **React 19** + **React Router 7** (HashRouter — routes use `/#/...`)
 - **Tailwind CSS 4** + **Vite 8**
-- **Deployed** to GitHub Pages via `npm run deploy` (runs build then `gh-pages -d dist`)
+- Fonts self-hosted via `@fontsource` (Plus Jakarta Sans, Inter, IBM Plex Mono) — no Google Fonts requests
+- **Deployed** to GitHub Pages by GitHub Actions on every push to `main` (`.github/workflows/deploy.yml`: `npm ci` → `npm run verify` → `npm run build` → `gh-pages` branch). Pull requests run the same checks plus a Lighthouse accessibility gate (≥ 95, `.lighthouserc.json`) and never deploy. `npm run deploy` is a manual fallback — never run both for the same commit.
 - **Hosted at**: https://priyanshup.github.io/Portfolio/
 
 ### Dev commands
 ```
-npm run dev       # local dev server
+npm run dev       # local dev server (http://localhost:5173/Portfolio/ — note the /Portfolio/ base)
 npm run build     # production build → dist/
-npm run deploy    # build + push to gh-pages
+npm run verify    # resume-file check + ESLint (the gate CI and predeploy both run)
+npm run smoke     # 76 end-to-end checks in a headless browser (desktop + phone); needs the dev server running
+npm run a11y      # axe-core audit in dark + light, desktop + mobile; needs the dev server running
+npm run copy      # flags AI-writing tells (dashes, stock words, "not just") in the site's prose
+npm run deploy    # manual fallback: verify + build + push to gh-pages (CI normally does this)
 ```
 
 ---
@@ -20,363 +28,160 @@ npm run deploy    # build + push to gh-pages
 
 ```
 src/
-├── App.jsx                        # Root router — no content, no styles
-├── config/index.js                # Site-wide settings (resume URL, social links, VIEW_MORE_THRESHOLD)
-├── data/                          # All content data (edit these to change what's shown)
-│   ├── caseStudies.js             # Case study metadata + published flag
-│   ├── impactStories.js           # Impact Stories card data (reverse chronological)
-│   ├── experience.js
-│   ├── projects.js
-│   ├── testimonials.js
+├── App.jsx                        # Router + HomePage composition. No content, no styles.
+├── main.jsx                       # Entry: fonts, CSS, HashRouter
+├── config/index.js                # CONFIG (resume, socials, site meta) + SECTION BUDGET constants
+├── data/                          # ALL content. Single source of truth — edit these
+│   ├── roles.js                   # Career roles (newest first) → Experience, Hero, years
+│   ├── work.js                    # Case studies + projects + impact stories → Work, /work, case pages, Hero proofs
+│   ├── testimonials.js            # Recommendations (with verbatim `highlight`)
 │   ├── certifications.js
-│   ├── stats.js
-│   ├── dna.js
-│   └── timeline.js
-├── content/
-│   └── case-studies/              # Full written content for published case studies
-│       ├── components.jsx         # Shared styled components (H2, P, Callout, MetricRow, etc.)
-│       ├── vidaxl-ai-content-automation/
-│       │   ├── index.jsx
-│       │   └── assets/
-│       ├── techmojo-sportsbook-gtm/
-│       │   ├── index.jsx
-│       │   └── assets/
-│       ├── uhg-zero-downtime-migration/
-│       │   └── index.jsx
-│       ├── uhg-qa-cycle-automation/
-│       │   └── index.jsx
-│       └── uhg-claims-transformation/
-│           └── index.jsx
-├── sections/                      # Homepage sections (reorder in App.jsx > HomePage)
-│   ├── Hero.jsx
-│   ├── StatsBar.jsx
-│   ├── WorkExperience.jsx
-│   ├── CareerJourney.jsx
-│   ├── Projects.jsx
-│   ├── ImpactStories.jsx
-│   ├── CaseStudies.jsx
-│   ├── CoreDNA.jsx                # Pre-close: "who I am, not just what I did"
-│   ├── Testimonials.jsx
-│   └── Certifications.jsx
+│   ├── dna.js                     # "What I bring" items
+│   └── currently.js               # "Currently" lines + updated date
+├── content/case-studies/          # Full written case studies
+│   ├── components.jsx             # H2, H3, P, Callout, MetricRow, Snapshot, Collapsible, ProcessFlow, ImageFull, ImageHalf, BulletList, Divider
+│   └── <slug>/index.jsx (+ assets/)
+├── sections/                      # Homepage sections (order set in App.jsx > HomePage)
+│   ├── Hero.jsx  Work.jsx  Experience.jsx  WhatIBring.jsx  Recognition.jsx  Currently.jsx
 ├── pages/
-│   └── CaseStudyPage.jsx          # Renders individual case study at /case-studies/:slug
+│   ├── CaseStudyPage.jsx          # /case-studies/:slug
+│   └── WorkPage.jsx               # /work (all work, filter chips via ?domain=)
 ├── components/
-│   ├── layout/                    # Nav, Footer, MobileMenu
-│   ├── modals/                    # TestimonialModal, ViewMoreModal
-│   └── ui/                        # BrandLogo, Carousel, Icons, ScrollToTop, etc.
-└── hooks/                         # useScrollReveal, useScrollTracking, useSectionTracking, useTheme
+│   ├── layout/                    # Nav, Footer
+│   ├── work/WorkRow.jsx           # One row of the work list (homepage + /work)
+│   └── ui/                        # BrandLogo, CompanyLogo, PageBar, Icons, ScrollToTop, SectionHeader, Tag (Tag + Chip)
+├── hooks/                         # useScrollReveal, useScrollTracking, useSectionTracking, useActiveSection, useDocumentMeta, useTheme, useMediaQuery, useScrollDirection
+├── styles/globals.css             # Custom CSS (focus ring, reduced motion, reveal, accordion, buttons, print)
+└── index.css                      # Tailwind + theme tokens
+└── assets/logos/                 # Original employer SVGs, unmodified (Heineken, VidaXL, Techmojo, UHG)
+scripts/  check-resume.js (deploy guard) · generate-og-image.ps1 (rebuilds public/og-image.png) · smoke-test.mjs · a11y-audit.mjs
 ```
 
 ---
 
-## Routing
+## Routing (HashRouter — required for GitHub Pages)
 
 | Route | Renders |
 |---|---|
-| `/` | Full portfolio (all sections) |
-| `/case-studies/:slug` | Individual case study page |
-| `/*` | Falls back to HomePage |
+| `/` | Homepage (Hero, Work, Experience, What I bring, Recognition, Currently) |
+| `/work` | All work; `?domain=Healthcare` filters (shareable) |
+| `/case-studies/:slug` | Case study page |
+| `/*` | Falls back to the homepage |
 
-Uses **HashRouter**, so all URLs are `/#/case-studies/...`. This is required for GitHub Pages compatibility.
+**Case-study links carry `state={{ from }}`** (`'home'` or `'work-page'`); the sticky PageBar's trail follows it (Portfolio / Work / page, or Portfolio / All work / page). Use `<WorkRow from=…>` and pass `state={{ from }}` on any other link into a case study.
 
----
+**In-app links to a homepage section** never use `#section` anchors (they fight the
+HashRouter). They use `<Link to="/" state={{ scrollTo: '<section id>' }}>`; `HomePage`
+performs the scroll (80px nav offset). Back links from inner pages pass
+`state={{ scrollTo: 'work' }}`. Section ids: `about`, `work`, `experience`,
+`what-i-bring`, `recognition`, `currently`.
 
-## Case Studies System
-
-### How it works
-
-Case studies have two layers:
-
-1. **Metadata** in `src/data/caseStudies.js` — controls what appears on the card and whether it's published
-2. **Content** in `src/content/case-studies/<slug>/index.jsx` — the full page content
-
-The `published` boolean is the gate:
-- `published: true` + content file → clickable card, full page at `/case-studies/<slug>`
-- `published: false` → locked overlay with "Publishing Soon", URL returns 404
-
-### Current status
-
-All 5 case studies are published. Listed in reverse chronological order (most recent first):
-
-| Slug | Company | Status |
-|---|---|---|
-| `vidaxl-ai-content-automation` | VidaXL · E-commerce | Published |
-| `techmojo-sportsbook-gtm` | Techmojo · Gaming | Published |
-| `uhg-zero-downtime-migration` | UnitedHealth Group | Published |
-| `uhg-qa-cycle-automation` | UnitedHealth Group | Published |
-| `uhg-claims-transformation` | UnitedHealth Group | Published |
-
-### To add a new case study
-
-1. Add an entry to `src/data/caseStudies.js` with `published: true`
-2. Create `src/content/case-studies/<slug>/index.jsx` with the full content
-3. Drop images in `src/content/case-studies/<slug>/assets/`
-
-Use `src/content/case-studies/components.jsx` for all content formatting — it exports `H2`, `H3`, `P`, `Callout`, `MetricRow`, `ImageFull`, `ImageHalf`, `BulletList`, `Divider`.
-
-### Case study content structure
-
-Each `index.jsx` follows this section order:
-1. `<MetricRow>` — 3–4 headline metrics at the top
-2. `<Divider />`
-3. **The Problem** — context, stakes, and the core challenge (`<Callout label="The Core Challenge" accent>`)
-4. **Understanding the Landscape / Discovery** — what was learned before building (`<Callout label="Key Insight">`)
-5. **My Approach** — numbered `<H3>` sub-sections, one per strategic thread
-6. **What Was Delivered / What We Built** — concrete outputs as `<BulletList>`
-7. **Results** — outcomes with `<BulletList>`, no fabricated metrics
-8. **What I'd Do Differently** — `<H3>` sub-sections, genuine retrospective
-9. **Key Takeaways** — closing `<P>` + `<BulletList>` of durable lessons
+**Shareable per-role links are not possible** until routing is path-based (BACKLOG #12).
 
 ---
 
-## Impact Stories System
+## Content system
 
-### How it works
+### Work (`data/work.js`)
+One list for everything under "Work". `featured: true` items (keep to 3) appear on the
+homepage with their `metric`; the Hero proof strip is built from the featured metrics.
+Items with a `slug` have a case study page (`src/content/case-studies/<slug>/index.jsx`,
+`readMinutes` ≈ words/240). Items without a slug (impact stories, projects) show on
+`/work` only. `published: false` hides an item everywhere.
 
-Impact Stories are compact single-moment cards that sit between the Key Projects and Case Studies sections on the homepage. They share the exact card design as the Projects section but have no tech stack row.
+Case study content order (each `index.jsx`): `<Snapshot>` ("the short version": plain-language
+line, problem, what I did, result, takeaway, then role/team/timeline/tech — distilled from the
+study's own text, "I" not "we", **the headline metric is not repeated there**) → `<MetricRow>` (3–4
+metrics; the grid handles 1–4 and never leaves an orphan) → Divider → The Problem →
+Discovery (`<Callout label="Key Insight">`) → My Approach (numbered `<H3>`, mirrored by
+`<ProcessFlow>`) → What Was Delivered → Results (no fabricated metrics) → What I'd Do
+Differently → Key Takeaways.
 
-- **Data**: `src/data/impactStories.js` — each story has `eyebrow`, `company`, `headline`, `context`, and `outcomes` (array of chip strings)
-- **Section component**: `src/sections/ImpactStories.jsx`
-- **Desktop**: 2-column grid; **Mobile**: swipeable carousel with peek
-- **"View All" button** appears automatically if count exceeds `VIEW_MORE_THRESHOLD` (currently 4) — with 5 cards this is already active
+### Roles (`data/roles.js`)
+Newest first. Fields include `headline` (the result, shown on the collapsed row) and
+`note` ("How it fits"). Years of experience and the Hero badge are derived — never hard-coded.
 
-### Card fields
+### Writing voice
+All site prose follows DESIGN.md §4c (plain first person, British spelling, no dashes as connectors, no "not X but Y", no forced triads, sentence-case headings). Run `npm run copy` after editing copy. When rewriting prose, use the humanizer skill (`~/.claude/skills/humanizer`) and never add a fact that isn't in the source.
 
-| Field | Purpose |
-|---|---|
-| `eyebrow` | Domain/context label shown above the headline (e.g. `"Conversion & Growth · VidaXL"`) |
-| `company` | Company name shown below the headline |
-| `headline` | Bold card headline |
-| `context` | 1–2 sentence problem/context statement |
-| `outcomes` | Array of short strings rendered as accent-coloured chip badges |
-
-### Current cards (5 total, reverse chronological)
-
-| # | Headline | Company |
-|---|---|---|
-| 1 | 7% Monthly Conversion Lift Through AI-Powered Product Content | VidaXL |
-| 2 | 21% Storage Cost Reduction via Shared Compliance Asset Architecture | VidaXL |
-| 3 | Automated 92% of Operational Ticket Backlog | UnitedHealth Group |
-| 4 | Delivered 4 Compliance Projects Simultaneously, On Deadline | UnitedHealth Group |
-| 5 | Built a Cron Automation Engine from Scratch | UnitedHealth Group |
-
-Ordering rule: **reverse chronological by company tenure** — most recent company first, oldest last. Currently: VidaXL (Sep 2024 – Jun 2026) → UHG (Jun 2019 – Mar 2022).
+### Recommendations (`data/testimonials.js`)
+`text` is verbatim LinkedIn content. `highlight` must be a **verbatim sentence** from
+`text` (the build doesn't check this — keep it exact).
 
 ---
 
-## Key Configuration
+## Section budgets (see DESIGN.md §2)
+Constants in `src/config/index.js`: `EXPERIENCE_VISIBLE` (5), `RECOMMENDATIONS_VISIBLE`
+(3), `MORE_WORK_PREVIEW` (5). Overflow is a page or an inline expand — never a modal or
+carousel. There are no carousels or modals in this codebase; don't reintroduce them.
 
-**`src/config/index.js`** — single source of truth for:
-- `CONFIG.resumeUrl` — PDF filename in `/public/`
-- `CONFIG.social` — LinkedIn, GitHub, Instagram, Facebook URLs
-- `VIEW_MORE_THRESHOLD` — how many cards show before "View All" button appears (currently `4`)
+---
+
+## Experience accordion scroll
+
+`src/sections/Experience.jsx`: call `setOpen(i)` first, then in a `setTimeout(400)` call
+`scrollIntoView({ behavior: 'smooth', block: 'start' })` on the row. Waiting for the
+`grid-template-rows` transition to settle means `scrollIntoView` reads the final layout.
+`scrollMarginTop` keeps the row 16px below the fixed nav. **Do not** capture `rect.top`
+before `setOpen` and scroll simultaneously — the expansion shifts the row mid-scroll.
+The collapsed panel is `inert` (skipped by keyboard/screen readers; text stays in the DOM).
 
 ---
 
 ## Analytics (GA4)
 
 - `RouteTracker` in `App.jsx` fires `page_view` on every route change
-- `useScrollTracking` fires `scroll_depth` events at 25 / 50 / 75 / 100%
-- `useSectionTracking` fires `view_section` as each section enters the viewport
-- Analytics utility lives in `src/utils/analytics.js`
+- `useScrollTracking` fires `scroll_depth` at 25 / 50 / 75 / 100%
+- `useSectionTracking` fires `view_section` as each section enters the viewport (ids in that hook must match the section ids)
+- Events live in `src/utils/analytics.js`; `trackViewMoreOpen('work')` fires when "All work" is clicked
 
-**Important:** The initial `gtag('config', ...)` call in `index.html` uses `send_page_view: false` so the GA4 snippet does NOT send an automatic page_view on load. All page views are sent exclusively by `RouteTracker` → `trackPageView()`. Without this, the first page load would be double-counted (one from the snippet, one from `RouteTracker` mounting).
+**Important:** the initial `gtag('config', ...)` in `index.html` uses `send_page_view: false`
+so the snippet does NOT send an automatic page_view. All page views come from
+`RouteTracker`. Without this the first load is double-counted.
 
 ---
 
-## Theme System (Dark / Light Mode)
+## Theme system (dark / light)
 
-### How it works
+Class-based on `<html>`: `dark` = dark mode. Priority: `localStorage 'theme'` → system
+`prefers-color-scheme` → default dark. `index.html` has an inline script that sets the
+class before first paint (no flash). `useTheme` returns `[theme, toggleTheme]`; `App`
+passes them to `<Nav />`. Printing removes the `dark` class for the print job (App.jsx).
 
-Class-based on `<html>`: `dark` class = dark mode; absent = light mode.
-
-| Priority | Source |
-|---|---|
-| 1st | `localStorage.getItem('theme')` (`'dark'` or `'light'`) |
-| 2nd | `window.matchMedia('(prefers-color-scheme: dark)')` |
-| 3rd | Default to `'dark'` |
-
-**Flash prevention**: `index.html` has an inline `<script>` in `<head>` that sets the class synchronously before the first paint. This prevents the white flash on dark-mode page load.
-
-### Key files
-
-- **`src/hooks/useTheme.js`** — reads localStorage on init, applies/removes `dark` on `<html>`, saves on toggle. Returns `[theme, toggleTheme]`.
-- **`src/App.jsx`** — calls `useTheme()` at the root and passes `theme` + `toggleTheme` as props to `<Nav />`.
-- **`src/components/layout/Nav.jsx`** — renders a pill-shaped Sun/Moon toggle with ambient glow (left of Resume button). Props: `{ theme, toggleTheme }`. Dark mode: emerald glow. Light mode: amber glow. Glow is always visible at rest; intensifies on hover.
-- **`src/index.css`** — `@variant dark` directive + CSS variable overrides for light mode (`--color-darkBg`, `--color-cardBg`, `--color-accent`).
-- **`src/styles/globals.css`** — `html { transition: color 300ms, background-color 300ms }` + light mode overrides for all custom CSS classes (§22).
-
-### Adding new theme-aware components
-
-Use the `dark:` Tailwind prefix for anything that should differ between modes:
-
+### Strict colour convention
+**Every hard-coded colour class needs both a dark and a light value.**
 ```jsx
-// Headings
-<h2 className="dark:text-white text-slate-900">
-
-// Body text
-<p className="dark:text-gray-400 text-slate-600">
-
-// Muted / secondary
-<p className="dark:text-gray-500 text-slate-500">
-
-// Card borders
-<div className="border dark:border-gray-800 border-slate-200">
-
-// Tag chips
-<span className="dark:bg-gray-900 bg-slate-100 dark:border-gray-800 border-slate-200 dark:text-gray-400 text-slate-600">
-
-// Accent text (same token, works in both modes automatically)
-<p className="text-accent">
-```
-
-CSS custom properties (`--color-darkBg`, `--color-cardBg`, `--color-accent`) auto-adapt via `html:not(.dark)` overrides in `index.css` — no `dark:` prefix needed for classes that use these tokens (e.g. `bg-darkBg`, `bg-cardBg`, `text-accent`).
-
-### Strict color convention
-
-**Every hardcoded color class must have both a dark mode and a light mode value.** Never write a single color without a `dark:` counterpart.
-
-```jsx
-// CORRECT
 className="dark:text-white text-slate-900"
 className="dark:border-gray-800 border-slate-200"
 className="dark:hover:text-white hover:text-slate-900"
-className="dark:group-hover:text-white group-hover:text-slate-900"
-
-// WRONG — breaks in light mode
-className="text-white"
-className="border-gray-800"
-className="hover:text-white"
 ```
-
-Exception: classes using CSS custom property tokens (`bg-darkBg`, `bg-cardBg`, `text-accent`) auto-adapt and need no `dark:` prefix.
-
-### Custom CSS classes in globals.css
-
-Classes defined in `globals.css` (`.resume-btn`, `.scroll-top-btn`, `.floating-back-btn`, `.cs-locked-overlay`, `.modal-backdrop`, etc.) cannot use Tailwind's `dark:` prefix — they are CSS, not JSX. Light mode overrides go in **§22** of `globals.css` using `html:not(.dark)` selectors:
-
-```css
-/* §22. Light mode overrides */
-html:not(.dark) .my-custom-class {
-  background: #e2e8f0;
-  color: #334155;
-}
-```
+Exception: token classes (`bg-darkBg`, `bg-cardBg`, `text-accent`) adapt automatically.
+Contrast floors: small text `dark:text-gray-400 text-slate-600` or stronger; text on
+accent-tinted pills `dark:text-accent text-emerald-800`; primary buttons use dark text
+on emerald in dark mode (see DESIGN.md §4). Custom CSS classes can't use `dark:` — put
+light overrides next to them in `globals.css` using `html:not(.dark)`.
 
 ---
 
-## Carousel Behavior Conventions
+## Design system (summary — full rules in DESIGN.md)
 
-`src/components/ui/Carousel.jsx` has two modes:
-
-### Continuous carousels (`autoPlay=true`) — Testimonials desktop, CoreDNA desktop
-- **Auto-scroll**: rAF loop driven by `speedRef` (px/s)
-- **Hover-slow**: `onMouseEnter` halves speed; `onMouseLeave` restores instantly
-- **Drag-to-scrub** (`draggable={true}` prop): desktop mouse grab (`cursor-grab`/`cursor-grabbing`) + mobile touch drag scrub in real time; auto-scroll resumes 1.5s after release
-
-> **Note:** StatsBar is no longer a carousel. It is a static `grid grid-cols-2 md:grid-cols-3` of glass cards (`bg-cardBg rounded-2xl`). No Carousel component involved.
-
-### Card carousels on mobile (discrete, `autoPlay=false`)
-- Swipeable with live drag-follow and smooth snap on release
-- **Infinite loop via triple-clone**: `extended = [...items, ...items, ...items]`; starts at copy-B (`cur = len`); `onTransEnd` silently snaps from copy-A/C back to copy-B after each wrap animation
-- **Seamless wrap**: `onTransitionEnd` filtered by `e.propertyName === 'transform'`; transition re-enabled via `setTimeout(50)` (more reliable than double-rAF on mobile)
-- `peek={true}` shows a sliver of the next card (`peekIpv = ipv + 0.15`)
+- Logos: `CompanyLogo` inlines the SVGs from `src/assets/logos/` and recolours only the neutral parts to the theme colour (brand colours kept); three placements only (Hero strip, Experience rows, case-study header). See DESIGN.md §4.
+- Sticky PageBar under the nav on inner pages (nav is a fixed `h-16`; the bar is `top-16`). `html, body` use `overflow-x: clip` — `hidden` would break `position: sticky`.
+- Opaque cards: `bg-cardBg rounded-2xl border dark:border-gray-800 border-slate-200`; `card-lift` only on clickable cards. No `backdrop-filter` on content.
+- Nothing below 12px (`text-xs`+); no `text-[10px]`.
+- Global `:focus-visible` ring; `prefers-reduced-motion` disables all motion.
+- Hero: CSS Grid, photo column has an explicit pixel width so text never bleeds into it. Mobile order is text → proof → actions, and the hero isn't forced to full height so the proof lands in the first screen. Badge = current role (from `roles.js`), never an "available for" pill. Location line: "Hyderabad, India · Open to conversations".
+- Footer CTA: eyebrow "Open to Conversations"; headline "Ready to build something ambitious?"; subtext "Currently building digital commerce at Heineken. Always glad to talk product with teams where engineering depth meets commercial scale."; CTAs use `<ArrowUpRight />` (SVG, not the `↗` character — iOS renders it as an emoji).
 
 ---
 
-## Testimonial Modal Behavior
+## Current Employer Content (Heineken) — confidentiality rules
 
-`src/components/modals/TestimonialModal.jsx`
+The Heineken role (Jun 2026 – present) is described at a deliberately high level:
 
-**Props:** `{ testimonials, startIndex, onClose }` — full array + starting index (not a single object)
-
-**Navigation:**
-- Left `‹` / right `›` arrows — **desktop (`md+`) only** (`hidden md:flex`). Full card-height edge strip (`h-full`, `left-0`/`right-0`, `w-12`) — entire left/right edge is clickable.
-  - Arrows are intentionally hidden on mobile: swipe gesture + dot indicators are the complete mobile navigation. Adding arrows on mobile clutters a small screen and is redundant.
-  - Header and dots carry `relative z-20` so they stay interactive above the `z-10` arrow buttons on desktop.
-- Keyboard: `ArrowLeft` / `ArrowRight` navigate; `Escape` closes
-- Touch swipe: `touchstart` + `touchend` on the **backdrop** (not the card), so swiping anywhere on the overlay works; `|dx| > 50px` triggers prev/next
-- Dot indicators at the bottom; clicking a dot jumps directly to that testimonial
-
-**Transition:** 150ms opacity fade (`visible` state) — content fades out, index updates, content fades in. Rapid consecutive navigations are debounced via `navigating` ref.
-
-**Scroll lock:** Uses `position: fixed` + saved `scrollY` (not just `overflow: hidden`) because iOS Safari ignores `overflow: hidden` on `body` for momentum scroll. On close, restores styles and calls `window.scrollTo(0, scrollY)`.
-
----
-
-## WorkExperience Accordion Scroll
-
-`src/sections/WorkExperience.jsx`
-
-**Pattern:** call `setOpen(i)` first, then in a `setTimeout(400)` call `scrollIntoView({ behavior: 'smooth', block: 'start' })` on the card element. Waiting for the `grid-template-rows` transition to settle (~380ms) means `scrollIntoView` reads the final DOM layout — the scroll target is always accurate.
-
-`scrollMarginTop: (NAV_HEIGHT + TOP_MARGIN) + 'px'` on each card wrapper keeps the header 16px below the fixed nav.
-
-**Do not** try to capture `rect.top` before `setOpen` and fire `window.scrollTo` simultaneously — the expansion shifts the card mid-scroll, jerking the page in the wrong direction.
-
----
-
-## Design System (modernize-design branch)
-
-### Font stack
-
-| Role | Family | Class |
-|---|---|---|
-| Display / headings | Plus Jakarta Sans | `font-display` |
-| Body | Inter | default (no class needed) |
-| Monospace / labels | IBM Plex Mono | `font-mono-pp` |
-
-Google Fonts import lives in `src/styles/globals.css`. The old Syne + DM Sans stack has been replaced — do not reintroduce them.
-
-### Card conventions
-
-All content cards use this base pattern:
-
-```jsx
-<div className="bg-cardBg rounded-2xl border dark:border-gray-800 border-slate-200 card-lift">
-```
-
-- `card-lift` — CSS class in `globals.css` §23: `transform: translateY(-5px)` + shadow escalation on hover. Apply to every interactive card. The `:hover` rules are wrapped in `@media (hover: hover)` so they never fire on touch devices — mobile carousel swipes will not trigger the pop-up animation.
-- `rounded-2xl` — standard card radius. Do not use `rounded-3xl` (too bubbly).
-- No internal gradient accent bars at the top of cards — they add visual noise. Hierarchy is carried by spacing and typography.
-
-**Mobile hover rule:** All CSS `:hover` transforms/shadows on cards must be inside `@media (hover: hover) { ... }`. This applies to both `.card-lift:hover` and the glass card border/shadow escalations (`.rounded-2xl.bg-cardBg:hover`). Without this guard, iOS/Android touch events trigger `:hover` on tap, causing cards to visually pop during carousel swipes.
-
-### Section layout patterns
-
-| Section | Desktop layout | Mobile layout |
-|---|---|---|
-| StatsBar | `grid-cols-3` static glass cards | `grid-cols-2` static glass cards |
-| CareerJourney | `grid-cols-4` glass cards (Acts I–IV) | single-column stack |
-| Projects | `grid-cols-2` static grid + ViewMoreModal | swipeable Carousel |
-| ImpactStories | `grid-cols-2` static grid + ViewMoreModal | swipeable Carousel |
-| CaseStudies | single-column full-width editorial stack | swipeable Carousel |
-| Testimonials | static `grid-cols-2` pull-quote grid | swipeable Carousel |
-
-### CareerJourney scaling
-
-Currently 4 Acts (`lg:grid-cols-4`). When a 5th role is added, convert to a **horizontally scrollable strip** — cards in a single `flex-row` with `overflow-x-auto` and drag-to-scrub on desktop, swipeable carousel on mobile. The card design stays identical; only the container changes.
-
-### Hero layout
-
-CSS Grid, not flexbox. The photo column has an explicit pixel width so the text column can never bleed into it:
-
-```
-md: grid-cols-[1fr_300px]
-lg: grid-cols-[1fr_360px]
-```
-
-Photo is visible on all viewports — stacks below text on mobile (`flex justify-center md:justify-end`). Ambient glow and accent line are `hidden md:block` (desktop only).
-
-The subtitle line ("Technical Product Leader · 10 Years") uses two spans to prevent wrapping on narrow screens:
-- Mobile (`sm:hidden`): shorter variant — "Product Leader · 10 Years"
-- Desktop (`hidden sm:inline`): full string
-
-### Footer CTA copy
-
-- Eyebrow: "Open to Opportunities"
-- Headline: "Ready to build something ambitious?"
-- Subtext: "Senior product roles where engineering depth meets commercial scale."
-- CTAs: Connect on LinkedIn `<ArrowUpRight />` · Download Resume
-
-The LinkedIn CTA uses the `<ArrowUpRight />` SVG icon (from `src/components/ui/Icons.jsx`), not the Unicode `↗` character — iOS renders `↗` as a colour emoji, which looks out of place.
+- **Scope, not results.** No outcome metrics until real, publicly shareable ones exist.
+- **Credit accurately.** The platform was built by another team; the role contributed SIT, UAT, pilot launch and hypercare, and now shapes roadmap and analytics alongside a Senior Product Owner and a Business Analyst. Never phrase it as sole ownership.
+- **Don't name internal tools/vendors** (e.g. the analytics product) until cleared.
+- **Logo:** only the official Heineken asset, exact to the original — none in the repo yet.
+- The homepage OG image is intentionally employer-free so it never goes stale.
+- `data/currently.js` is illustrative — the owner should review and edit it.

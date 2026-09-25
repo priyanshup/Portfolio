@@ -1,303 +1,234 @@
 /**
  * content/case-studies/uhg-zero-downtime-migration/index.jsx
  *
- * Case Study: Zero Risk at Scale —
- * Engineering a Zero-Downtime Cross-System Migration
+ * Case study: migrating 28 states to the 837 claims format with zero downtime.
  *
- * IMAGES:
- *   Drop any diagrams or flowcharts into ./assets/ and import them here.
+ * Images: put diagrams or screenshots in ./assets/, import them here and use
+ * <ImageFull>. Useful ones would be a field-mapping example (with no real
+ * data) and the rollout sequence.
  *
- *   assets/format-mapping.png   — side-by-side of proprietary vs 837 field structure
- *   assets/migration-sequence.png — rolling state-by-state sequence diagram
- *   assets/monitoring-protocol.png — post-go-live monitoring checklist
+ * Voice: plain first person, British spelling, no dashes as connectors.
+ * See DESIGN.md, "Writing voice".
  */
 
 import {
   H2, H3, P,
-  Callout, MetricRow,
-  AtAGlance, ProcessFlow,
-  BulletList, Divider,
+  Callout, MetricRow, Collapsible,
+  Snapshot, ProcessFlow,
+  BulletList,
 } from '../components.jsx';
-
-/*
- * Uncomment as you add images to ./assets/
- *
- * import formatMappingImg     from './assets/format-mapping.png';
- * import migrationSequenceImg from './assets/migration-sequence.png';
- * import monitoringImg        from './assets/monitoring-protocol.png';
- */
 
 const UHGMigrationCaseStudy = () => (
   <>
 
-    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
-    <AtAGlance
-      summary="Migrated a dental claims vendor off a proprietary format onto the industry-standard 837 across 28 states, without a single production incident."
-      problem="A proprietary claims format carried an ongoing risk of missing or misrepresented fields, triggering claim rejections and delayed payment — and the migration had to happen with zero disruption to live claims processing."
+    {/* The short version: problem, what I did, result, takeaway */}
+    <Snapshot
+      plain={`A dental claims vendor sent its claims in its own private format, and that kept causing rejections. I moved all 28 states to the industry-standard format one at a time, without any downtime.`}
+      problem={`The vendor's proprietary claims format carried a permanent risk of missing or misrepresented fields. Those caused claim rejections and delayed payments, and the migration had to cause zero disruption to live processing.`}
+      did={`Mapped every field in each state to the 837 standard, migrated state by state so risk stayed contained, tested each state in development first, and watched the first two production batch runs before starting the next.`}
+      result={`Zero downtime incidents and no rollbacks across all 28 states. Millions of claims kept flowing during the migration, and a lasting source of rejection risk is gone.`}
+      takeaway={`Plan zero-downtime migrations around containment and checking, and treat each state as its own migration.`}
       role="Sr. Business Systems Analyst"
-      team="March Vision's technical team + UHG's internal claims processing team"
+      team="March Vision's technical team and UHG's internal claims processing team"
       timeline="Sequential rollout, one state at a time, alphabetically, across all 28 states"
-      primaryMetric={{ val: "0", label: "Downtime Incidents Across 28 States" }}
       tech={["SQL", "Shell", "Java", "837 Standard"]}
     />
 
-    {/* ── HEADLINE METRICS ── */}
     <MetricRow metrics={[
-      { val: "0",    label: "Downtime Incidents" },
-      { val: "28",   label: "States Migrated" },
-      { val: "100%", label: "Rollout Success Rate" },
-      { val: "M+",   label: "Claims Processed Uninterrupted" },
+      { val: "0",    label: "Downtime incidents" },
+      { val: "28",   label: "States migrated" },
+      { val: "100%", label: "Rollout success rate" },
+      { val: "M+",   label: "Claims processed without interruption" },
     ]} />
 
-    <Divider />
-
-    {/* ── THE PROBLEM ── */}
-    <H2>The Problem</H2>
+    <H2>The problem</H2>
 
     <P>
-      UnitedHealth Group was onboarding March Vision, a dental claims vendor
-      operating across 28 US states, onto its claims processing infrastructure.
-      March Vision had been transmitting claims data using a proprietary file
-      format — one specific to their systems, which carried an ongoing risk of
-      missing or misrepresenting the fields required for clean claim adjudication.
+      UnitedHealth Group was bringing March Vision, a dental claims vendor
+      operating in 28 US states, onto its claims processing systems. March Vision
+      sent claims in a proprietary file format specific to its own systems. That
+      format could leave out or misrepresent fields needed for clean claim
+      adjudication.
     </P>
 
     <P>
-      The goal was to migrate all 28 states from this proprietary format to the
-      healthcare industry standard: the 837 inbound claims format. The migration
-      was not a technical upgrade for its own sake. The proprietary format
-      created a permanent source of downstream risk — any missing critical field
-      would trigger a claim rejection, generating provider follow-up cycles that
-      delayed payment and increased operational overhead.
+      The goal was to move all 28 states to the healthcare industry standard, the
+      837 inbound claims format. The reason was risk. Any missing critical field
+      in the proprietary format triggered a claim rejection, which started a
+      follow-up cycle with the provider, delayed payment and added operational
+      work.
     </P>
 
     <P>
-      The non-negotiable constraint was that the migration had to happen with
-      zero disruption to claims processing. A single state going down during the
-      transition would mean delayed claim adjudication — directly impacting
-      members, providers, and UHG's operational commitments across that state.
+      One constraint couldn't be traded away: no disruption to claims processing.
+      A single state going down during the transition would delay claim
+      adjudication for members and providers there, and for UHG's commitments in
+      that state.
     </P>
 
-    <Callout label="The Core Challenge" accent>
-      How do you migrate 28 independently-configured states from a proprietary
-      claims format to an industry standard — safely, sequentially, and without
-      a single instance of production downtime?
+    <Callout label="The core question" accent>
+      How do you migrate 28 independently configured states from a proprietary
+      claims format to an industry standard, one at a time, with no production
+      downtime?
     </Callout>
 
-    <Divider />
-
-    {/* ── DISCOVERY ── */}
-    <H2>Understanding the Landscape</H2>
+    <H2>What I found</H2>
 
     <P>
-      Before any migration work could begin, I needed to understand both
-      format specifications in detail — and, critically, how they diverged
-      across each of the 28 states. March Vision's proprietary format was not
-      uniform: each state had its own configuration rules, field mappings, and
-      edge cases that had to be accounted for individually before any work began.
+      Before any migration work, I needed to understand both formats in detail
+      and, above all, how they differed across the 28 states. March Vision's
+      format wasn't uniform. Each state had its own configuration rules, field
+      mappings and edge cases, and each had to be accounted for before anything
+      moved.
     </P>
 
     <P>
       I worked with March Vision's technical team and UHG's internal claims
-      processing team to document the proprietary field structure for each state,
-      then mapped each field to its equivalent in the 837 standard — or
-      identified where no direct equivalent existed and a derivation rule was
-      needed to cover the gap.
+      processing team to document the proprietary field structure for each
+      state. Then I mapped every field to its 837 equivalent, or noted where no
+      direct equivalent existed and a derivation rule was needed.
     </P>
 
-    <Callout label="Key Insight">
-      This was not one migration — it was 28 separate migrations, each with its
-      own field mappings and edge cases. Treating it as a monolithic change would
-      have been the fastest route to production failures. The only safe path was
-      to understand and validate each state individually.
+    <Callout label="The insight">
+      This was really 28 separate migrations, each with its own field mappings
+      and edge cases. Treating it as one big change would have been the quickest
+      way to production failures. The only safe route was to understand and
+      check each state on its own.
     </Callout>
 
-    <Divider />
-
-    {/* ── APPROACH ── */}
-    <H2>My Approach</H2>
+    <H2>How I approached it</H2>
 
     <P>
-      The migration strategy was built around three principles: understand
-      each state individually before touching it, test thoroughly before going
-      live, and monitor closely after go-live before moving to the next state.
+      The strategy came down to three principles: understand each state before
+      touching it, test before going live, and monitor closely after go-live
+      before moving to the next state.
     </P>
 
     <ProcessFlow steps={[
-      "State-by-State Format Mapping",
-      "Rolling Alphabetical Migration",
-      "Dev Testing Before Every Cutover",
-      "Post-Go-Live Monitoring Per State",
+      "Map each state's format",
+      "Migrate state by state",
+      "Test in development first",
+      "Monitor after go-live",
     ]} />
 
-    <H3>1. State-by-State Format Mapping</H3>
-
+    <H3>1. Map each state's format</H3>
     <P>
-      For each of the 28 states, I mapped March Vision's proprietary field
-      structure to the 837 inbound claims format. This involved documenting
-      every field in the proprietary format, identifying its 837 equivalent,
-      and defining derivation logic for fields with no direct counterpart.
-      State-specific rules and edge cases were captured per state before
-      migration work began — no state moved forward until its mapping was
-      documented and reviewed.
+      For each state I mapped March Vision's proprietary fields to the 837
+      inbound claims format. That meant documenting every proprietary field,
+      finding its 837 equivalent, and writing derivation logic for fields with no
+      direct counterpart. State-specific rules and edge cases were recorded
+      before migration work started, and no state moved on until its mapping had
+      been documented and reviewed.
     </P>
 
-    {/*
-      <ImageFull
-        src={formatMappingImg}
-        alt="Proprietary vs 837 field mapping by state"
-        caption="Each state had its own field mapping specification before go-live"
-      />
-    */}
-
-    <H3>2. Rolling Alphabetical Migration</H3>
-
+    <H3>2. Migrate state by state, alphabetically</H3>
     <P>
-      Rather than attempting a simultaneous cutover across all 28 states —
-      which would have concentrated all risk into a single event — I executed
-      the migration in a rolling fashion, state by state, starting
-      alphabetically. This kept risk contained to one state at a time and
-      allowed learnings from earlier states to inform the approach for later
-      ones. Each state's migration was treated as an independent go-live
-      with its own validation checklist, even though the underlying process
-      was consistent throughout.
+      A simultaneous cutover for all 28 states would have concentrated all the
+      risk in one event, so I ran a rolling migration, one state at a time,
+      starting alphabetically. That kept risk to one state at once and let what
+      we learned from early states shape the later ones. Each state was an
+      independent go-live with its own validation checklist, even though the
+      process was the same throughout.
     </P>
 
-    {/*
-      <ImageFull
-        src={migrationSequenceImg}
-        alt="Rolling state-by-state migration sequence"
-        caption="28 independent go-lives — risk contained, learnings compounded"
-      />
-    */}
-
-    <H3>3. Development Testing Before Every Production Cutover</H3>
-
+    <H3>3. Test in development before every cutover</H3>
     <P>
-      Before any state was moved to production, I ran its new 837 configuration
-      in a development environment using representative claims data from that
-      state. The goal was to validate that the format mapping was correct, that
-      no fields were being lost or misrepresented, and that the output was clean
-      enough to pass through the claims processing pipeline without errors. Only
-      after the development environment confirmed clean output did a state
-      proceed to production.
+      Before a state moved to production, I ran its new 837 configuration in a
+      development environment using representative claims data from that state.
+      I was checking that the mapping was correct, that no fields were lost or
+      misrepresented, and that the output was clean enough to pass through the
+      claims pipeline without errors. A state only went to production once
+      development showed clean output.
     </P>
 
-    <H3>4. Post-Go-Live Monitoring Per State</H3>
-
+    <H3>4. Monitor after go-live</H3>
     <P>
-      Going live was not the end of the process for each state. I monitored the
-      first two production batch runs after every state's cutover to confirm that
-      claims were processing correctly at scale — not just in the controlled
-      conditions of development testing. Only after both batch runs were stable
-      did the migration move to the next state in the sequence.
+      I kept watching each state after it went live: the first two production
+      batch runs, to confirm claims were processing correctly at scale and not
+      only in development testing. The next state started once both runs were
+      stable.
     </P>
 
-    {/*
-      <ImageFull
-        src={monitoringImg}
-        alt="Post-go-live monitoring protocol for each state"
-        caption="Two production batch runs confirmed stable before moving to the next state"
-      />
-    */}
-
-    <Divider />
-
-    {/* ── WHAT WE BUILT ── */}
-    <H2>What We Built</H2>
+    <Collapsible title="What we built">
 
     <P>
-      The core deliverable was a complete, verified migration from a proprietary
-      to an industry-standard claims format across all 28 states — but the real
-      output was a structured, repeatable process that kept 28 independent
-      configurations organised and verifiable throughout.
+      The main deliverable was a complete, verified migration from the
+      proprietary format to the industry standard in all 28 states. It also
+      produced a repeatable process that kept 28 separate configurations
+      organised and checkable.
     </P>
 
     <BulletList items={[
-      "Detailed format mapping specifications for all 28 states, documenting every field translation and derivation rule",
-      "Validated 837 configurations for each state, tested in development and confirmed before every production cutover",
-      "A sequential go-live process applied consistently across all 28 states",
-      "Two production batch runs monitored per state before proceeding to the next",
-      "Full transition from a fragile proprietary format to the healthcare industry standard with no production failures",
+      "Format mapping specifications for all 28 states, documenting every field translation and derivation rule",
+      "A validated 837 configuration for each state, tested in development and confirmed before each production cutover",
+      "A sequential go-live process, applied the same way in every state",
+      "Two production batch runs monitored per state before moving on",
+      "A full move from a fragile proprietary format to the industry standard, with no production failures",
     ]} />
+    </Collapsible>
 
-    <Divider />
-
-    {/* ── RESULTS ── */}
     <H2>Results</H2>
 
     <P>
-      The migration was completed across all 28 states without a single
-      instance of production downtime:
+      All 28 states were migrated without a single production downtime incident:
     </P>
 
     <BulletList items={[
-      "Zero downtime incidents across the entire migration — every state transitioned without disruption to claims processing",
-      "100% rollout success rate — no state required rollback or emergency intervention",
-      "Millions of dental claims continued processing uninterrupted throughout the migration period",
-      "Eliminated the ongoing risk of claim rejections caused by missing or misrepresented fields in the proprietary format",
-      "Reduced the risk of delayed clean claim adjudication and provider follow-up cycles going forward",
+      "Zero downtime incidents. Every state moved without disrupting claims processing.",
+      "100% rollout success. No state needed a rollback or an emergency fix.",
+      "Millions of dental claims kept processing throughout the migration.",
+      "The ongoing risk of rejections caused by missing or misrepresented fields in the proprietary format is gone.",
+      "Lower risk of delayed clean-claim adjudication and provider follow-ups from here on.",
     ]} />
 
     <P>
-      Beyond the immediate migration, the move to the 837 standard removed a
-      permanent source of operational fragility. Proprietary formats are inherently
-      brittle — any change on the vendor's side can create silent field mismatches
-      that only surface as claim rejections downstream. The industry standard
-      provides a stable, well-understood baseline that both sides of the
-      integration can depend on long term.
+      The move also removed a lasting source of fragility. Proprietary formats
+      are brittle: a change on the vendor's side can create silent field
+      mismatches that only show up later as rejected claims. The industry
+      standard gives both sides of the integration a stable, well-understood
+      baseline.
     </P>
 
-    <Divider />
+    <Collapsible title="What I'd do differently">
 
-    {/* ── REFLECTION ── */}
-    <H2>What I'd Do Differently</H2>
-
-    <H3>Build an automated validation suite per state</H3>
+    <H3>Automate validation for each state</H3>
     <P>
-      Development testing before each go-live was rigorous but largely manual.
-      Building a repeatable automated validation suite — one that could run
-      representative claims through the new configuration and flag field-level
-      discrepancies — would have reduced per-state testing time and created a
-      more reliable safety net, particularly for edge cases that are easy to miss
-      in manual review.
+      Development testing before each go-live was thorough but mostly manual. A
+      repeatable automated suite that ran representative claims through the new
+      configuration and flagged field-level differences would have cut testing
+      time per state and caught edge cases that are easy to miss by hand.
     </P>
 
-    <H3>Create a centralised monitoring view across all active states</H3>
+    <H3>Build one monitoring view for all active states</H3>
     <P>
-      Post-migration monitoring was handled state by state, which meant tracking
-      multiple batch runs in parallel as the migration progressed. A centralised
-      view showing processing status across all 28 states in real time — with
-      alerts surfaced automatically for any anomalies — would have reduced the
-      manual overhead of monitoring and made it easier to detect patterns across
-      states if any had emerged.
+      I tracked post-migration batch runs state by state, which meant following
+      several in parallel as the migration went on. One view showing processing
+      status across all 28 states in real time, with alerts for anomalies, would
+      have reduced the manual effort and made patterns across states easier to
+      spot.
     </P>
 
-    <H3>Document the migration playbook as it ran, not after</H3>
+    <H3>Write the playbook as I went</H3>
     <P>
-      The process we followed was consistent and worked well, but the formal
-      documentation was assembled retrospectively. Capturing learnings from each
-      state as part of the go-live checklist — in real time, not at the end —
-      would have made the playbook richer and more immediately transferable to
-      future migrations of a similar kind.
+      The process was consistent and it worked, but I wrote the formal
+      documentation afterwards. Capturing what each state taught us as part of
+      the go-live checklist, in real time, would have made the playbook richer
+      and easier to reuse on similar migrations.
     </P>
+    </Collapsible>
 
-    <Divider />
-
-    {/* ── TAKEAWAYS ── */}
-    <H2>Key Takeaways</H2>
+    <H2>What I took from it</H2>
 
     <P>
-      Zero-downtime migrations at scale are achievable — but only when the work
-      is designed around containment and verification rather than speed. The most
-      important decision we made was treating each state as a discrete,
-      independently-validated migration rather than a step in a monolithic process.
+      Zero-downtime migrations at scale are possible when the plan is built
+      around containment and verification, with speed coming second. The most
+      important decision was treating each state as its own migration.
     </P>
 
     <BulletList items={[
-      "Rolling migrations contain risk — each state's go-live is a contained experiment, not a shared risk event across the entire rollout",
-      "Testing before production is non-negotiable, but monitoring after production is equally critical — the development environment can never fully replicate real-world batch volumes",
-      "Industry standards exist for a reason — migrating to 837 didn't just fix this migration, it removed a permanent source of downstream fragility that would otherwise have required ongoing management",
+      "A rolling migration contains risk. Each go-live is a small, contained experiment.",
+      "Testing before production is essential, and so is monitoring after it, because a development environment can't fully reproduce real batch volumes.",
+      "Industry standards exist for good reasons. Moving to 837 fixed this migration and also removed a source of downstream fragility that would have needed ongoing management.",
     ]} />
 
   </>

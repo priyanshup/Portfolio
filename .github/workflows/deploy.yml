@@ -1,12 +1,27 @@
 name: Build and Deploy
 
+# Single source of truth for production deploys: every push to main is checked,
+# built, and published to the gh-pages branch. Pull requests run the same
+# checks but never deploy.
+#
+# `npm run deploy` (gh-pages CLI) still exists as a manual fallback, but don't
+# run it for a commit that CI is also about to deploy — both write to gh-pages.
+
 on:
   push:
     branches:
-      - main  # Trigger the action whenever you push to the main branch
+      - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
+
+# Never let two deploys race each other on the gh-pages branch.
+concurrency:
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
@@ -22,12 +37,29 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install and Build 🔧
-        run: |
-          npm install --legacy-peer-deps
-          npm run build
+      - name: Install 📦
+        run: npm ci --legacy-peer-deps
+
+      # Same guard `npm run deploy` uses: resume-file check + ESLint.
+      - name: Verify (resume file + lint) 🔍
+        run: npm run verify
+
+      - name: Build 🔧
+        run: npm run build
+
+      # Pull requests only: fail if accessibility drops below 95 on the
+      # homepage, /work, or a case study (see .lighthouserc.json). Performance
+      # and SEO only warn — performance scores are noisy on shared runners.
+      # Pushes to main are never blocked by this step.
+      - name: Accessibility gate (Lighthouse) ♿
+        if: github.event_name == 'pull_request'
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./.lighthouserc.json
+          uploadArtifacts: true
 
       - name: Deploy 🚀
+        if: github.event_name == 'push'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist # The folder the action should deploy.

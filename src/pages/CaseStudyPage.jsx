@@ -1,31 +1,39 @@
 /**
  * pages/CaseStudyPage.jsx
  *
- * OVERLAY RESTORATION:
- *   Reads location.state.fromOverlay on mount.
- *   If true, all back links forward it so CaseStudies.jsx knows
- *   to reopen the overlay when the user returns.
+ * Renders an individual case study at /case-studies/:slug
+ * (URL in HashRouter form: /#/case-studies/<slug>).
  *
- *   Navigation state flow:
- *     Overlay card click → state { scrollTo, fromOverlay: true }
- *     CaseStudyPage reads fromOverlay → passes it on its back links
- *     HomePage scrolls to section → CaseStudies reads fromOverlay → opens overlay
+ * Metadata comes from data/work.js (items with a `slug`); the article body is
+ * lazy-loaded from src/content/case-studies/<slug>/index.jsx.
  *
- * FLOATING BACK BUTTON:
- *   Appears when both static back links are off-screen simultaneously.
- *   Disappears when either static link becomes visible.
+ * Page furniture:
+ *   - a sticky PageBar under the nav: Portfolio / Work (or All work) / this page,
+ *     every level a link, plus a thin reading-progress line
+ *   - an "On this page" menu in that bar (built from the article's H2 ids)
+ *   - read-time label, company logo, topic tags (collapsed behind a toggle on phones)
+ *   - end of page: contact block + "next case study" card
+ *
+ * Origin: links into a case study pass state { from }: 'work-page' when the
+ * reader came from /work, otherwise the homepage's Work section. The trail
+ * follows that, so "back one level" always goes where the reader came from.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useId } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { caseStudies } from '../data/caseStudies.js';
+import { caseStudies, nextCaseStudy } from '../data/work';
 import { CONFIG } from '../config';
-
-const BACK_LABEL = '← Back to Portfolio';
+import PageBar from '../components/ui/PageBar';
+import CompanyLogo from '../components/ui/CompanyLogo';
+import { Tag } from '../components/ui/Tag';
+import { ArrowUpRight, DL, ChevronDown } from '../components/ui/Icons';
+import useDocumentMeta from '../hooks/useDocumentMeta';
+import useMediaQuery, { DESKTOP_QUERY } from '../hooks/useMediaQuery';
+import { trackCaseStudyOpen, trackLinkedInClick, trackResumeDownload } from '../utils/analytics';
 
 /* ── Loading skeleton ── */
 const LoadingSkeleton = () => (
-  <div className="space-y-6 animate-pulse">
+  <div className="space-y-6 animate-pulse" aria-hidden="true">
     <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-1/4" />
     <div className="h-8 dark:bg-gray-800 bg-slate-200 rounded w-3/4" />
     <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-full" />
@@ -35,7 +43,7 @@ const LoadingSkeleton = () => (
 );
 
 /* ── Dynamic content loader ── */
-const CaseStudyContent = ({ slug }) => {
+const CaseStudyContent = ({ slug, onReady }) => {
   const [Content, setContent] = useState(null);
   const [error, setError]     = useState(false);
 
@@ -47,8 +55,11 @@ const CaseStudyContent = ({ slug }) => {
       .catch(() => setError(true));
   }, [slug]);
 
+  /* tell the page when the article is in the DOM, so it can build the section menu */
+  useEffect(() => { onReady?.(); }, [Content, onReady]);
+
   if (error) return (
-    <p className="dark:text-gray-400 text-slate-600 text-sm">
+    <p className="dark:text-gray-300 text-slate-700 text-sm">
       Content file not found. Make sure{' '}
       <code className="font-mono-pp text-accent">
         src/content/case-studies/{slug}/index.jsx
@@ -56,195 +67,208 @@ const CaseStudyContent = ({ slug }) => {
       exists.
     </p>
   );
-
   if (!Content) return <LoadingSkeleton />;
   return <Content />;
+};
+
+/* Topic tags: a plain row on desktop, one toggle row on phones (text stays in the page, panel is inert while closed) */
+const TopicTags = ({ tags }) => {
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  const collapsed = !isDesktop && !open;
+  return (
+    <div>
+      <div className="md:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls={panelId}
+          className="link-accent"
+        >
+          Topics ({tags.length})
+          <ChevronDown open={open} />
+        </button>
+      </div>
+      <div id={panelId} className={'accordion-body ' + (!collapsed ? 'open' : '')}>
+        <div className="accordion-inner" inert={collapsed}>
+          <div className="flex flex-wrap gap-2 pb-1 md:pt-2">
+            {tags.map((t) => <Tag key={t}>{t}</Tag>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* 0..1 scroll progress through the page (requestAnimationFrame-throttled). */
+const useReadingProgress = (enabled) => {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    if (!enabled) return undefined;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [enabled]);
+  return progress;
 };
 
 /* ── Page ── */
 const CaseStudyPage = () => {
   const { slug }   = useParams();
   const location   = useLocation();
-  const cs = caseStudies.find((c) => c.slug === slug && c.published);
+  const cs = caseStudies.find((c) => c.slug === slug);
+  const next = cs ? nextCaseStudy(cs.slug) : null;
 
-  /*
-   * Read fromOverlay from incoming navigation state.
-   * If user came here from the overlay, we forward this flag on all
-   * back links so CaseStudies.jsx can reopen the overlay on return.
-   */
-  const fromOverlay = location.state?.fromOverlay ?? false;
+  /* Where did the reader come from? Drives the breadcrumb trail. */
+  const from = location.state?.from === 'work-page' ? 'work-page' : 'home';
+  const progress = useReadingProgress(Boolean(cs));
 
-  /* Back link state — always scrolls to case-studies, preserves overlay flag */
-  const backState = { scrollTo: 'case-studies', fromOverlay };
+  /* Sections for the "On this page" menu: every id'd H2 inside the article */
+  const articleRef = useRef(null);
+  const [sections, setSections] = useState([]);
+  const scanSections = useCallback(() => {
+    const found = [...(articleRef.current?.querySelectorAll('h2[id]') ?? [])].map((h) => ({
+      id: h.id,
+      label: h.textContent.trim(),
+    }));
+    setSections((prev) =>
+      prev.length === found.length && prev.every((p, i) => p.id === found[i].id) ? prev : found,
+    );
+  }, []);
 
-  const topLinkRef    = useRef(null);
-  const bottomLinkRef = useRef(null);
-  const [showFloating, setShowFloating] = useState(false);
-
-  /*
-   * Page title + share metadata.
-   * NOTE: this updates document.title, <meta name="description"> and
-   * <link rel="canonical"> client-side, which helps on-page correctness and
-   * crawlers that execute JS (Googlebot does). It does NOT change what
-   * link-preview bots (LinkedIn, Slack, X) show when a case study URL is
-   * pasted elsewhere — those bots don't run JS, so they still read the
-   * static tags in index.html. Fixing that would need static prerendering
-   * or a serverless function per route, which is a bigger infra change than
-   * this pass covers.
-   */
-  useEffect(() => {
-    document.title = cs
-      ? `${cs.title} — Priyanshu Pushpam`
-      : 'Case Study Not Found — Priyanshu Pushpam';
-
-    const descTag = document.querySelector('meta[name="description"]');
-    if (descTag && cs) descTag.setAttribute('content', cs.teaser);
-
-    let canonicalTag = document.querySelector('link[rel="canonical"]');
-    if (!canonicalTag) {
-      canonicalTag = document.createElement('link');
-      canonicalTag.rel = 'canonical';
-      document.head.appendChild(canonicalTag);
-    }
-    canonicalTag.href = cs
-      ? `${CONFIG.siteUrl}#/case-studies/${cs.slug}`
-      : CONFIG.siteUrl;
-
-    return () => {
-      document.title = CONFIG.siteTitle;
-      if (descTag) descTag.setAttribute('content', CONFIG.siteDescription);
-      if (canonicalTag) canonicalTag.href = CONFIG.siteUrl;
-    };
-  }, [cs]);
+  useDocumentMeta({
+    title: cs ? `${cs.title} | Priyanshu Pushpam` : 'Case study not found | Priyanshu Pushpam',
+    description: cs ? cs.summary : undefined,
+    path: cs ? `/case-studies/${cs.slug}` : undefined,
+  });
 
   /* Scroll to top on navigation */
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [slug]);
-
-  /*
-   * Floating back button visibility.
-   * Show when BOTH static links are off-screen simultaneously.
-   */
-  useEffect(() => {
-    if (!cs) return;
-
-    const visibilityMap = { top: false, bottom: false };
-
-    const update = () => {
-      setShowFloating(!visibilityMap.top && !visibilityMap.bottom);
-    };
-
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.target === topLinkRef.current) {
-          visibilityMap.top = entry.isIntersecting;
-        } else if (entry.target === bottomLinkRef.current) {
-          visibilityMap.bottom = entry.isIntersecting;
-        }
-      });
-      update();
-    }, { threshold: 0.1 });
-
-    const timer = setTimeout(() => {
-      if (topLinkRef.current)    obs.observe(topLinkRef.current);
-      if (bottomLinkRef.current) obs.observe(bottomLinkRef.current);
-    }, 100);
-
-    return () => { clearTimeout(timer); obs.disconnect(); };
-  }, [cs, slug]);
+  }, [slug, location.key]);
 
   /* ── 404 ── */
   if (!cs) {
     return (
-      <div id="main-content" className="min-h-screen flex items-center justify-center px-6">
+      <main id="main-content" tabIndex={-1} className="min-h-screen flex items-center justify-center px-6 focus:outline-none">
         <div className="text-center space-y-4">
-          <p className="font-mono-pp text-accent text-xs uppercase tracking-widest">404</p>
+          <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.2em]">404</p>
           <h1 className="font-display text-4xl font-bold dark:text-white text-slate-900">
             Case study not found
           </h1>
-          <p className="dark:text-gray-400 text-slate-600 text-sm">
-            This case study doesn't exist or hasn't been published yet.
+          <p className="dark:text-gray-300 text-slate-700 text-base">
+            I couldn't find that case study.
           </p>
-          <Link
-            to="/"
-            state={backState}
-            className="inline-block mt-4 font-mono-pp text-xs border border-accent text-accent px-6 py-3 rounded-full hover:bg-accent hover:text-darkBg transition-all uppercase tracking-widest"
-          >
-            {BACK_LABEL}
+          <Link to="/work" className="cta-btn-primary mt-4">
+            Browse all work
           </Link>
         </div>
-      </div>
+      </main>
     );
   }
 
+  const trail = from === 'work-page'
+    ? [
+        { label: 'Portfolio', to: '/' },
+        { label: 'All work', to: '/work' },
+        { label: cs.title },
+      ]
+    : [
+        { label: 'Portfolio', to: '/' },
+        { label: 'Work', to: '/', state: { scrollTo: 'work' } },
+        { label: cs.title },
+      ];
+
   return (
-    <>
-      {/* ── Floating back button ── */}
-      <Link
-        to="/"
-        state={backState}
-        className={`floating-back-btn font-mono-pp ${showFloating ? 'visible' : ''}`}
-        aria-label="Back to Portfolio"
-      >
-        ← Portfolio
-      </Link>
+    <main id="main-content" tabIndex={-1} className="pt-16 focus:outline-none">
+      <PageBar items={trail} width="max-w-3xl" progress={progress} sections={sections} />
 
-      <article id="main-content" className="max-w-3xl mx-auto px-6 pt-32 pb-24">
-
-        {/* Static top back link */}
-        <Link
-          ref={topLinkRef}
-          to="/"
-          state={backState}
-          className="font-mono-pp text-accent text-xs uppercase tracking-widest dark:hover:text-white hover:text-slate-900 transition-colors mb-10 inline-flex items-center gap-2"
-        >
-          {BACK_LABEL}
-        </Link>
-
-        {/* Header */}
-        <div className="mt-8 mb-12 space-y-6">
-          <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.3em]">
-            {cs.company}
-          </p>
-          <h1 className="font-display text-4xl md:text-5xl font-bold dark:text-white text-slate-900 leading-tight">
+      <article ref={articleRef} className="max-w-3xl mx-auto px-6 pt-6 md:pt-10 pb-24">
+        {/* Header: compact on phones so the plain-language line lands in the first screen */}
+        <header className="mb-6 md:mb-12 space-y-3 md:space-y-6">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <CompanyLogo company={cs.company} scale={0.8} />
+            <p className="font-mono-pp text-accent meta-line">
+              {cs.company} · {cs.domain} · ~{cs.readMinutes} min read
+            </p>
+          </div>
+          <h1 className="font-display text-[1.75rem] md:text-5xl font-bold dark:text-white text-slate-900 leading-tight text-balance">
             {cs.title}
           </h1>
-          <p className="dark:text-gray-400 text-slate-700 text-xl leading-relaxed border-l-2 dark:border-gray-800 border-slate-200 pl-6">
-            {cs.teaser}
-          </p>
-
-          <div className="flex flex-wrap gap-2 pt-2">
-            {cs.tags.map((t) => (
-              <span
-                key={t}
-                className="font-mono-pp text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded dark:bg-gray-900 bg-slate-100 dark:border dark:border-gray-800 border border-slate-200 dark:text-gray-400 text-slate-600"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-
-          <div className="border-t dark:border-gray-800 border-slate-200 pt-2" />
-        </div>
+          <TopicTags tags={cs.tags} />
+          <div className="hidden md:block border-t dark:border-gray-800 border-slate-200 pt-2" />
+        </header>
 
         {/* Dynamically loaded content */}
-        <CaseStudyContent slug={slug} />
+        <CaseStudyContent slug={slug} onReady={scanSections} />
 
-        {/* Static bottom back link */}
-        <div className="border-t dark:border-gray-800 border-slate-200 mt-16 pt-10">
+        {/* End of page: talk about it, then read the next one */}
+        <aside className="mt-16 p-6 sm:p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200">
+          <h2 className="font-display text-2xl font-bold dark:text-white text-slate-900 mb-2">
+            Want to talk about this?
+          </h2>
+          <p className="dark:text-gray-300 text-slate-700 text-base leading-relaxed mb-6">
+            Happy to talk it through, including what I'd change.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={CONFIG.social.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={trackLinkedInClick}
+              className="cta-btn-primary"
+            >
+              Message me on LinkedIn <ArrowUpRight />
+            </a>
+            <a
+              href={CONFIG.resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={trackResumeDownload}
+              className="cta-btn-secondary"
+            >
+              <DL /> Resume
+            </a>
+          </div>
+        </aside>
+
+        {next && (
           <Link
-            ref={bottomLinkRef}
-            to="/"
-            state={backState}
-            className="font-mono-pp text-accent text-xs uppercase tracking-widest dark:hover:text-white hover:text-slate-900 transition-colors inline-flex items-center gap-2"
+            to={`/case-studies/${next.slug}`}
+            state={{ from }}
+            onClick={() => trackCaseStudyOpen(next.slug)}
+            className="card-lift mt-6 block p-6 sm:p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200"
           >
-            {BACK_LABEL}
+            <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.15em] mb-2">
+              Next case study · ~{next.readMinutes} min read
+            </p>
+            <p className="font-display text-xl sm:text-2xl font-bold dark:text-white text-slate-900 leading-snug">
+              {next.title}
+            </p>
+            <p className="dark:text-gray-400 text-slate-600 text-sm mt-2">{next.company} · {next.domain}</p>
           </Link>
-        </div>
+        )}
 
+        {/* Bottom links: same levels as the bar, for readers who finished the page */}
+        <div className="border-t dark:border-gray-800 border-slate-200 mt-12 pt-6 flex flex-wrap gap-x-6">
+          <Link to="/" state={{ scrollTo: 'work' }} className="link-accent">← Back to Work</Link>
+          <Link to="/work" className="link-accent">All work</Link>
+        </div>
       </article>
-    </>
+    </main>
   );
 };
 

@@ -1,27 +1,23 @@
 /**
  * components/ui/SectionHeader.jsx
  *
- * Reusable section header with eyebrow label, heading, and optional subtitle.
- *
- * Props:
- *   eyebrow   – small monospace label above the title (e.g. "The Arc")
- *   title     – main heading text
- *   subtitle  – optional paragraph below the title
- *   center    – if true, centers all text (default: false = left-aligned)
+ * Shared section heading: short eyebrow, title, optional subtitle.
+ * Eyebrows are 12px+ and only used where they add information.
  */
 
 const SectionHeader = ({ eyebrow, title, subtitle, center = false }) => (
   <div className={`mb-10 ${center ? 'text-center' : ''}`}>
     <div className="reveal">
-      <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.3em] mb-3">
-        {eyebrow}
-      </p>
+      {eyebrow && (
+        <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.2em] mb-3">
+          {eyebrow}
+        </p>
+      )}
       <h2 className="font-display text-3xl md:text-4xl font-bold dark:text-white text-slate-900">{title}</h2>
     </div>
-
     {subtitle && (
       <div className="reveal d1 mt-3">
-        <p className={`dark:text-gray-400 text-slate-600 text-sm leading-relaxed max-w-xl ${center ? 'mx-auto' : ''}`}>
+        <p className={`dark:text-gray-400 text-slate-600 text-base leading-relaxed max-w-2xl ${center ? 'mx-auto' : ''}`}>
           {subtitle}
         </p>
       </div>

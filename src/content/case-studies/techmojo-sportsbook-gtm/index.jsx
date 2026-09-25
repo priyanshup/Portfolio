@@ -1,336 +1,251 @@
 /**
  * content/case-studies/techmojo-sportsbook-gtm/index.jsx
  *
- * Case Study: From MVP to 200% —
- * The GTM Playbook for a Global Sportsbook
+ * Case study: launching a white-label sportsbook in five countries in one
+ * month.
  *
- * IMAGES:
- *   Drop any diagrams, flowcharts, or screenshots into ./assets/ and
- *   import them here. Suggested assets to create:
+ * Images: put diagrams or screenshots in ./assets/, import them here and use
+ * <ImageFull> or <ImageHalf>. Useful ones would be the MVP scope buckets, the
+ * launch playbook, a map of the five markets and the performance chart.
  *
- *   assets/mvp-scope.png         — feature categorisation diagram (MVP vs Phase 2/3)
- *   assets/launch-playbook.png   — the repeatable launch framework as a flowchart
- *   assets/expansion-map.png     — world map showing the 5 country rollout
- *   assets/performance-chart.png — system performance improvement chart
+ * Voice: plain first person, British spelling, no dashes as connectors.
+ * See DESIGN.md, "Writing voice".
  */
 
 import {
   H2, H3, P,
-  Callout, MetricRow,
-  AtAGlance, ProcessFlow,
-  ImageFull, ImageHalf,
-  BulletList, Divider,
+  Callout, MetricRow, Collapsible,
+  Snapshot, ProcessFlow,
+  BulletList,
 } from '../components.jsx';
-
-/*
- * Uncomment as you add images to ./assets/
- *
- * import mvpScopeImg       from './assets/mvp-scope.png';
- * import launchPlaybookImg from './assets/launch-playbook.png';
- * import expansionMapImg   from './assets/expansion-map.png';
- * import perfChartImg      from './assets/performance-chart.png';
- */
 
 const TechmojoSportsbookCaseStudy = () => (
   <>
 
-    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
-    <AtAGlance
-      summary="Took a white-label sportsbook from MVP to a repeatable playbook that launched five regulated markets in one month and tripled revenue."
-      problem="Stakeholders kept expanding scope on an unlaunched platform, while five target countries each carried different regulatory requirements — risking an indefinite development cycle."
+    {/* The short version: problem, what I did, result, takeaway */}
+    <Snapshot
+      plain={`A betting platform I worked on kept adding features and couldn't launch. I defined what "ready to launch" meant, wrote a repeatable playbook for entering regulated markets, and ran compliance alongside development. Five countries went live within a month.`}
+      problem={`Stakeholders kept expanding the scope of an unlaunched platform, while five target countries each had different regulatory requirements. Left alone, the product risked an endless development cycle.`}
+      did={`Sorted every backlog item into MVP, Phase 2 or Phase 3 with documented stakeholder sign-off, wrote the launch playbook (dependencies, owners, turnaround times and compliance checkpoints), and moved compliance into a parallel workstream. I coordinated five Scrum teams and two business analysts.`}
+      result={`Launched in the UK, Germany, Spain, Japan and Turkey within a month, reached 25,000+ active users, grew revenue 200% within three months, and improved performance by 30% under peak traffic.`}
+      takeaway={`A written definition of "done" coordinates teams as well as product, and a repeatable launch process gets faster with every market.`}
       role="Product Owner"
-      team="5 Scrum teams · 50+ engineers · 2 Business Analysts"
+      team="5 Scrum teams, 50+ engineers, 2 business analysts"
       timeline="MVP to 5-country launch in 1 month; revenue growth tracked over the following 3 months"
-      primaryMetric={{ val: "200%", label: "Revenue Growth in 3 Months" }}
       tech={["AWS", "Java Microservices", "Redis", "React"]}
     />
 
-    {/* ── HEADLINE METRICS ── */}
     <MetricRow metrics={[
-      { val: "200%", label: "Revenue Growth" },
-      { val: "5",    label: "Countries Launched" },
-      { val: "30%",  label: "System Performance Boost" },
-      { val: "25K+", label: "Active Users Post-Expansion" },
+      { val: "200%", label: "Revenue growth" },
+      { val: "5",    label: "Countries launched" },
+      { val: "30%",  label: "System performance boost" },
+      { val: "25K+", label: "Active users after expansion" },
     ]} />
 
-    <Divider />
-
-    {/* ── THE PROBLEM ── */}
-    <H2>The Problem</H2>
+    <H2>The problem</H2>
 
     <P>
-      At Techmojo, we were building a white-label sportsbook platform designed
-      to support multiple operators and international markets simultaneously.
-      The business wanted to launch quickly and validate the platform in real
-      markets — but the product was still under heavy development, and
-      stakeholders were continuously proposing new features.
+      At Techmojo we were building a white-label sportsbook: one platform that
+      several operators could run in different countries. The business wanted to
+      launch quickly and test it in real markets. The product was still in heavy
+      development, though, and stakeholders kept proposing new features.
     </P>
 
     <P>
-      This created a compounding risk: every additional feature delayed the
-      launch timeline, which delayed revenue, which increased pressure to
-      add more features to justify the delay. Without intervention, the
-      product risked an indefinite development cycle.
+      That fed itself. Every extra feature pushed the launch back, a later
+      launch delayed revenue, and the pressure to justify the delay led to
+      requests for even more features. Left alone, the product was heading for
+      an endless development cycle.
     </P>
 
     <P>
-      At the same time, each target country had different regulatory
-      requirements and localisation needs. Attempting to launch across
-      multiple markets without a clear, structured process would have
-      created significant coordination failures and further delays.
+      Each target country also had its own regulatory requirements and
+      localisation needs. Launching in several markets without a clear process
+      would have meant coordination failures and more delays.
     </P>
 
-    {/*
-      <ImageFull
-        src={expansionMapImg}
-        alt="Target market map — UK, Germany, Spain, Japan, Turkey"
-        caption="Five simultaneous markets, each with distinct regulatory requirements"
-      />
-    */}
-
-    <Callout label="The Core Challenge" accent>
-      How might we launch a functional sportsbook MVP quickly while creating
-      a scalable process to expand into multiple regulated markets — without
-      rebuilding the platform each time?
+    <Callout label="The core question" accent>
+      How do we launch a working sportsbook MVP quickly, and build a process for
+      entering several regulated markets without rebuilding the platform each
+      time?
     </Callout>
 
-    <Divider />
-
-    {/* ── DISCOVERY ── */}
-    <H2>Discovery & Stakeholder Alignment</H2>
+    <H2>What I found</H2>
 
     <P>
-      The first step was understanding what was truly required to launch the
-      product — as opposed to what stakeholders wanted at launch. I worked
-      closely with four groups to build that picture:
+      First I needed to know what launch really required, as opposed to what
+      stakeholders wanted at launch. I talked to four groups:
     </P>
 
     <BulletList items={[
-      "Engineering leads across multiple scrum teams",
-      "Compliance and regulatory teams responsible for each market",
-      "Business stakeholders managing operator relationships",
+      "Engineering leads across several Scrum teams",
+      "The compliance and regulatory teams for each market",
+      "Business stakeholders who managed operator relationships",
       "Client representatives with market-specific requirements",
     ]} />
 
     <P>
-      Through these conversations, a consistent pattern emerged: many of the
-      requested features were genuinely valuable, but not required for the
-      first launch. The risk wasn't a lack of good ideas — it was the absence
-      of a clear line between what was essential and what could come later.
+      A pattern showed up quickly. Many of the requested features were good
+      ideas, but the first launch didn't depend on them. What was missing was a
+      clear line between what was essential and what could come later.
     </P>
 
-    <Callout label="Key Insight">
-      The biggest threat to launch wasn't technical complexity. It was
-      the absence of a shared, documented definition of "done" — which
-      meant scope could expand indefinitely without anyone being wrong.
+    <Callout label="The insight">
+      The biggest threat to the launch was the lack of a shared, written
+      definition of "done". Without one, scope could grow indefinitely and
+      nobody was ever wrong to ask for more.
     </Callout>
 
-    <Divider />
+    <H2>How I approached it</H2>
 
-    {/* ── APPROACH ── */}
-    <H2>My Approach</H2>
-
-    <P>
-      To move the product toward launch without sacrificing quality or
-      stakeholder trust, I focused on three priorities in parallel.
-    </P>
+    <P>I worked on three things at the same time.</P>
 
     <ProcessFlow steps={[
-      "Defining a Clear MVP",
-      "Creating a Repeatable Launch Framework",
-      "Coordinating Compliance in Parallel",
+      "Define a clear MVP",
+      "Create a repeatable launch framework",
+      "Run compliance in parallel",
     ]} />
 
-    <H3>1. Defining a Clear MVP</H3>
+    <H3>1. Define a clear MVP</H3>
 
     <P>
-      The most urgent problem was preventing scope creep from delaying
-      the launch indefinitely. I created a structured feature list and
-      worked with engineering leads and business stakeholders to categorise
-      every item in the backlog into three buckets:
+      The most urgent problem was scope creep. I built a structured feature list
+      and went through it with the engineering leads and business stakeholders.
+      Every backlog item went into one of three buckets:
     </P>
 
     <BulletList items={[
-      "MVP — features required for the product to be launchable and compliant",
-      "Phase 2 — high-value features to be delivered in the first wave post-launch",
-      "Phase 3 — longer-term enhancements that could wait for validated demand",
+      "MVP: features needed for the product to be launchable and compliant",
+      "Phase 2: high-value features for the first wave after launch",
+      "Phase 3: longer-term improvements that could wait for proven demand",
     ]} />
 
     <P>
-      This created explicit, documented alignment across teams. Development
-      focus shifted entirely to the MVP bucket, and every new feature request
-      was triaged against the same framework rather than added to the active
-      sprint.
+      Everyone agreed the buckets in writing. Development focused on the MVP
+      bucket, and every new request was checked against the same list instead of
+      going straight into the sprint.
     </P>
 
-    {/*
-      <ImageFull
-        src={mvpScopeImg}
-        alt="Feature categorisation: MVP vs Phase 2 vs Phase 3"
-        caption="The MVP scoping framework — every feature has a home, launch stays on track"
-      />
-    */}
-
-    <H3>2. Creating a Repeatable Launch Framework</H3>
+    <H3>2. Create a repeatable launch framework</H3>
 
     <P>
-      Once the MVP scope was locked, the next challenge was making market
-      expansion scalable. Launching in one country had taught us that the
-      coordination overhead was significant — and that doing it ad hoc for
-      each new market would not scale to five countries simultaneously.
-    </P>
-
-    <P>
-      I documented a formal launch playbook that captured:
+      With the MVP scope locked, the next question was how to make market
+      expansion scale. Launching in one country had shown how much coordination
+      it took, and doing that ad hoc for each new market wouldn't work for five
+      countries at once. So I wrote a launch playbook covering:
     </P>
 
     <BulletList items={[
-      "All product and engineering dependencies required before a market could go live",
-      "Integration steps across teams and the owner of each",
+      "Every product and engineering dependency that had to be met before a market could go live",
+      "The integration steps across teams and who owned each one",
       "Typical turnaround times for each activity in the launch sequence",
-      "Compliance and regulatory checkpoints specific to each country type",
+      "The compliance and regulatory checkpoints for each type of country",
     ]} />
 
     <P>
-      This playbook was shared with all stakeholders and client representatives
-      in advance of each new market launch, so they could provide required
-      information and complete their dependencies without creating last-minute
-      bottlenecks.
+      I shared the playbook with all stakeholders and client representatives
+      before each launch, so they could supply what we needed and finish their
+      part early.
     </P>
 
-    {/*
-      <ImageFull
-        src={launchPlaybookImg}
-        alt="The repeatable market launch framework"
-        caption="The launch playbook — a structured sequence that made each new market faster than the last"
-      />
-    */}
-
-    <H3>3. Coordinating Compliance in Parallel</H3>
+    <H3>3. Run compliance in parallel</H3>
 
     <P>
-      Regulatory compliance varied significantly across markets and had
-      historically been treated as a final step rather than a parallel
-      workstream. This meant compliance work often delayed launches that
-      were otherwise ready to ship.
+      Regulatory requirements varied a lot between markets, and compliance had
+      usually been the last step. It often delayed launches that were otherwise
+      ready to ship.
     </P>
 
     <P>
-      I worked closely with the compliance team to map their requirements
-      for each upcoming market, shared the launch timeline with them early,
-      and ensured they had visibility into which markets were launching next
-      and when. Compliance work moved from a sequential bottleneck into a
-      concurrent workstream aligned with the development schedule.
+      I worked with the compliance team to map their requirements for each
+      upcoming market and shared the launch timeline with them early, including
+      which markets were next and when. Compliance stopped being a sequential
+      bottleneck and became a workstream that ran alongside development.
     </P>
 
-    <Divider />
-
-    {/* ── WHAT WE BUILT ── */}
-    <H2>What We Built</H2>
+    <Collapsible title="What we built">
 
     <P>
-      The result was both a working sportsbook platform and a structured
-      operational framework for market expansion — neither of which alone
-      would have been sufficient to hit the launch targets.
+      We ended up with a working sportsbook and a way of expanding into new
+      markets. We needed both.
     </P>
 
     <BulletList items={[
-      "A clearly defined MVP product scope with documented stakeholder sign-off",
-      "A phased roadmap for Phase 2 and Phase 3 feature releases across markets",
-      "A repeatable launch process for entering new regulated markets",
-      "Coordinated execution across 5 scrum teams (50+ engineers) and 2 business analysts",
-      "AWS infrastructure optimised for high-concurrency peak traffic across global markets",
+      "A clearly defined MVP scope with documented stakeholder sign-off",
+      "A phased roadmap for Phase 2 and Phase 3 releases across markets",
+      "A repeatable process for entering new regulated markets",
+      "Coordinated delivery across five Scrum teams (50+ engineers) and two business analysts",
+      "AWS infrastructure tuned for high-concurrency peak traffic across global markets",
     ]} />
 
     <P>
-      With the playbook in place, expanding to each new market became a
-      structured, predictable process rather than a bespoke coordination
-      effort. The second market launch was faster than the first. The third
-      was faster than the second.
+      With the playbook in place, each new market followed a predictable
+      process. The second launch was faster than the first, and the third was
+      faster than the second.
     </P>
+    </Collapsible>
 
-    {/*
-      <ImageHalf
-        left={{ src: perfChartImg, alt: "System performance before optimisation", caption: "Before" }}
-        right={{ src: perfChartImg, alt: "System performance after optimisation", caption: "After — 30% improvement" }}
-      />
-    */}
-
-    <Divider />
-
-    {/* ── RESULTS ── */}
     <H2>Results</H2>
 
     <P>
-      The structured MVP definition and launch framework enabled rapid,
-      controlled expansion across five markets within one month:
+      The MVP definition and the launch framework let us expand across five
+      markets within one month:
     </P>
 
     <BulletList items={[
-      "Successful launches across UK, Germany, Spain, Japan, and Turkey within one month",
-      "25,000+ active users acquired shortly after expansion",
-      "200% revenue growth within 3 months of the first launch",
-      "30% improvement in system performance under peak global traffic loads",
+      "Launched in the UK, Germany, Spain, Japan and Turkey within one month",
+      "Acquired 25,000+ active users shortly after the expansion",
+      "Revenue grew 200% within three months of the first launch",
+      "System performance improved 30% under peak global traffic",
     ]} />
 
     <P>
-      Phase 2 and Phase 3 features were gradually released across markets
-      after the initial launches, allowing the platform to continue improving
-      while already generating revenue — validating the phased approach as
-      both a launch strategy and a long-term product delivery model.
+      We released Phase 2 and Phase 3 features gradually after the launches, so
+      the platform kept improving while it earned revenue. That confirmed the
+      phased approach as both a launch strategy and a way to keep delivering.
     </P>
 
-    <Divider />
+    <Collapsible title="What I'd do differently">
 
-    {/* ── REFLECTION ── */}
-    <H2>What I'd Do Differently</H2>
-
-    <H3>Integrate product analytics earlier</H3>
+    <H3>Add product analytics sooner</H3>
     <P>
-      We had platform metrics from day one, but deeper behavioural analytics —
-      specifically around betting patterns and feature engagement by market —
-      were added later than they should have been. Earlier investment in
-      analytics would have let us optimise features for specific regions faster
-      and informed the Phase 2 prioritisation with real usage data rather than
-      assumptions.
+      We had platform metrics from day one, but deeper behavioural analytics,
+      especially on betting patterns and feature use by market, arrived later
+      than they should have. Earlier analytics would have let us tune features
+      for specific regions faster, and Phase 2 priorities would have rested on
+      real usage data.
     </P>
 
-    <H3>Run market-specific experiments from launch</H3>
+    <H3>Run experiments by market from launch</H3>
     <P>
-      Different countries showed distinct betting patterns and user preferences
-      that only became visible after we had meaningful traffic. Designing
-      structured experiments into the launch plan from the start — rather than
-      treating them as a post-stabilisation activity — would have accelerated
-      engagement improvements in underperforming markets.
+      Different countries showed different betting patterns and preferences, but
+      only once we had meaningful traffic. If I'd designed experiments into the
+      launch plan from the start, we would have improved engagement in the
+      weaker markets sooner.
     </P>
 
-    <H3>Build an automated launch readiness dashboard</H3>
+    <H3>Automate launch readiness tracking</H3>
     <P>
-      The launch playbook worked well, but tracking readiness across multiple
-      markets simultaneously relied on manual status updates and frequent
-      check-ins. An automated dashboard showing each market's launch readiness
-      score in real time — with blockers surfaced automatically — would have
-      reduced coordination overhead and given leadership better visibility
-      without requiring regular status meetings.
+      The playbook worked, but tracking readiness across several markets meant
+      manual status updates and frequent check-ins. A dashboard that scored each
+      market's readiness in real time, with blockers surfaced automatically,
+      would have cut the coordination work and given leadership visibility
+      without regular status meetings.
     </P>
+    </Collapsible>
 
-    <Divider />
-
-    {/* ── TAKEAWAYS ── */}
-    <H2>Key Takeaways</H2>
+    <H2>What I took from it</H2>
 
     <P>
-      The most important lesson from this project was that in complex,
-      multi-stakeholder environments, the product work and the coordination
-      work are equally important. Shipping a great product into a broken
-      launch process produces mediocre results. Getting both right is what
-      creates the compounding growth.
+      On a project with many stakeholders, the product work and the coordination
+      work matter equally. A great product shipped into a broken launch process
+      still gives mediocre results.
     </P>
 
     <BulletList items={[
-      "A documented MVP definition is a coordination tool as much as a product tool — it gives every team a shared answer to the question 'is this required for launch?'",
-      "Repeatable processes compound in value — the second market launch is always faster than the first if you've documented what the first one taught you",
-      "Compliance is a parallel workstream, not a final gate — treating it as a dependency to be resolved last is the single most common cause of avoidable launch delays",
+      "A documented MVP definition coordinates teams as well as product. It gives everyone the same answer to \"is this needed for launch?\"",
+      "Repeatable processes get better with use. The second launch is faster than the first if you write down what the first one taught you.",
+      "Compliance works best as a parallel workstream. In my experience, leaving it as a final gate is the most common cause of avoidable launch delays.",
     ]} />
 
   </>

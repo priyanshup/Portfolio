@@ -1,323 +1,253 @@
 /**
  * content/case-studies/uhg-claims-transformation/index.jsx
  *
- * Case Study: Transforming Claims at Scale —
- * Four Enterprise Initiatives That Moved Healthcare Operations Forward
+ * Case study: speeding up claim payments by about 20%.
  *
- * IMAGES:
- *   Drop any diagrams or flowcharts into ./assets/ and import them here.
+ * Images: put diagrams or screenshots in ./assets/, import them here and use
+ * <ImageFull>. Useful ones would be the four layers as a flow and a
+ * before-and-after of one claim's outcome (with no real data).
  *
- *   assets/claims-flow-before.png  — claim lifecycle before intelligence layer
- *   assets/claims-flow-after.png   — claim lifecycle after: derive, validate, recover, notify
- *   assets/field-derivation.png    — diagram of non-mandatory field derivation logic
+ * Voice: plain first person, British spelling, no dashes as connectors.
+ * See DESIGN.md, "Writing voice".
  */
 
 import {
   H2, H3, P,
-  Callout, MetricRow,
-  AtAGlance, ProcessFlow,
-  BulletList, Divider,
+  Callout, MetricRow, Collapsible,
+  Snapshot, ProcessFlow,
+  BulletList,
 } from '../components.jsx';
-
-/*
- * Uncomment as you add images to ./assets/
- *
- * import claimsBeforeImg    from './assets/claims-flow-before.png';
- * import claimsAfterImg     from './assets/claims-flow-after.png';
- * import fieldDerivationImg from './assets/field-derivation.png';
- */
 
 const UHGClaimsCaseStudy = () => (
   <>
 
-    {/* ── AT A GLANCE — 60-second recruiter summary, always first ── */}
-    <AtAGlance
-      summary="Built a four-layer claims intelligence system that derives, corrects, and recovers imperfect data instead of rejecting it outright — cutting payment cycle times by ~20%."
-      problem="Empty non-mandatory fields degraded claim quality, and errors in mandatory fields caused outright rejections — triggering expensive provider follow-up cycles and delayed payment."
+    {/* The short version: problem, what I did, result, takeaway */}
+    <Snapshot
+      plain={`Healthcare claims were rejected or delayed whenever the data arrived incomplete or with typos. I designed logic that fills in what can be worked out, corrects likely typos while keeping the provider informed, and gives clear errors when it can't. Payments got about 20% faster.`}
+      problem={`Empty optional fields degraded claim quality, and mistakes in required fields caused outright rejections, which triggered expensive follow-up cycles with providers and delayed payment.`}
+      did={`Analysed the incoming claim data to find the patterns, then designed four layers: derive empty optional fields, catch and correct likely typos (provider notified, payment held until confirmed), recover missing required fields before rejecting, and send providers clear notifications.`}
+      result={`About 20% faster payment cycles (tracked by UHG's analytics team), fewer rejections and follow-ups, and every claim ending in a defined outcome with nothing dropped silently.`}
+      takeaway={`The information needed to fix most data problems already existed. What was missing was the logic, and pairing every automated fix with transparency built trust.`}
       role="Sr. Business Systems Analyst"
-      team="UHG claims processing team + provider-facing operations"
-      timeline="One of 4 concurrent enterprise transformation initiatives, 2019–2022"
-      primaryMetric={{ val: "~20%", label: "Faster Payment Cycles" }}
+      team="UHG claims processing team and provider-facing operations"
+      timeline="One of 4 concurrent enterprise transformation initiatives, 2019 to 2022"
       tech={["SQL", "837 Standard", "Shell"]}
     />
 
-    {/* ── HEADLINE METRICS ── */}
     <MetricRow metrics={[
-      { val: "~20%", label: "Faster Payment Cycles" },
-      { val: "M+",   label: "Claims Processed — No Silent Drops" },
+      { val: "~20%", label: "Faster payment cycles" },
+      { val: "M+",   label: "Claims processed with none dropped silently" },
     ]} />
 
-    <Divider />
-
-    {/* ── THE PROBLEM ── */}
-    <H2>The Problem</H2>
+    <H2>The problem</H2>
 
     <P>
-      Healthcare claims processing depends on the quality of the data that
-      arrives in the inbound claim. The 837 claims format distinguishes between
-      mandatory fields — without which a claim cannot be processed — and
-      non-mandatory fields that enrich the data but are not required for
-      adjudication. In practice, non-mandatory fields frequently arrived empty.
+      Healthcare claims processing depends on the quality of the data in each
+      inbound claim. The 837 claims format separates mandatory fields, without
+      which a claim can't be processed, from non-mandatory fields that add detail
+      but aren't needed for adjudication. In practice, non-mandatory fields often
+      arrived empty.
     </P>
 
     <P>
-      Empty non-mandatory fields degraded the experience for claims processors
-      and end users, who were left working with incomplete claim information and
-      had to make decisions with less context than the system should have been
-      able to provide. But the more operationally costly problem came from
-      mandatory fields: errors in mandatory fields — whether from provider
-      mistakes or manual data entry typos — caused claims to be rejected outright,
-      triggering expensive follow-up cycles with providers and delaying payment.
+      Those empty fields made life harder for claims processors and end users,
+      who had to decide with less context than the system should have been able
+      to give them. The more expensive problem was in mandatory fields. Errors
+      there, whether from provider mistakes or manual typos, caused claims to be
+      rejected outright. That started costly follow-up cycles with providers and
+      delayed payment.
     </P>
 
     <P>
-      The system was processing claims reactively: if the data was wrong or
-      incomplete, the claim failed and the manual follow-up cycle began.
-      The opportunity was to make the system smarter — to derive what could be
-      derived, correct what could be corrected, and give providers clear
-      information on what genuinely could not be resolved automatically.
+      The system handled claims reactively: if the data was wrong or incomplete,
+      the claim failed and the manual follow-up began. The opportunity was to
+      make the system smarter: derive what could be derived, correct what could
+      be corrected, and tell providers clearly about what couldn't be resolved
+      automatically.
     </P>
 
-    <Callout label="The Core Challenge" accent>
-      How might we reduce claim rejections and payment delays by building
-      intelligence directly into the claims processing pipeline — so the system
-      handles imperfect data intelligently rather than failing silently or
-      requiring manual intervention?
+    <Callout label="The core question" accent>
+      How do we reduce claim rejections and payment delays by building
+      intelligence into the claims pipeline, so the system deals with imperfect
+      data itself instead of failing silently or waiting for manual intervention?
     </Callout>
 
-    <Divider />
-
-    {/* ── DISCOVERY ── */}
-    <H2>Understanding the Data Landscape</H2>
+    <H2>What I found</H2>
 
     <P>
-      The first step was understanding the patterns in the incoming claims data.
-      I worked with the claims processing team to identify which non-mandatory
-      fields were most frequently empty, which mandatory fields were most often
-      incorrect, and what the relationship structures looked like between
-      different fields in the 837 format.
+      I started by looking at patterns in incoming claim data. Working with the
+      claims processing team, I identified which non-mandatory fields were most
+      often empty, which mandatory fields were most often wrong, and how fields
+      in the 837 format related to each other.
     </P>
 
     <P>
-      This analysis revealed that many of the gaps and errors were not random —
-      they were predictable. Non-mandatory fields that arrived empty could often
-      be derived from mandatory fields that were always present. Mandatory field
-      errors, particularly typos, often showed a recognisable pattern when compared
-      to historical data from the same provider. The system was failing on data
-      that, with the right logic applied, was actually recoverable.
+      Many of the gaps and errors weren't random. Non-mandatory fields that
+      arrived empty could often be derived from mandatory fields that were always
+      present. Mandatory field errors, especially typos, often followed a
+      recognisable pattern when compared with historical data from the same
+      provider. The system was failing on data that could be recovered with the
+      right logic.
     </P>
 
-    <Callout label="Key Insight">
-      Most claim failures were not caused by genuinely missing information —
-      they were caused by the absence of logic to handle imperfect data
-      intelligently. The information needed to resolve many failures already
-      existed in the claim or in historical records. It just wasn't being used.
+    <Callout label="The insight">
+      Most claim failures came from missing logic for handling imperfect data.
+      The information needed to fix many of them already existed in the claim or
+      in historical records, and nothing was using it.
     </Callout>
 
-    <Divider />
-
-    {/* ── APPROACH ── */}
-    <H2>My Approach</H2>
+    <H2>How I approached it</H2>
 
     <P>
-      I designed and built four distinct layers of claims intelligence, each
-      addressing a different class of data problem — from enriching incomplete
-      claims to recovering potentially rejectable ones.
+      I designed and built four layers of claims intelligence, each aimed at a
+      different kind of data problem, from enriching incomplete claims to
+      recovering claims that would otherwise be rejected.
     </P>
 
     <ProcessFlow steps={[
-      "Non-Mandatory Field Derivation",
-      "Cross-Field Validation & Typo Correction",
-      "Mandatory Field Recovery Logic",
-      "Provider Notification Framework",
+      "Derive non-mandatory fields",
+      "Cross-check fields and correct typos",
+      "Recover missing mandatory fields",
+      "Notify providers",
     ]} />
 
-    <H3>1. Non-Mandatory Field Derivation</H3>
-
+    <H3>1. Derive non-mandatory fields</H3>
     <P>
-      For non-mandatory fields that frequently arrived empty, I developed logic
-      to derive or populate their values from existing mandatory fields that were
-      always present. The derivation rules used generic field relationships and
-      known combinations across the 837 format — not assumptions, but documented
-      dependencies within the claims standard itself.
+      For non-mandatory fields that often arrived empty, I wrote logic to derive
+      their values from mandatory fields that were always there. The rules relied
+      on field relationships and known combinations documented in the 837
+      standard.
+    </P>
+    <P>
+      Claims processors and users then saw more complete claim information
+      without waiting for providers to resubmit or answer questions, and
+      providers didn't have to change how they submitted.
     </P>
 
+    <H3>2. Cross-check fields and correct typos</H3>
     <P>
-      The result was that claims processors and users saw more complete claim
-      information without waiting on providers to resubmit or respond to
-      information requests. Downstream visibility improved without any change
-      to the provider's submission workflow.
+      Some pairs of fields in the 837 format should hold matching or related
+      values, where one implies a specific value in the other. I built
+      cross-validation logic to detect discrepancies between such fields.
+    </P>
+    <P>
+      When a discrepancy appeared and the provider's historical submissions
+      pointed clearly to a typo or entry error, the system could find and apply
+      the right value. The correction was logged and the provider was told, and
+      payment was held until the provider confirmed. No claim was corrected
+      silently.
     </P>
 
-    {/*
-      <ImageFull
-        src={fieldDerivationImg}
-        alt="Non-mandatory field derivation logic"
-        caption="Deriving empty fields from existing mandatory data — more complete claims, no provider action required"
-      />
-    */}
-
-    <H3>2. Cross-Field Validation and Typo Correction</H3>
-
+    <H3>3. Recover missing mandatory fields</H3>
     <P>
-      Certain pairs of fields in the 837 format are expected to hold matching
-      or related values — where one field implies a specific value in another.
-      I built cross-validation logic that detected discrepancies between these
-      related fields when the submitted values did not align.
+      When a mandatory field was missing, which would normally mean an outright
+      rejection, I built logic to check whether the value could be derived from
+      other fields in the claim before rejecting it. It used field relationships
+      in the 837 standard and derivation rules from the claims team's domain
+      knowledge.
+    </P>
+    <P>
+      Claims where the value could be derived reliably kept processing
+      automatically. Claims where it couldn't were returned to the provider, with
+      specific error information that made resubmitting easy.
     </P>
 
+    <H3>4. Notify providers</H3>
     <P>
-      Where a discrepancy was detected and historical submission data from the
-      same provider pointed clearly to a typo or manual entry error, the system
-      could identify and apply the correct value automatically. The correction
-      was logged and the provider was notified; payment processing was paused
-      until the provider confirmed the correction. No claims were corrected
-      silently — every automated change came with provider visibility.
+      Every automated correction or derivation that changed a claim's data was
+      reported to the provider through an automated notification, and payment for
+      the affected claims was held until the provider reviewed and confirmed the
+      change. Automation never ran without the provider knowing. The
+      notifications gave providers a clear record of what changed and why, which
+      cut the confusion that usually leads to follow-up calls.
     </P>
 
-    <H3>3. Mandatory Field Recovery Logic</H3>
+    <Collapsible title="What we built">
 
     <P>
-      When a mandatory field arrived missing — which would ordinarily trigger
-      an outright claim rejection — I built logic to check whether the value
-      could be derived from other fields present in the claim before rejecting
-      it. Field relationships within the 837 standard, and known derivation
-      rules from the claims processing team's domain knowledge, were used to
-      attempt recovery before the rejection path was triggered.
-    </P>
-
-    <P>
-      Claims where a mandatory value could be reliably derived continued
-      processing automatically. Claims where no derivation was possible were
-      returned to the provider — but with clear, specific error information
-      that made resubmission straightforward rather than opaque.
-    </P>
-
-    <H3>4. Provider Notification Framework</H3>
-
-    <P>
-      Every automated correction or derivation that affected a claim's data was
-      surfaced to the relevant provider through an automated notification.
-      Payment processing for affected claims was paused until the provider
-      reviewed and confirmed the change — ensuring that automation never operated
-      without provider awareness. The notification framework gave providers
-      a clear record of what had been changed and why, reducing the ambiguity
-      that typically generates follow-up calls.
-    </P>
-
-    <Divider />
-
-    {/* ── WHAT WE BUILT ── */}
-    <H2>What We Built</H2>
-
-    <P>
-      The result was a claims intelligence layer embedded directly in the
-      processing pipeline, handling four distinct classes of data problem
-      that had previously required manual intervention or resulted in outright
-      rejection:
+      The result was a layer of claims intelligence inside the processing
+      pipeline, covering four kinds of data problem that had needed manual work
+      or ended in rejection:
     </P>
 
     <BulletList items={[
-      "Non-mandatory field derivation logic — populating empty fields from existing mandatory data using documented field relationships",
-      "Cross-field validation and automated typo correction — detecting discrepancies and applying corrections using historical provider data",
-      "Mandatory field recovery logic — attempting derivation before the rejection path, reducing rejections for recoverable claims",
-      "Provider notification framework — automated alerts for every correction, with payment processing paused pending provider confirmation",
-      "Clear provider-facing error messages for unresolvable claims — specific enough to make resubmission straightforward",
+      "Derivation logic that fills empty non-mandatory fields from existing mandatory data, using documented field relationships",
+      "Cross-field validation and automatic typo correction, using the provider's historical data",
+      "Recovery logic that tries to derive a missing mandatory field before rejecting the claim",
+      "A provider notification framework: an automated alert for every correction, with payment held until the provider confirms",
+      "Clear, specific error messages for claims that can't be resolved, so resubmitting is straightforward",
     ]} />
 
     <P>
-      Every claim had a defined outcome: processed normally, enriched and
-      continued, corrected with provider notification, or returned with specific
+      Every claim ended in a defined outcome: processed normally, enriched and
+      continued, corrected with the provider notified, or returned with specific
       error information. Nothing fell through silently.
     </P>
+    </Collapsible>
 
-    {/*
-      <ImageFull
-        src={claimsAfterImg}
-        alt="Claims flow after the intelligence layer"
-        caption="After: four intelligent paths replaced the binary pass/fail outcome"
-      />
-    */}
-
-    <Divider />
-
-    {/* ── RESULTS ── */}
     <H2>Results</H2>
 
     <P>
-      The impact was measured and tracked by UHG's analytics team across
-      the period following deployment:
+      UHG's analytics team measured the effect over the period after deployment:
     </P>
 
     <BulletList items={[
-      "~20% improvement in payment cycle times — fewer rejections and faster resolution of data issues reduced the time between claim submission and payment",
-      "Significant reduction in claim rejections caused by missing or incorrect non-mandatory fields",
-      "Reduced provider follow-up cycles — automated corrections with clear notifications replaced many of the manual back-and-forth cycles",
-      "Improved experience for claims processors and end users, who now saw more complete claim information by default",
+      "Payment cycles got about 20% faster. Fewer rejections and quicker resolution of data issues shortened the time from claim submission to payment.",
+      "Claim rejections caused by missing or incorrect non-mandatory fields fell significantly.",
+      "Provider follow-up cycles dropped. Automated corrections with clear notifications replaced many manual back-and-forth exchanges.",
+      "Claims processors and end users saw more complete claim information by default.",
     ]} />
 
     <P>
-      The broader impact was a shift in how the system handled imperfect data.
-      Rather than treating any deviation from perfect input as a reason to fail,
-      the pipeline now distinguished between what it could handle automatically,
-      what it could handle with provider confirmation, and what genuinely required
-      resubmission. That distinction — applied consistently at scale — was where
-      the payment cycle improvement came from.
+      The bigger change was in how the system treated imperfect data. It no
+      longer failed on any deviation from perfect input. It separated what it
+      could handle automatically, what it could handle with provider
+      confirmation, and what needed resubmission. Applying that consistently at
+      scale is where the payment improvement came from.
     </P>
 
-    <Divider />
+    <Collapsible title="What I'd do differently">
 
-    {/* ── REFLECTION ── */}
-    <H2>What I'd Do Differently</H2>
-
-    <H3>Build a feedback loop from correction outcomes into the derivation rules</H3>
+    <H3>Feed correction outcomes back into the rules</H3>
     <P>
-      The derivation and correction logic was built using known field relationships
-      and historical data, but it was static once deployed. Building a feedback
-      mechanism that tracked the accuracy of automated corrections over time —
-      and used that signal to refine derivation rules — would have made the system
-      progressively more accurate rather than remaining fixed at its initial
-      calibration.
+      The derivation and correction logic used known field relationships and
+      historical data, and it stayed static after deployment. A feedback loop
+      that tracked how accurate the automated corrections were, and used that to
+      refine the rules, would have made the system more accurate over time.
     </P>
 
-    <H3>Give claims processors visibility into the intelligence layer in real time</H3>
+    <H3>Show processors what the layer is doing</H3>
     <P>
-      The automated derivations and corrections were surfaced to providers, but
-      claims processors saw the end result rather than the intermediate steps.
-      A real-time audit view showing which fields were derived, which were
-      corrected, and on what basis would have given processors more confidence
-      in the outputs and made edge-case review significantly faster.
+      Providers were told about derivations and corrections, but claims
+      processors only saw the end result. A real-time audit view showing which
+      fields were derived, which were corrected and why would have given
+      processors more confidence and made edge-case review much faster.
     </P>
 
-    <H3>Track provider resubmission quality over time</H3>
+    <H3>Track how well providers resubmit</H3>
     <P>
-      The clear error messages returned for unresolvable claims were designed to
-      improve resubmission quality, but we did not have a structured way to
-      measure whether they actually did. Tracking resubmission accuracy per
-      provider over time would have shown us whether the error messaging was
-      working and highlighted providers that needed additional support or
-      format guidance.
+      The clear error messages for unresolvable claims were meant to improve
+      resubmissions, but we had no structured way to measure whether they did.
+      Tracking resubmission accuracy per provider over time would have shown
+      whether the messages worked and which providers needed more support or
+      guidance on the format.
     </P>
+    </Collapsible>
 
-    <Divider />
-
-    {/* ── TAKEAWAYS ── */}
-    <H2>Key Takeaways</H2>
+    <H2>What I took from it</H2>
 
     <P>
-      The most important shift in this project was moving from binary pass/fail
-      processing to a system that treated data quality as a spectrum — with
-      different responses at different levels of recoverability. That framing
-      changed what was possible: instead of failing on any deviation from
-      perfect input, the pipeline became a decision engine that could
-      distinguish between the fixable, the correctable, and the genuinely
-      unresolvable.
+      The biggest shift was moving from pass/fail processing to treating data
+      quality as a spectrum, with a different response at each level of
+      recoverability. The pipeline stopped failing on any deviation from perfect
+      input and started deciding between what could be fixed, what could be
+      corrected, and what really had to be resubmitted.
     </P>
 
     <BulletList items={[
-      "The information needed to fix most data quality problems already exists in the system — the bottleneck is usually the absence of logic to apply it, not the absence of the data itself",
-      "Automation without transparency creates distrust — pairing every automated correction with a provider notification made the system more trustworthy, not just more efficient",
-      "Clear error messages at the rejection point compound in value — a provider who understands exactly why a claim failed resubmits correctly the first time, reducing the entire follow-up cycle",
+      "The information needed to fix most data quality problems already exists in the system. What's usually missing is the logic to use it.",
+      "Automation without transparency erodes trust. Telling the provider about every automated correction made the system more trustworthy as well as more efficient.",
+      "Clear error messages at the point of rejection pay off. A provider who understands exactly why a claim failed resubmits correctly the first time, which shortens the whole follow-up cycle.",
     ]} />
 
   </>

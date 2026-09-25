@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 structure.txt 
+
+# Local MCP config (machine-specific absolute interpreter path)
+.mcp.json
