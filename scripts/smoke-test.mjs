@@ -88,6 +88,8 @@ check('newest role expanded by default', (await ev(`document.querySelector('#rol
 await ev(`document.querySelector('#role-btn-vidaxl').click()`); await sleep(700);
 check('opening VidaXL collapses Heineken', (await ev(`document.querySelector('#role-btn-heineken').getAttribute('aria-expanded')`)) === 'false' && (await ev(`document.querySelector('#role-btn-vidaxl').getAttribute('aria-expanded')`)) === 'true');
 check('collapsed panel is inert', (await ev(`document.querySelector('#role-panel-heineken .accordion-inner').inert`)) === true);
+await ev(`document.querySelector('#role-btn-vidaxl').click()`); await sleep(700);
+check('rows stay visible after opening and closing (reveal state survives re-render)', (await ev(`['heineken','vidaxl'].map(id=>document.querySelector('#role-btn-'+id).closest('li')).every(li=>li.classList.contains('in-view') && getComputedStyle(li).opacity==='1')`)) === true);
 
 // 4. recognition
 await ev(`document.getElementById('recognition').scrollIntoView()`); await sleep(500);
@@ -109,6 +111,7 @@ check('"Show all" reveals all 6', (await ev(`document.querySelectorAll('#recogni
 await ev(`document.getElementById('work').scrollIntoView()`); await sleep(400);
 await ev(`[...document.querySelectorAll('#work a')].find(a=>/All work/.test(a.textContent)).click()`); await sleep(1200);
 check('"All work" opens /#/work', (await ev('location.hash')) === '#/work', await ev('location.hash'));
+check('dark: the pressed filter key is orange (its ink label stays readable)', (await ev(`getComputedStyle(document.querySelector('main button[aria-pressed=true]')).backgroundColor`)) === 'rgb(250, 91, 1)', await ev(`getComputedStyle(document.querySelector('main button[aria-pressed=true]')).backgroundColor`));
 check('/work lists all 11 items', (await ev(`document.querySelectorAll('main ul > li > a, main ul > li > div').length`)) >= 11);
 await ev(`[...document.querySelectorAll('main button')].find(b=>/^Gaming/.test(b.textContent.trim())).click()`); await sleep(500);
 check('filter narrows list and writes ?domain= to URL', (await ev(`location.hash`)).includes('domain=Gaming') && (await ev(`document.querySelectorAll('main ul > li').length`)) === 1, await ev('location.hash'));
@@ -156,7 +159,7 @@ check('no text smaller than 12px on the homepage', (await ev(`(()=>{const bad=[]
 await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
 await ev(`location.hash='#/case-studies/uhg-claims-transformation'`); await sleep(1800);
 await ev('window.scrollTo(0, 2500)'); await sleep(700);
-check('page bar stays pinned under the nav while scrolling', (await ev(`Math.round(document.querySelector('nav[aria-label=Breadcrumb]').parentElement.getBoundingClientRect().top)`)) === 64);
+check('page bar stays pinned under the nav while scrolling', (await ev(`Math.round(document.querySelector('.page-bar').getBoundingClientRect().top)`)) === 64);
 check('bar links every level above the page (Portfolio, Work)', (await ev(`[...document.querySelectorAll('nav[aria-label=Breadcrumb] a')].map(a=>a.textContent.trim()).join('|')`)) === 'Portfolio|Work');
 await ev(`location.hash='#/work'`); await sleep(1200);
 await ev(`document.querySelector('main ul .card-lift a').click()`); await sleep(1600);
@@ -180,7 +183,7 @@ check('"Read full recommendation" buttons line up across the row', (await ev(`((
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 800, deviceScaleFactor: 1, mobile: true });
 await ev(`location.hash='#/case-studies/techmojo-sportsbook-gtm'`); await sleep(1800);
 await ev('window.scrollTo(0, 2200)'); await sleep(700);
-check('mobile: page bar stays pinned (top of screen while the nav is away) and no horizontal overflow', [0, 64].includes(await ev(`Math.round(document.querySelector('nav[aria-label=Breadcrumb]').parentElement.getBoundingClientRect().top)`)) && (await ev('document.documentElement.scrollWidth <= 390')) === true);
+check('mobile: page bar stays pinned (top of screen while the nav is away) and no horizontal overflow', [0, 64].includes(await ev(`Math.round(document.querySelector('.page-bar').getBoundingClientRect().top)`)) && (await ev('document.documentElement.scrollWidth <= 390')) === true);
 
 // 15. phone layout (390px): the mobile fixes
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 800, deviceScaleFactor: 1, mobile: true });
@@ -222,7 +225,7 @@ check('phone case study: choosing a section opens it and scrolls to it', (await 
 // nav that hides on scroll (phones), scroll-to-top that shows only on the way up
 await ev('window.scrollTo(0, 0)'); await sleep(600);
 await ev('window.scrollTo(0, 2200)'); await sleep(1100);
-const barTop = `Math.round(document.querySelector('nav[aria-label=Breadcrumb]').parentElement.getBoundingClientRect().top)`;
+const barTop = `Math.round(document.querySelector('.page-bar').getBoundingClientRect().top)`;
 const navTop = `Math.round(document.querySelector('nav[aria-label=Primary]').getBoundingClientRect().top)`;
 check('phone: nav slides away while scrolling down and the page bar moves to the top', (await ev(navTop)) < -60 && (await ev(barTop)) === 0, 'nav ' + (await ev(navTop)) + ' bar ' + (await ev(barTop)));
 check('phone: scroll-to-top is hidden while scrolling down', (await ev(`getComputedStyle(document.querySelector('.scroll-top-btn')).opacity`)) === '0');

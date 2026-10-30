@@ -34,45 +34,47 @@ function Brush($hex, $alpha = 255) {
   New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb($alpha, $c))
 }
 
-# Background — matches the site's dark theme token (#0f172a)
-$g.FillRectangle((Brush '#0f172a'), 0, 0, $W, $H)
+# Palette: the site's light "workshop" tokens (src/index.css)
+$page   = '#e4e3df'; $plate = '#f3f2ef'; $line = '#d3d2cd'
+$ink    = '#0a0a0a'; $muted = '#57575a'; $orange = '#fa5b01'
 
-# Soft accent glow, lower-right (accent token #10b981)
-$glow = New-Object System.Drawing.Drawing2D.GraphicsPath
-$glow.AddEllipse(660, 200, 720, 720)
-$pgb = New-Object System.Drawing.Drawing2D.PathGradientBrush $glow
-$pgb.CenterColor    = [System.Drawing.Color]::FromArgb(70, 16, 185, 129)
-$pgb.SurroundColors = @([System.Drawing.Color]::FromArgb(0, 16, 185, 129))
-$g.FillPath($pgb, $glow)
+# Page, then one plate with a hairline edge and a screw in each corner
+$g.FillRectangle((Brush $page), 0, 0, $W, $H)
+$g.FillRectangle((Brush $plate), 28, 28, $W - 56, $H - 76)
+$pen = New-Object System.Drawing.Pen ([System.Drawing.ColorTranslator]::FromHtml($line)), 2
+$g.DrawRectangle($pen, 28, 28, $W - 56, $H - 76)
+foreach ($p in @(@(52, 52), @(($W - 66), 52), @(52, ($H - 90)), @(($W - 66), ($H - 90)))) {
+  $g.DrawEllipse($pen, $p[0], $p[1], 14, 14)
+}
 
-# Border
-$pen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(255, 30, 41, 59)), 2
-$g.DrawRectangle($pen, 1, 1, $W - 3, $H - 3)
-
-# Logo (native 96x96 — drawn 1:1 so it stays crisp)
+# Logo (native 96x96, drawn 1:1 so it stays crisp)
 if (Test-Path $logo) {
   $img = [System.Drawing.Image]::FromFile($logo)
-  $g.DrawImage($img, 80, 72, 96, 96)
+  $g.DrawImage($img, 92, 84, 96, 96)
   $img.Dispose()
 }
 
-$white  = Brush '#ffffff'
-$muted  = Brush '#94a3b8'
-$accent = Brush '#10b981'
-
-$fName  = New-Object System.Drawing.Font 'Segoe UI', 76, ([System.Drawing.FontStyle]::Bold), 'Pixel'
-$fTitle = New-Object System.Drawing.Font 'Segoe UI Semibold', 36, ([System.Drawing.FontStyle]::Regular), 'Pixel'
-$fSub   = New-Object System.Drawing.Font 'Segoe UI', 26, ([System.Drawing.FontStyle]::Regular), 'Pixel'
+$fName  = New-Object System.Drawing.Font 'Arial Black', 82, ([System.Drawing.FontStyle]::Regular), 'Pixel'
+$fLabel = New-Object System.Drawing.Font 'Segoe UI Semibold', 24, ([System.Drawing.FontStyle]::Regular), 'Pixel'
 $fMono  = New-Object System.Drawing.Font 'Consolas', 24, ([System.Drawing.FontStyle]::Regular), 'Pixel'
 
-$g.DrawString('PRIYANSHU',  $fName, $white, 74, 205)
-$g.DrawString('PUSHPAM',    $fName, $white, 74, 290)
+# Name: the surname sits on an orange block, as on the site
+$g.DrawString('Priyanshu', $fName, (Brush $ink), 80, 196)
+$sz = $g.MeasureString('Pushpam', $fName)
+$g.FillRectangle((Brush $orange), 92, 312, [int]$sz.Width - 18, 100)
+$g.DrawString('Pushpam', $fName, (Brush $ink), 80, 300)
 
-$g.FillRectangle($accent, 80, 400, 64, 4)
+$sep = '  ' + [char]0x00B7 + '  '
+$g.DrawString(('TECHNICAL PRODUCT LEADER' + $sep + 'HEALTHCARE' + $sep + 'GAMING' + $sep + 'E-COMMERCE'), $fLabel, (Brush $muted), 92, 446)
+$g.DrawString('priyanshup.github.io/Portfolio', $fMono, (Brush $muted), 92, 494)
 
-$g.DrawString('Technical Product Leader', $fTitle, $accent, 78, 424)
-$g.DrawString([string]::Join('  ' + [char]0x00B7 + '  ', 'Healthcare', 'Gaming', 'E-commerce', 'Digital Commerce'), $fSub, $muted, 80, 480)
-$g.DrawString('priyanshup.github.io/Portfolio', $fMono, $muted, 80, 555)
+# Colour stripe along the bottom edge
+$x = 0
+foreach ($seg in @(@(25, $plate), @(16, '#6e6e71'), @(32, $orange), @(17, $plate), @(10, $ink))) {
+  $segW = [int]($W * $seg[0] / 100)
+  $g.FillRectangle((Brush $seg[1]), $x, $H - 14, $segW + 1, 14)
+  $x += $segW
+}
 
 $g.Dispose()
 $bmp.Save($outPath, [System.Drawing.Imaging.ImageFormat]::Png)

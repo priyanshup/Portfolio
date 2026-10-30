@@ -26,7 +26,7 @@ import { CONFIG } from '../config';
 import PageBar from '../components/ui/PageBar';
 import CompanyLogo from '../components/ui/CompanyLogo';
 import { Tag } from '../components/ui/Tag';
-import { ArrowUpRight, DL, ChevronDown } from '../components/ui/Icons';
+import { ArrowUpRight, ArrowRight, DL, ChevronDown } from '../components/ui/Icons';
 import useDocumentMeta from '../hooks/useDocumentMeta';
 import useMediaQuery, { DESKTOP_QUERY } from '../hooks/useMediaQuery';
 import { trackCaseStudyOpen, trackLinkedInClick, trackResumeDownload } from '../utils/analytics';
@@ -34,11 +34,11 @@ import { trackCaseStudyOpen, trackLinkedInClick, trackResumeDownload } from '../
 /* ── Loading skeleton ── */
 const LoadingSkeleton = () => (
   <div className="space-y-6 animate-pulse" aria-hidden="true">
-    <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-1/4" />
-    <div className="h-8 dark:bg-gray-800 bg-slate-200 rounded w-3/4" />
-    <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-full" />
-    <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-5/6" />
-    <div className="h-4 dark:bg-gray-800 bg-slate-200 rounded w-full" />
+    <div className="h-4 bg-line rounded w-1/4" />
+    <div className="h-8 bg-line rounded w-3/4" />
+    <div className="h-4 bg-line rounded w-full" />
+    <div className="h-4 bg-line rounded w-5/6" />
+    <div className="h-4 bg-line rounded w-full" />
   </div>
 );
 
@@ -59,9 +59,9 @@ const CaseStudyContent = ({ slug, onReady }) => {
   useEffect(() => { onReady?.(); }, [Content, onReady]);
 
   if (error) return (
-    <p className="dark:text-gray-300 text-slate-700 text-sm">
+    <p className="text-body text-sm">
       Content file not found. Make sure{' '}
-      <code className="font-mono-pp text-accent">
+      <code className="font-mono-pp text-accent-ink">
         src/content/case-studies/{slug}/index.jsx
       </code>{' '}
       exists.
@@ -165,11 +165,11 @@ const CaseStudyPage = () => {
     return (
       <main id="main-content" tabIndex={-1} className="min-h-screen flex items-center justify-center px-6 focus:outline-none">
         <div className="text-center space-y-4">
-          <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.2em]">404</p>
-          <h1 className="font-display text-4xl font-bold dark:text-white text-slate-900">
+          <p className="font-mono-pp text-accent-ink text-xs uppercase tracking-[0.2em]">404</p>
+          <h1 className="font-display text-4xl font-[850] text-ink">
             Case study not found
           </h1>
-          <p className="dark:text-gray-300 text-slate-700 text-base">
+          <p className="text-body text-base">
             I couldn't find that case study.
           </p>
           <Link to="/work" className="cta-btn-primary mt-4">
@@ -194,36 +194,37 @@ const CaseStudyPage = () => {
 
   return (
     <main id="main-content" tabIndex={-1} className="pt-16 focus:outline-none">
-      <PageBar items={trail} width="max-w-3xl" progress={progress} sections={sections} />
+      <PageBar items={trail} width="max-w-4xl" progress={progress} sections={sections} />
 
-      <article ref={articleRef} className="max-w-3xl mx-auto px-6 pt-6 md:pt-10 pb-24">
-        {/* Header: compact on phones so the plain-language line lands in the first screen */}
-        <header className="mb-6 md:mb-12 space-y-3 md:space-y-6">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <CompanyLogo company={cs.company} scale={0.8} />
-            <p className="font-mono-pp text-accent meta-line">
-              {cs.company} · {cs.domain} · ~{cs.readMinutes} min read
-            </p>
-          </div>
-          <h1 className="font-display text-[1.75rem] md:text-5xl font-bold dark:text-white text-slate-900 leading-tight text-balance">
-            {cs.title}
-          </h1>
-          <TopicTags tags={cs.tags} />
-          <div className="hidden md:block border-t dark:border-gray-800 border-slate-200 pt-2" />
-        </header>
+      <div className="px-2.5 md:px-6 pt-2 md:pt-5 flex flex-col gap-3 md:gap-6">
+        <article ref={articleRef} className="plate max-w-4xl mx-auto w-full px-5 pt-7 pb-8 sm:px-10 md:px-16 md:pt-14 md:pb-16">
+          {/* Header: compact on phones so the plain-language line lands in the first screen */}
+          <header className="mb-6 md:mb-10 space-y-3 md:space-y-6">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <CompanyLogo company={cs.company} scale={0.8} />
+              <p className="meta-line text-muted">
+                {cs.company} · {cs.domain} · ~{cs.readMinutes} min read
+              </p>
+            </div>
+            <h1 className="font-display text-[1.75rem] md:text-[3rem] font-[850] tracking-[-0.04em] text-ink leading-[1.05] text-balance">
+              {cs.title}
+            </h1>
+            <TopicTags tags={cs.tags} />
+          </header>
 
-        {/* Dynamically loaded content */}
-        <CaseStudyContent slug={slug} onReady={scanSections} />
+          {/* Dynamically loaded content */}
+          <CaseStudyContent slug={slug} onReady={scanSections} />
+        </article>
 
         {/* End of page: talk about it, then read the next one */}
-        <aside className="mt-16 p-6 sm:p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200">
-          <h2 className="font-display text-2xl font-bold dark:text-white text-slate-900 mb-2">
+        <aside className="plate plate--contrast plate--screwed max-w-4xl mx-auto w-full px-6 py-10 sm:px-10 md:px-16 md:py-14">
+          <h2 className="font-display text-[1.75rem] md:text-[2.25rem] font-[850] tracking-[-0.04em] text-ink leading-[1.05] mb-3">
             Want to talk about this?
           </h2>
-          <p className="dark:text-gray-300 text-slate-700 text-base leading-relaxed mb-6">
+          <p className="text-body text-base md:text-lg leading-relaxed mb-7">
             Happy to talk it through, including what I'd change.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-4">
             <a
               href={CONFIG.social.linkedin}
               target="_blank"
@@ -250,26 +251,32 @@ const CaseStudyPage = () => {
             to={`/case-studies/${next.slug}`}
             state={{ from }}
             onClick={() => trackCaseStudyOpen(next.slug)}
-            className="card-lift mt-6 block p-6 sm:p-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200"
+            className="plate card-lift max-w-4xl mx-auto w-full px-6 py-7 sm:px-10 md:px-16 md:py-10 flex items-center justify-between gap-6"
           >
-            <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.15em] mb-2">
-              Next case study · ~{next.readMinutes} min read
-            </p>
-            <p className="font-display text-xl sm:text-2xl font-bold dark:text-white text-slate-900 leading-snug">
-              {next.title}
-            </p>
-            <p className="dark:text-gray-400 text-slate-600 text-sm mt-2">{next.company} · {next.domain}</p>
+            <span className="min-w-0">
+              <span className="block silk silk--accent mb-2.5">
+                Next case study · ~{next.readMinutes} min read
+              </span>
+              <span className="block font-display text-xl sm:text-2xl font-[800] text-ink leading-snug text-balance">
+                {next.title}
+              </span>
+              <span className="block text-muted text-sm mt-2">{next.company} · {next.domain}</span>
+            </span>
+            <span aria-hidden="true" className="arrow-knob !w-12 !h-12 max-sm:hidden">
+              <ArrowRight className="w-5 h-5" />
+            </span>
           </Link>
         )}
 
         {/* Bottom links: same levels as the bar, for readers who finished the page */}
-        <div className="border-t dark:border-gray-800 border-slate-200 mt-12 pt-6 flex flex-wrap gap-x-6">
+        <div className="max-w-4xl mx-auto w-full px-3 md:px-16 pb-4 flex flex-wrap gap-x-8">
           <Link to="/" state={{ scrollTo: 'work' }} className="link-accent">← Back to Work</Link>
           <Link to="/work" className="link-accent">All work</Link>
         </div>
-      </article>
+      </div>
     </main>
   );
 };
+
 
 export default CaseStudyPage;

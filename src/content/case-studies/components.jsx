@@ -38,14 +38,14 @@ const slugify = (text) =>
 export const H2 = ({ children, id }) => (
   <h2
     id={id ?? (typeof children === 'string' ? slugify(children) : undefined)}
-    className="scroll-mt-32 font-display text-2xl md:text-3xl font-bold dark:text-white text-slate-900 mt-10 md:mt-14 mb-4 md:mb-5 leading-tight text-balance"
+    className="scroll-mt-32 font-display text-[1.5rem] md:text-[2rem] font-[850] tracking-[-0.04em] text-ink mt-12 md:mt-16 mb-4 md:mb-5 leading-[1.1] text-balance"
   >
     {children}
   </h2>
 );
 
 export const H3 = ({ children }) => (
-  <h3 className="font-display text-xl font-bold dark:text-white text-slate-800 mt-8 md:mt-10 mb-3 md:mb-4 leading-tight text-balance">
+  <h3 className="font-display text-lg md:text-xl font-[800] text-ink mt-8 md:mt-10 mb-3 md:mb-4 leading-snug text-balance">
     {children}
   </h3>
 );
@@ -82,7 +82,7 @@ export const Collapsible = ({ title, children }) => {
   }
 
   return (
-    <section ref={sectionRef} className="scroll-mt-32 mt-8 border-y dark:border-gray-800 border-slate-200">
+    <section ref={sectionRef} className="scroll-mt-32 mt-8 border-y border-line">
       <h2 id={id} className="scroll-mt-32 m-0">
         <button
           type="button"
@@ -92,10 +92,10 @@ export const Collapsible = ({ title, children }) => {
           }}
           aria-expanded={open}
           aria-controls={panelId}
-          className="w-full min-h-14 py-3 flex items-center justify-between gap-4 text-left font-display text-xl font-bold dark:text-white text-slate-900 leading-tight"
+          className="w-full min-h-14 py-3 flex items-center justify-between gap-4 text-left font-display text-lg font-[800] text-ink leading-tight"
         >
           {title}
-          <ChevronDown open={open} />
+          <span aria-hidden="true" className="arrow-knob"><ChevronDown open={open} /></span>
         </button>
       </h2>
       <div id={panelId} className={'accordion-body ' + (open ? 'open' : '')}>
@@ -108,7 +108,7 @@ export const Collapsible = ({ title, children }) => {
 };
 
 export const P = ({ children }) => (
-  <p className="dark:text-slate-300 text-slate-700 text-base leading-relaxed mb-5">{children}</p>
+  <p className="text-body text-base md:text-[1.0625rem] leading-relaxed mb-5">{children}</p>
 );
 
 /* ── Highlight blocks ───────────────────────────────────────────── */
@@ -120,11 +120,11 @@ export const P = ({ children }) => (
  *   accent   optional boolean — makes the border accent-coloured
  */
 export const Callout = ({ label, accent = false, children }) => (
-  <div className={`my-6 md:my-8 p-5 md:p-6 rounded-2xl bg-cardBg border ${accent ? 'border-accent/40' : 'dark:border-gray-800 border-slate-200'}`}>
+  <div className={`sunk my-6 md:my-8 p-5 md:p-7 border-l-4 ${accent ? '!border-l-accent' : '!border-l-edge dark:!border-l-accent'}`}>
     {label && (
-      <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.15em] mb-3">{label}</p>
+      <p className="silk silk--accent mb-3">{label}</p>
     )}
-    <p className="dark:text-slate-300 text-slate-700 text-base md:text-lg leading-relaxed">{children}</p>
+    <p className="text-ink text-base md:text-lg font-medium leading-relaxed">{children}</p>
   </div>
 );
 
@@ -145,12 +145,12 @@ export const MetricRow = ({ metrics }) => {
           key={label}
           /* on the 2-column mobile grid an odd last item spans the row (no orphan) */
           className={
-            'p-4 md:p-5 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 text-center ' +
+            'p-4 md:p-5 rounded-[10px] border-2 border-edge dark:border-black bg-plate dark:bg-[#222225] shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_#000] ' +
             (odd && i === metrics.length - 1 ? 'col-span-2 sm:col-span-1' : '')
           }
         >
-          <p className="font-display text-2xl md:text-3xl font-bold text-accent">{val}</p>
-          <p className="dark:text-gray-400 text-slate-600 text-[0.8125rem] md:text-xs leading-snug mt-1">
+          <p className="font-display text-2xl md:text-[1.75rem] font-[850] text-ink leading-tight">{val}</p>
+          <p className="text-muted text-[0.8125rem] md:text-xs leading-snug mt-1.5">
             {label}
           </p>
         </div>
@@ -163,17 +163,17 @@ export const MetricRow = ({ metrics }) => {
 
 const Fact = ({ label, value }) => (
   <div className="min-w-0">
-    <dt className="font-mono-pp dark:text-gray-400 text-slate-600 text-xs uppercase tracking-[0.15em] mb-1">
+    <dt className="silk mb-1.5">
       {label}
     </dt>
-    <dd className="dark:text-gray-300 text-slate-700 text-sm leading-relaxed">{value}</dd>
+    <dd className="text-body text-sm leading-relaxed">{value}</dd>
   </div>
 );
 
 const Cell = ({ label, children }) => (
-  <div className="min-w-0 p-4 sm:p-6 bg-cardBg">
-    <dt className="font-mono-pp text-accent text-xs uppercase tracking-[0.15em] mb-1.5 sm:mb-2">{label}</dt>
-    <dd className="dark:text-gray-200 text-slate-800 text-sm sm:text-base leading-relaxed">{children}</dd>
+  <div className="min-w-0 p-4 sm:p-6 bg-plate">
+    <dt className="silk silk--accent mb-1.5 sm:mb-2">{label}</dt>
+    <dd className="text-body text-sm sm:text-base leading-relaxed">{children}</dd>
   </div>
 );
 
@@ -197,25 +197,29 @@ const Cell = ({ label, children }) => (
 const noStop = (text) => String(text).replace(/\.\s*$/, '');
 
 export const Snapshot = ({ plain, problem, did, result, takeaway, role, team, timeline, tech }) => (
-  <section aria-label="The short version" className="my-6 md:my-8 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 overflow-hidden">
+  <section aria-label="The short version" className="my-6 md:my-8 rounded-[12px] bg-sunk border border-line overflow-hidden">
+    <div className="plate-tab !rounded-none" aria-hidden="true">
+      <span className="plate-tab__num">TL;DR</span>
+      <span className="plate-tab__label silk silk--strong">The short version</span>
+      <span className="grille" />
+    </div>
     <div className="p-5 sm:p-8">
-      <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.15em] mb-2 sm:mb-3">The short version</p>
-      <p className="font-display text-[1.0625rem] sm:text-xl font-semibold dark:text-white text-slate-900 leading-snug">
+      <p className="font-display text-base sm:text-xl font-[650] sm:font-[750] tracking-[-0.02em] text-ink leading-snug">
         {plain}
       </p>
     </div>
 
-    <dl className="grid sm:grid-cols-2 gap-px dark:bg-gray-800 bg-slate-200 border-t dark:border-gray-800 border-slate-200">
+    <dl className="grid sm:grid-cols-2 gap-px bg-line border-t border-line">
       <Cell label="The problem">{problem}</Cell>
       <Cell label="What I did">{did}</Cell>
       <Cell label="The result">{result}</Cell>
       <Cell label="The takeaway">{takeaway}</Cell>
     </dl>
 
-    <div className="p-4 sm:p-8 border-t dark:border-gray-800 border-slate-200">
+    <div className="p-4 sm:p-8 border-t border-line">
       {/* phones: one Details line */}
-      <p className="sm:hidden dark:text-gray-300 text-slate-700 text-sm leading-relaxed">
-        <span className="font-mono-pp text-accent text-xs uppercase tracking-[0.15em] mr-2">Details</span>
+      <p className="sm:hidden text-body text-sm leading-relaxed">
+        <span className="silk silk--accent mr-2">Details</span>
         {noStop(role)}. Team: {noStop(team)}. Timeline: {noStop(timeline)}.
       </p>
       <dl className="hidden sm:grid sm:grid-cols-3 gap-x-8 gap-y-4">
@@ -244,16 +248,16 @@ export const ProcessFlow = ({ steps }) => (
   <div className="my-6 md:my-10 flex flex-col md:flex-row md:items-stretch gap-2 md:gap-3" role="list" aria-label="Approach, step by step">
     {steps.map((step, i) => (
       <Fragment key={i}>
-        <div role="listitem" className="flex-1 p-4 md:p-5 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 min-w-0">
-          <p className="font-mono-pp text-accent text-xs uppercase tracking-[0.15em] mb-1.5">
+        <div role="listitem" className="flex-1 p-4 md:p-5 rounded-[10px] border-2 border-edge dark:border-black bg-plate dark:bg-[#222225] shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_#000] min-w-0">
+          <p className="label-key mb-2.5">
             Step {i + 1}
           </p>
-          <p className="dark:text-white text-slate-900 text-sm font-semibold leading-snug">{step}</p>
+          <p className="text-ink text-sm font-semibold leading-snug">{step}</p>
         </div>
         {i < steps.length - 1 && (
           <div
             aria-hidden="true"
-            className="hidden md:flex items-center justify-center flex-shrink-0 dark:text-gray-600 text-slate-400"
+            className="hidden md:flex items-center justify-center flex-shrink-0 text-ink"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" focusable="false">
               <path d="M5 12h14M13 6l6 6-6 6" />
@@ -276,11 +280,11 @@ export const ProcessFlow = ({ steps }) => (
  */
 export const ImageFull = ({ src, alt, caption }) => (
   <figure className="my-10">
-    <div className="rounded-2xl overflow-hidden dark:border dark:border-gray-800 border border-slate-200">
+    <div className="rounded-[10px] overflow-hidden border-2 border-edge dark:border-line">
       <img src={src} alt={alt} className="w-full h-auto" loading="lazy" />
     </div>
     {caption && (
-      <figcaption className="font-mono-pp dark:text-gray-400 text-slate-600 text-xs uppercase tracking-[0.15em] text-center mt-3">
+      <figcaption className="silk text-center mt-3">
         {caption}
       </figcaption>
     )}
@@ -297,11 +301,11 @@ export const ImageHalf = ({ left, right }) => (
   <div className="grid sm:grid-cols-2 gap-4 my-10">
     {[left, right].map((img, i) => (
       <figure key={i}>
-        <div className="rounded-2xl overflow-hidden dark:border dark:border-gray-800 border border-slate-200">
+        <div className="rounded-[10px] overflow-hidden border-2 border-edge dark:border-line">
           <img src={img.src} alt={img.alt} className="w-full h-auto" loading="lazy" />
         </div>
         {img.caption && (
-          <figcaption className="font-mono-pp dark:text-gray-400 text-slate-600 text-xs uppercase tracking-[0.15em] text-center mt-2">
+          <figcaption className="silk text-center mt-2">
             {img.caption}
           </figcaption>
         )}
@@ -320,8 +324,8 @@ export const ImageHalf = ({ left, right }) => (
 export const BulletList = ({ items }) => (
   <ul className="space-y-3 my-6">
     {items.map((item, i) => (
-      <li key={i} className="flex gap-3 dark:text-slate-300 text-slate-700 text-base leading-relaxed">
-        <span className="text-accent mt-1 flex-shrink-0">▸</span>
+      <li key={i} className="flex gap-3 text-body text-base md:text-[1.0625rem] leading-relaxed">
+        <span aria-hidden="true" className="bullet-sq" />
         <span>{item}</span>
       </li>
     ))}
@@ -331,5 +335,5 @@ export const BulletList = ({ items }) => (
 /* ── Misc ───────────────────────────────────────────────────────── */
 
 export const Divider = () => (
-  <div className="border-t dark:border-gray-800 border-slate-200 my-8 md:my-12" />
+  <div className="border-t border-line my-8 md:my-12" />
 );

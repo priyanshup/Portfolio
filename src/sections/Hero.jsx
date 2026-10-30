@@ -1,25 +1,28 @@
 /**
  * sections/Hero.jsx
  *
- * Header — CSS Grid layout (not flex). Explicit column widths stop the text
- * column ever bleeding into the photo column.
+ * The first plate: a screwed panel holding the name, one plain line, three
+ * proof points and two keys, with the photo as a framed print on the right.
+ * Under the plate, outside it, a "Worked at" strip of employer logos.
  *
  * Budget (DESIGN.md): everything a recruiter needs in the first two screens —
  * current role, name, one plain line about what you do, three proof points,
  * and two actions. Proof points come from the featured work (data/work.js),
  * the role/badge from data/roles.js: nothing here is hard-coded twice.
  *
- * On mobile the order is text, proof, actions, and the section is not
- * forced to full-viewport height, so the proof lands in the first screen.
- * A small round photo, cropped to the face, sits beside the name on phones (the
- * big photo column is desktop only). "Worked at" is a 2x2 grid of equal cells with
- * each logo centred in its cell (the label stays left), and Resume is a text link
- * (the nav already carries a Resume pill) so it doesn't take a full row.
+ * Layout is CSS Grid with an explicit photo column width, so the text never
+ * bleeds into the photo. On phones the order is text, proof, actions, and
+ * the plate is not forced to full height, so the proof lands in the first
+ * screen. A small round photo, cropped to the face, sits beside the name on
+ * phones (the framed print is md and up). The current role is a line above the
+ * name on phones and a sticker on the print from md up (one or the other is
+ * displayed, never both). "Worked at" is a 2x2 grid of equal cells on phones,
+ * and Resume is a text link there (the nav already has the Resume key).
  */
 
 import { Link } from 'react-router-dom';
 import { CONFIG } from '../config';
-import { IconPin, DL, ArrowUpRight } from '../components/ui/Icons';
+import { IconPin, DL, ArrowRight } from '../components/ui/Icons';
 import { roles, currentRole, roleAsPhrase, roleShort, yearsExperience } from '../data/roles';
 import { featuredWork, heroProofs } from '../data/work';
 import CompanyLogo from '../components/ui/CompanyLogo';
@@ -31,48 +34,41 @@ const Hero = () => {
   const employers = [...new Set(roles.map((r) => r.company))];
 
   return (
-    <header
-      id="about"
-      className="relative md:min-h-screen flex items-center pt-24 pb-10 md:pt-24 md:pb-20 px-6 max-w-6xl mx-auto"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_360px] gap-10 md:gap-12 lg:gap-20 w-full items-center">
+    <header id="about" className="max-w-6xl mx-auto w-full flex flex-col gap-3 md:gap-6">
+      <div className="plate plate--screwed px-5 pt-8 pb-7 sm:px-10 md:px-14 md:py-16 grid grid-cols-1 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_360px] gap-10 lg:gap-16 items-center">
 
         {/* ── Text column ── */}
-        <div className="space-y-5 md:space-y-6 min-w-0">
+        <div className="min-w-0 flex flex-col gap-5 md:gap-6">
 
-          {/* Current-role badge */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/25 dark:text-accent text-emerald-800 text-xs font-mono-pp">
-            <span className="relative flex h-2 w-2 flex-shrink-0">
+          {/* Current role (phones; md+ shows it as the sticker on the photo) */}
+          <p className="md:hidden flex items-center gap-2.5 silk silk--strong">
+            <span className="relative flex h-2 w-2 flex-shrink-0" aria-hidden="true">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
             </span>
-            <span className="sm:hidden">{roleShort(currentRole)} · {currentRole.company}</span>
-            <span className="hidden sm:inline">{roleAsPhrase(currentRole)} · {currentRole.company}</span>
-          </div>
+            {roleShort(currentRole)} · {currentRole.company}
+          </p>
 
           {/* Name, with the small round photo beside it on phones */}
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h1
-                className="font-display font-extrabold tracking-tight leading-[0.90] dark:text-white text-slate-900"
-                style={{ fontSize: 'clamp(2.25rem, 6.5vw, 6rem)' }}
+                className="font-display font-[850] tracking-[-0.045em] leading-[1.02] text-ink"
+                style={{ fontSize: 'clamp(2.125rem, 5.2vw, 4.75rem)' }}
               >
-                PRIYANSHU
+                Priyanshu
                 <br />
-                PUSHPAM
+                {/* inline-block + a small top margin keeps the orange block clear of the "y" above */}
+                <span className="mark inline-block mt-[0.1em] leading-[1.05]">Pushpam</span>
               </h1>
-
-              <div className="mt-4 md:mt-5 flex items-center gap-4">
-                <div className="h-px w-10 dark:bg-gray-700 bg-slate-300 flex-shrink-0 hidden sm:block" />
-                <p className="font-mono-pp text-[0.8125rem] md:text-xs md:uppercase tracking-[0.02em] md:tracking-[0.18em] dark:text-gray-300 text-slate-700">
-                  <span className="sm:hidden">Product Leader · {years} Years</span>
-                  <span className="hidden sm:inline">Technical Product Leader · Digital Commerce · {years} Years</span>
-                </p>
-              </div>
+              <p className="silk mt-4 md:mt-5 max-sm:!tracking-[0.08em]">
+                <span className="sm:hidden">Product leader · {years} years</span>
+                <span className="hidden sm:inline">Technical product leader · Digital commerce · {years} years</span>
+              </p>
             </div>
 
-            {/* Phones: the full-length photo is cropped to the face, so it reads at this size */}
-            <span className="hero-avatar md:hidden flex-shrink-0 w-[88px] h-[88px] rounded-full overflow-hidden border dark:border-gray-700 border-slate-300">
+            {/* Phones: the photo is cropped to the face, so it reads at this size */}
+            <span className="hero-avatar md:hidden flex-shrink-0 w-[88px] h-[88px] rounded-full overflow-hidden border-2 border-edge bg-accent shadow-[0_3px_0_var(--color-edge)]">
               <img
                 src="me.jpg"
                 alt="Priyanshu Pushpam"
@@ -85,29 +81,33 @@ const Hero = () => {
           </div>
 
           {/* One plain line about what I do */}
-          <p className="text-base md:text-lg dark:text-gray-300 text-slate-700 leading-relaxed max-w-lg">
+          <p className="text-base md:text-lg text-body leading-relaxed max-w-xl">
             I'm a product owner who started out as a software engineer. I've worked on
             healthcare systems, an online sportsbook and an AI-driven e-commerce platform.
           </p>
 
           {/* Proof points, pulled from the featured work */}
-          <ul aria-label="Highlights" className="grid gap-3 sm:grid-cols-3 max-w-2xl">
-            {heroProofs.map((p) => (
-              <li key={p.val} className="border-l-2 border-accent pl-3">
-                <span className="block font-display text-xl font-extrabold text-accent leading-tight">{p.val}</span>
-                <span className="block text-[0.8125rem] md:text-xs dark:text-gray-400 text-slate-600 leading-snug mt-0.5">{p.label}</span>
+          {/* phones: one recessed panel with rows; sm+: three recessed gauges */}
+          <ul aria-label="Highlights" className="max-sm:sunk max-sm:divide-y max-sm:divide-line grid sm:gap-2 sm:grid-cols-3 max-w-2xl">
+            {heroProofs.map((p, i) => (
+              <li key={p.val} className="sm:sunk px-3.5 py-2.5 sm:py-3 flex sm:flex-col gap-x-3 gap-y-1 items-baseline sm:items-start">
+                <span aria-hidden="true" className="font-mono-pp text-xs text-muted">0{i + 1}</span>
+                <span className="min-w-0">
+                  <span className="block font-display text-lg md:text-xl font-[850] text-ink leading-tight">{p.val}</span>
+                  <span className="block text-[0.8125rem] md:text-xs text-muted leading-snug mt-0.5">{p.label}</span>
+                </span>
               </li>
             ))}
           </ul>
 
-          {/* Actions. On phones Resume is a text link; the nav already has the pill. */}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 md:gap-3 pt-1">
+          {/* Actions. On phones Resume is a text link; the nav already has the key. */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 md:gap-4 pt-1">
             <Link
               to={`/case-studies/${flagship.slug}`}
               state={{ from: 'home' }}
-              className="cta-btn-primary max-sm:w-full"
+              className="cta-btn-primary max-sm:w-full max-sm:!px-4 max-sm:!tracking-[0.04em]"
             >
-              {flagship.ctaLabel ?? 'Read my top case study'} <ArrowUpRight />
+              {flagship.ctaLabel ?? 'Read my top case study'} <ArrowRight />
             </Link>
             {/* (wrappers do the hiding: the button classes set `display` themselves) */}
             <span className="hidden sm:inline-flex">
@@ -135,56 +135,57 @@ const Hero = () => {
           </div>
 
           {/* Location + a quiet, professional openness signal */}
-          <p className="flex items-center gap-2 font-mono-pp meta-line dark:text-gray-400 text-slate-600">
-            <IconPin className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+          <p className="flex items-center gap-2 silk">
+            <IconPin className="w-3.5 h-3.5 text-accent-ink flex-shrink-0" />
             Hyderabad, India · Open to conversations
           </p>
+        </div>
 
-          {/* Where I've worked: recognisable names, shown once (theme-aware logos).
-              A fixed 2x2 grid on phones so the row never wraps raggedly. */}
-          <div>
-            <p className="text-[0.8125rem] md:text-xs dark:text-gray-400 text-slate-600 mb-3">Worked at</p>
-            <ul
-              aria-label="Companies I have worked at"
-              className="grid grid-cols-2 gap-px rounded-xl overflow-hidden border dark:border-gray-800 border-slate-200 max-sm:dark:bg-gray-800 max-sm:bg-slate-200 sm:flex sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-4 sm:overflow-visible sm:rounded-none sm:border-0"
-            >
-              {employers.map((c) => (
-                <li key={c} className="flex items-center justify-center min-h-[3.75rem] max-sm:bg-darkBg sm:justify-start sm:min-h-[2.25rem]">
-                  <CompanyLogo company={c} scale={0.85} />
-                </li>
-              ))}
-            </ul>
+        {/* ── Photo column (md+): a framed print with the current role as a sticker ── */}
+        <figure className="hidden md:block relative m-0 pt-6 pr-3">
+          <div className="relative rounded-[10px] overflow-hidden border-2 border-edge bg-accent shadow-[8px_8px_0_var(--color-edge)] dark:shadow-[8px_8px_0_var(--color-accent)] aspect-[4/5]">
+            <img
+              src="me.jpg"
+              alt="Priyanshu Pushpam"
+              className="w-full h-full object-cover object-[50%_20%] select-none pointer-events-none"
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
           </div>
-
-          {/* Credentials: plain text, kept for screeners */}
-          <p className="text-[0.8125rem] md:text-xs dark:text-gray-400 text-slate-600">
-            CSPO® · Google GA4 · Productsup Expert · Former software engineer
+          <p className="sticker absolute -top-1 -right-2 lg:-right-6 max-w-[15rem]">
+            <span className="silk !text-[#0a0a0a] !tracking-[0.16em]">Now</span>
+            <span className="font-display font-[800] text-[0.9375rem] leading-tight">
+              {roleAsPhrase(currentRole)} at {currentRole.company}
+            </span>
           </p>
-        </div>
-
-        {/* ── Photo column (desktop; phones get the round photo beside the name) ── */}
-        <div className="hidden md:flex justify-center md:justify-end">
-          <div className="relative w-full md:w-auto">
-            {/* Ambient glow, desktop only, the one decorative flourish */}
-            <div className="absolute -inset-6 bg-accent/8 rounded-3xl blur-3xl hidden md:block" />
-
-            {/* Accent line, desktop only */}
-            <div className="hero-accent-line hidden md:block" />
-
-            <div className="relative w-full h-[280px] sm:h-[340px] md:h-[400px] lg:h-[480px] rounded-2xl overflow-hidden border dark:border-gray-700/60 border-slate-200 shadow-2xl">
-              <img
-                src="me.jpg"
-                alt="Priyanshu Pushpam"
-                className="w-full h-full object-cover object-top select-none pointer-events-none"
-                draggable={false}
-                onContextMenu={(e) => e.preventDefault()}
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
-            </div>
-          </div>
-        </div>
-
+          <figcaption className="mt-5 flex justify-between gap-4 silk">
+            <span>Fig. 1</span>
+            <span>Me, in the snow</span>
+          </figcaption>
+        </figure>
       </div>
+
+      {/* ── Where I've worked: recognisable names, shown once (theme-aware logos).
+          A fixed 2x2 grid on phones so the row never wraps raggedly. ── */}
+      <div className="px-3 md:px-10 flex flex-col md:flex-row md:items-center gap-3 md:gap-10">
+        <p className="silk flex-shrink-0">Worked at</p>
+        <ul
+          aria-label="Companies I have worked at"
+          className="grid grid-cols-2 gap-px rounded-xl overflow-hidden border border-line max-sm:bg-line sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:flex-1 sm:gap-x-10 sm:gap-y-4 sm:overflow-visible sm:rounded-none sm:border-0"
+        >
+          {employers.map((c) => (
+            <li key={c} className="flex items-center justify-center min-h-[3.5rem] max-sm:bg-plate sm:justify-start sm:min-h-[2.25rem]">
+              <CompanyLogo company={c} scale={0.9} />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Credentials: plain text, kept for screeners */}
+      <p className="px-3 md:px-10 -mt-1 md:-mt-3 text-[0.8125rem] md:text-xs text-muted">
+        CSPO® · Google GA4 · Productsup Expert · Former software engineer
+      </p>
     </header>
   );
 };

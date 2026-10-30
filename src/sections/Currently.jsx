@@ -2,26 +2,28 @@
  * sections/Currently.jsx
  *
  * A few honest lines about what's happening now. Data: data/currently.js.
- * Update every 1–2 months and bump `updated` there.
+ * Update every 1–2 months and bump `updated` there (it shows in the tab).
  */
 
 import SectionHeader from '../components/ui/SectionHeader';
 import { currently } from '../data/currently';
 
 const Currently = () => (
-  <section id="currently" className="py-12 md:py-20 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-200">
-    <SectionHeader
-      eyebrow={`Updated ${currently.updated}`}
-      title="Currently"
-    />
-    <dl className="reveal grid md:grid-cols-2 gap-4">
-      {currently.items.map((it) => (
-        <div key={it.label} className="p-6 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200">
-          <dt className="font-mono-pp text-accent text-xs uppercase tracking-[0.15em] mb-2">{it.label}</dt>
-          <dd className="dark:text-gray-300 text-slate-700 text-base leading-relaxed">{it.text}</dd>
+  <section id="currently" className="plate max-w-6xl mx-auto w-full">
+    <SectionHeader num="05" title="Currently" meta={`Updated ${currently.updated}`} />
+    <dl className="reveal grid md:grid-cols-2">
+      {currently.items.map((it, i) => (
+        <div
+          key={it.label}
+          className={'px-5 py-6 md:px-12 md:py-10 border-line ' + (i > 0 ? 'max-md:border-t ' : '') + (i % 2 === 0 ? 'md:border-r' : '')}
+        >
+          <dt className="silk silk--accent mb-2.5">{it.label}</dt>
+          <dd className="text-ink text-base md:text-lg leading-relaxed">{it.text}</dd>
         </div>
       ))}
     </dl>
+    {/* the tab's meta is hidden on phones; keep the date there too */}
+    <p className="sm:hidden silk px-5 pb-5 -mt-1">Updated {currently.updated}</p>
   </section>
 );
 

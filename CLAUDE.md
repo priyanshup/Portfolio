@@ -7,7 +7,7 @@ the "adding things" playbook. This file covers architecture and the non-obvious 
 
 - **React 19** + **React Router 7** (HashRouter — routes use `/#/...`)
 - **Tailwind CSS 4** + **Vite 8**
-- Fonts self-hosted via `@fontsource` (Plus Jakarta Sans, Inter, IBM Plex Mono) — no Google Fonts requests
+- Fonts self-hosted via `@fontsource` (Zalando Sans Expanded, Inter, IBM Plex Mono) — no Google Fonts requests
 - **Deployed** to GitHub Pages by GitHub Actions on every push to `main` (`.github/workflows/deploy.yml`: `npm ci` → `npm run verify` → `npm run build` → `gh-pages` branch). Pull requests run the same checks plus a Lighthouse accessibility gate (≥ 95, `.lighthouserc.json`) and never deploy. `npm run deploy` is a manual fallback — never run both for the same commit.
 - **Hosted at**: https://priyanshup.github.io/Portfolio/
 
@@ -16,7 +16,7 @@ the "adding things" playbook. This file covers architecture and the non-obvious 
 npm run dev       # local dev server (http://localhost:5173/Portfolio/ — note the /Portfolio/ base)
 npm run build     # production build → dist/
 npm run verify    # resume-file check + ESLint (the gate CI and predeploy both run)
-npm run smoke     # 76 end-to-end checks in a headless browser (desktop + phone); needs the dev server running
+npm run smoke     # 78 end-to-end checks in a headless browser (desktop + phone); needs the dev server running
 npm run a11y      # axe-core audit in dark + light, desktop + mobile; needs the dev server running
 npm run copy      # flags AI-writing tells (dashes, stock words, "not just") in the site's prose
 npm run deploy    # manual fallback: verify + build + push to gh-pages (CI normally does this)
@@ -148,18 +148,18 @@ Class-based on `<html>`: `dark` = dark mode. Priority: `localStorage 'theme'` �
 class before first paint (no flash). `useTheme` returns `[theme, toggleTheme]`; `App`
 passes them to `<Nav />`. Printing removes the `dark` class for the print job (App.jsx).
 
-### Strict colour convention
-**Every hard-coded colour class needs both a dark and a light value.**
+### Colour: use the semantic tokens
+Components use token classes that swap under `html.dark` (defined in `src/index.css`):
 ```jsx
-className="dark:text-white text-slate-900"
-className="dark:border-gray-800 border-slate-200"
-className="dark:hover:text-white hover:text-slate-900"
+className="bg-plate text-ink border-line"      // panel, heading, hairline
+className="text-body" / "text-muted"           // running text / meta (both pass AA)
+className="bg-accent text-on-accent"           // orange fill, ink text
+className="text-accent-ink"                    // small orange text (never text-accent)
 ```
-Exception: token classes (`bg-darkBg`, `bg-cardBg`, `text-accent`) adapt automatically.
-Contrast floors: small text `dark:text-gray-400 text-slate-600` or stronger; text on
-accent-tinted pills `dark:text-accent text-emerald-800`; primary buttons use dark text
-on emerald in dark mode (see DESIGN.md §4). Custom CSS classes can't use `dark:` — put
-light overrides next to them in `globals.css` using `html:not(.dark)`.
+A raw colour class (e.g. `bg-[#2a2a2d]`) still needs a `dark:` twin. Custom CSS
+classes can't use `dark:`; put dark overrides next to them in `globals.css` using
+`html.dark`. Custom classes that set `display` (`.label-key`, `.plate-tab__meta`,
+buttons) beat Tailwind's responsive `hidden`: hide a wrapper element instead.
 
 ---
 
@@ -167,11 +167,11 @@ light overrides next to them in `globals.css` using `html:not(.dark)`.
 
 - Logos: `CompanyLogo` inlines the SVGs from `src/assets/logos/` and recolours only the neutral parts to the theme colour (brand colours kept); three placements only (Hero strip, Experience rows, case-study header). See DESIGN.md §4.
 - Sticky PageBar under the nav on inner pages (nav is a fixed `h-16`; the bar is `top-16`). `html, body` use `overflow-x: clip` — `hidden` would break `position: sticky`.
-- Opaque cards: `bg-cardBg rounded-2xl border dark:border-gray-800 border-slate-200`; `card-lift` only on clickable cards. No `backdrop-filter` on content.
+- Each section is a `.plate` with a `<SectionHeader num title meta lede />` tab; recessed areas use `sunk`; buttons are keys (`.cta-btn-*`), social links are knobs. `card-lift` only on clickable cards. No `backdrop-filter` anywhere.
 - Nothing below 12px (`text-xs`+); no `text-[10px]`.
 - Global `:focus-visible` ring; `prefers-reduced-motion` disables all motion.
-- Hero: CSS Grid, photo column has an explicit pixel width so text never bleeds into it. Mobile order is text → proof → actions, and the hero isn't forced to full height so the proof lands in the first screen. Badge = current role (from `roles.js`), never an "available for" pill. Location line: "Hyderabad, India · Open to conversations".
-- Footer CTA: eyebrow "Open to Conversations"; headline "Ready to build something ambitious?"; subtext "Currently building digital commerce at Heineken. Always glad to talk product with teams where engineering depth meets commercial scale."; CTAs use `<ArrowUpRight />` (SVG, not the `↗` character — iOS renders it as an emoji).
+- Hero: a screwed plate in CSS Grid; the photo column has an explicit pixel width so text never bleeds into it. The photo is a framed print with the current role as a sticker (md+); phones show the role as a line above the name and a round face crop. Mobile order is text → proof → actions, and the hero isn't forced to full height so the proof lands in the first screen. Never an "available for" pill. Location line: "Hyderabad, India · Open to conversations". The "Worked at" logo strip sits under the plate.
+- Footer: the CTA is a contrast plate (eyebrow "Open to conversations", headline "Want to talk?"); then the social knobs and a colour stripe. CTAs use `<ArrowUpRight />` / `<ArrowRight />` (SVG, not the `↗` character — iOS renders it as an emoji).
 
 ---
 

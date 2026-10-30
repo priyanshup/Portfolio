@@ -15,7 +15,7 @@ Design rules, section budgets and the "adding things" playbook are in [DESIGN.md
 | Framework | React 19 + Vite 8 |
 | Styling | Tailwind CSS v4 (Vite plugin) |
 | Routing | React Router v7 (HashRouter) |
-| Fonts | Plus Jakarta Sans · Inter · IBM Plex Mono — self-hosted via `@fontsource` |
+| Fonts | Zalando Sans Expanded · Inter · IBM Plex Mono — self-hosted via `@fontsource` |
 | Analytics | Google Analytics 4 |
 | Deployment | GitHub Pages — GitHub Actions on push to `main` (manual fallback: `npm run deploy`) |
 

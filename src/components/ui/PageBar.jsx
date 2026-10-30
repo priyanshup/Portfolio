@@ -64,10 +64,10 @@ const PageBar = ({ items, width = 'max-w-3xl', progress, sections = [] }) => {
   };
 
   return (
-    <div className="page-bar sticky z-40 border-b dark:border-gray-800 border-slate-200 bg-darkBg/90 backdrop-blur-md">
-      <div className={'relative mx-auto px-6 ' + width}>
+    <div className="page-bar sticky z-40 px-2.5 md:px-6 pt-2 pb-1 bg-page">
+      <div className={'plate !rounded-[10px] relative mx-auto px-4 md:px-5 ' + width}>
         <nav aria-label="Breadcrumb" className="h-12 flex items-center gap-3">
-          <ol className="flex items-center flex-1 min-w-0 text-sm dark:text-gray-400 text-slate-600">
+          <ol className="flex items-center flex-1 min-w-0 text-sm text-muted">
             {items.map((it, i) => {
               const last = i === items.length - 1;
               return (
@@ -79,12 +79,12 @@ const PageBar = ({ items, width = 'max-w-3xl', progress, sections = [] }) => {
                   ) : (
                     <span
                       aria-current={last ? 'page' : undefined}
-                      className={'truncate ' + (last ? 'dark:text-gray-100 text-slate-900 font-medium' : '')}
+                      className={'truncate ' + (last ? 'text-ink font-semibold' : '')}
                     >
                       {it.label}
                     </span>
                   )}
-                  {!last && <span aria-hidden="true" className="mx-2 dark:text-gray-600 text-slate-400">/</span>}
+                  {!last && <span aria-hidden="true" className="mx-2.5 text-muted">/</span>}
                 </li>
               );
             })}
@@ -97,7 +97,7 @@ const PageBar = ({ items, width = 'max-w-3xl', progress, sections = [] }) => {
               onClick={() => setMenuOpen((v) => !v)}
               aria-expanded={menuOpen}
               aria-controls={menuId}
-              className="flex-shrink-0 inline-flex items-center gap-1 min-h-11 pl-3 pr-1 -mr-1 rounded-lg text-sm font-medium dark:text-gray-200 text-slate-800 dark:hover:bg-white/5 hover:bg-black/5 transition-colors"
+              className="flex-shrink-0 inline-flex items-center gap-1.5 min-h-11 pl-3 pr-1.5 -mr-1.5 rounded-lg silk silk--strong max-sm:!normal-case max-sm:!tracking-normal max-sm:!text-sm hover:bg-sunk transition-colors"
             >
               On this page
               <ChevronDown open={menuOpen} />
@@ -110,14 +110,14 @@ const PageBar = ({ items, width = 'max-w-3xl', progress, sections = [] }) => {
             id={menuId}
             ref={menuRef}
             aria-label="On this page"
-            className="absolute right-4 top-full mt-1 w-[min(20rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto p-1.5 rounded-2xl bg-cardBg border dark:border-gray-700 border-slate-200 shadow-xl"
+            className="absolute right-0 top-full mt-2 w-[min(20rem,calc(100vw-1.5rem))] max-h-[70vh] overflow-y-auto p-1.5 rounded-xl bg-plate border-2 border-edge dark:border-black shadow-[0_5px_0_var(--color-edge)] dark:shadow-[0_5px_0_#000]"
           >
             {sections.map((s) => (
               <li key={s.id}>
                 <button
                   type="button"
                   onClick={() => jumpTo(s.id)}
-                  className="w-full text-left min-h-11 px-3 py-2 rounded-xl text-sm dark:text-gray-200 text-slate-800 dark:hover:bg-white/5 hover:bg-black/5"
+                  className="w-full text-left min-h-11 px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-sunk"
                 >
                   {s.label}
                 </button>
@@ -128,7 +128,7 @@ const PageBar = ({ items, width = 'max-w-3xl', progress, sections = [] }) => {
       </div>
 
       {typeof progress === 'number' && (
-        <div aria-hidden="true" className="h-0.5 w-full">
+        <div aria-hidden="true" className="absolute left-3 right-3 bottom-0 h-[3px] rounded-full overflow-hidden">
           <div className="h-full bg-accent origin-left" style={{ transform: `scaleX(${progress})` }} />
         </div>
       )}

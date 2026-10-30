@@ -19,7 +19,7 @@ import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 
 /* Self-hosted fonts (no third-party requests; see DESIGN.md) */
-import '@fontsource-variable/plus-jakarta-sans';
+import '@fontsource-variable/zalando-sans-expanded';
 import '@fontsource-variable/inter';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/500.css';

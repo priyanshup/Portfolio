@@ -96,7 +96,11 @@ const HomePage = () => {
   }, [location.state, location.key]);
 
   return (
-    <main id="main-content" tabIndex={-1} className="focus:outline-none">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="focus:outline-none px-2.5 md:px-6 pt-[4.75rem] md:pt-24 flex flex-col gap-3 md:gap-6"
+    >
       <Hero />
       <Work />
       <Experience />
@@ -157,12 +161,12 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen selection:bg-accent selection:text-white">
+    <div className="min-h-screen">
       {/* Visually hidden until keyboard focus; jumps past the nav to main content */}
       <a
         href="#main-content"
         onClick={skipToContent}
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-accent dark:focus:text-slate-950 focus:text-white focus:font-mono-pp focus:text-sm focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:border-2 focus:border-edge focus:bg-accent focus:text-on-accent focus:font-mono-pp focus:text-sm"
       >
         Skip to content
       </a>

@@ -2,38 +2,77 @@
  * styles/globals.css
  *
  * All custom CSS for the portfolio. Imported once in main.jsx.
+ * The look is "workshop hardware": opaque panels (plates), numbered section
+ * tabs, buttons that behave like physical keys, round knobs, one orange.
+ * Colours come from the tokens in index.css, so nothing here needs a
+ * light/dark pair unless a token can't express it.
+ *
  * Rules of the house (see DESIGN.md):
- *   - No backdrop-filter on content cards. Blur only on the floating layer
- *     (nav, dropdown, scroll-to-top, back button).
- *   - Nothing below 12px (0.75rem). Sizes are rem-based so browser text-size
- *     settings are respected.
+ *   - No backdrop-filter on content. Panels are opaque.
+ *   - Nothing below 12px (0.75rem). Sizes are rem-based.
  *   - Every animation has a prefers-reduced-motion answer (§3).
  *
  * Sections:
  *  1.  Fonts (self-hosted via @fontsource, imported in main.jsx)
- *  2.  Font utilities
+ *  2.  Font utilities + labels (silk, label-key)
  *  3.  Base: focus, selection, reduced motion
  *  4.  Scroll-reveal
- *  5.  Nav underline
- *  6.  Scrollbar
+ *  5.  Plates (panels), section tabs, grille, screws
+ *  6.  Nav bar + theme switch
  *  7.  Accordion
- *  8.  Scroll-to-top button
+ *  8.  Scroll-to-top knob, nav that steps aside, small-screen helpers
  *  9.  Hamburger + mobile dropdown
- * 10.  Buttons (hero / footer CTAs, nav resume pill)
+ * 10.  Keys (buttons), chips, links
  * 11.  Card lift (clickable cards only)
- * 12.  Hero accent line
+ * 12.  Knobs, icon boxes, marks, stripe
  * 13.  Print
  * 14.  Company logos
- * 15.  Toggle chip + accent link + button states
  */
 
-/* ── 2. Font utilities ───────────────────────────────────────────── */
-.font-display { font-family: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+/* ── 2. Font utilities + labels ──────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display) !important;
+  letter-spacing: -0.035em;
+}
 .font-mono-pp { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important; }
+
+/* "Silk": the small, wide, upper-case label printed on hardware */
+.silk {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.silk--strong { font-weight: 750; color: var(--color-ink); }
+.silk--accent { font-weight: 700; color: var(--color-accent-ink); }
+
+/* A small outlined label (Current, CSPO, Step 1) */
+.label-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 7px;
+  border: 1.5px solid var(--color-edge);
+  border-radius: 5px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.label-key--plain { background: var(--color-plate); color: var(--color-ink); }
+html.dark .label-key { border-color: transparent; }
+html.dark .label-key--plain { border-color: var(--color-line); }
 
 html,
 body {
-  font-family: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
   /* clip, not hidden: overflow-x:hidden turns body into a scroll container and
      breaks position:sticky (the PageBar). clip hides overflow without that. */
   overflow-x: hidden;
@@ -53,12 +92,14 @@ html {
 
 /* One visible, consistent keyboard focus ring for every interactive element. */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 3px solid var(--color-accent);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 /* Mouse/touch focus stays clean; only keyboard focus shows the ring. */
 :focus:not(:focus-visible) { outline: none; }
+
+::selection { background: var(--color-accent); color: var(--color-on-accent); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -77,45 +118,178 @@ html {
 /* ── 4. Scroll-reveal ────────────────────────────────────────────── */
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(16px);
   transition:
-    opacity  0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity  0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reveal.in-view { opacity: 1; transform: none; }
 
-.d1 { transition-delay: 0.08s; }
-.d2 { transition-delay: 0.16s; }
-.d3 { transition-delay: 0.24s; }
-.d4 { transition-delay: 0.32s; }
+.d1 { transition-delay: 0.06s; }
+.d2 { transition-delay: 0.12s; }
+.d3 { transition-delay: 0.18s; }
+.d4 { transition-delay: 0.24s; }
 
-/* ── 5. Nav underline hover / active ─────────────────────────────── */
-.nav-link { position: relative; }
-.nav-link::after {
+/* ── 5. Plates, section tabs, grille, screws ─────────────────────── */
+.plate {
+  position: relative;
+  background: var(--color-plate);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 1px 2px rgba(10, 10, 10, 0.06),
+    0 14px 28px -18px rgba(10, 10, 10, 0.35);
+}
+html.dark .plate {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 18px 36px -18px rgba(0, 0, 0, 0.9);
+}
+.plate--contrast { border-color: transparent; }
+html:not(.dark) .plate--contrast { box-shadow: 0 18px 40px -20px rgba(10, 10, 10, 0.6); }
+html.dark .plate--contrast { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6); }
+
+/* Four screws, one in each corner (one pseudo-element, four gradients) */
+.plate--screwed::before {
   content: '';
   position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: currentColor;
-  transition: width 0.25s ease;
+  inset: 12px;
+  pointer-events: none;
+  --screw: radial-gradient(circle at 50% 50%,
+    var(--color-sunk) 0 3.5px,
+    var(--color-line) 4px 5.5px,
+    transparent 6px);
+  background: var(--screw), var(--screw), var(--screw), var(--screw);
+  background-size: 14px 14px;
+  background-repeat: no-repeat;
+  background-position: top left, top right, bottom left, bottom right;
 }
-.nav-link:hover::after,
-.nav-link[aria-current='true']::after { width: 100%; }
+html.dark .plate--screwed:not(.plate--contrast)::before,
+.plate--contrast.plate--screwed::before {
+  --screw: radial-gradient(circle at 50% 50%,
+    var(--color-sunk) 0 3.5px,
+    color-mix(in srgb, var(--color-line) 70%, #000) 4px 5.5px,
+    transparent 6px);
+}
 
-/* ── 6. Scrollbar ────────────────────────────────────────────────── */
-.scroll-section {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.10) transparent;
+/* Recessed area inside a plate: .sunk is a Tailwind @utility (index.css) so it takes variants */
+
+/* Section tab: orange number block, label, dotted grille, optional meta */
+.plate-tab {
+  display: flex;
+  align-items: stretch;
+  min-height: 2.75rem;
+  border-bottom: 1px solid var(--color-line);
+  border-radius: 13px 13px 0 0;
+  overflow: hidden;
 }
-.scroll-section::-webkit-scrollbar { width: 5px; height: 5px; }
-.scroll-section::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
+.plate-tab__num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  padding: 0 12px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-right: 1.5px solid var(--color-edge);
 }
-html:not(.dark) .scroll-section { scrollbar-color: rgba(0, 0, 0, 0.12) transparent; }
-html:not(.dark) .scroll-section::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.12); }
+html.dark .plate-tab__num { border-right-color: transparent; }
+.plate-tab__label {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  margin: 0;
+}
+.plate-tab__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-left: 1px solid var(--color-line);
+  white-space: nowrap;
+}
+.plate-tab__meta::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+/* Dotted speaker grille */
+.grille {
+  flex: 1;
+  min-width: 1.5rem;
+  margin: 10px 0;
+  background-image: radial-gradient(circle, var(--color-line) 1.1px, transparent 1.6px);
+  background-size: 7px 7px;
+  background-position: center;
+}
+html.dark .grille { background-image: radial-gradient(circle, #3a3a3e 1.1px, transparent 1.6px); }
+
+/* ── 6. Nav bar + theme switch ───────────────────────────────────── */
+.nav-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 18px;
+  border-right: 1px solid var(--color-line);
+  color: var(--color-ink);
+  transition: background-color 0.16s, color 0.16s;
+}
+.nav-tab:hover { background: var(--color-sunk); }
+.nav-tab[aria-current='true'] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 2.75rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.theme-switch__track {
+  position: relative;
+  width: 3rem;
+  height: 1.625rem;
+  border-radius: 9999px;
+  border: 2px solid var(--color-edge);
+  background: var(--color-sunk);
+  box-shadow: inset 0 2px 3px rgba(10, 10, 10, 0.2);
+  transition: background-color 0.2s;
+}
+.theme-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: var(--color-plate);
+  border: 1.5px solid var(--color-edge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink);
+  transition: transform 0.38s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.theme-switch[aria-checked='true'] .theme-switch__track { background: var(--color-accent); }
+.theme-switch[aria-checked='true'] .theme-switch__thumb {
+  transform: translateX(1.375rem);
+  background: #f3f2ef;
+  color: #0a0a0a;
+}
+html.dark .theme-switch__track { border-color: #000; }
 
 /* ── 7. Accordion ────────────────────────────────────────────────── */
 /*
@@ -131,68 +305,57 @@ html:not(.dark) .scroll-section::-webkit-scrollbar-thumb { background: rgba(0, 0
 .accordion-body.open { grid-template-rows: 1fr; }
 .accordion-inner { overflow: hidden; }
 
-/* ── 8. Scroll-to-top button (floating layer: blur OK) ── */
+/* ── 8. Scroll-to-top knob (floating layer) ──────────────────────── */
 .scroll-top-btn {
   position: fixed;
   /* keep clear of the iPhone home bar / rounded corners (needs viewport-fit=cover) */
-  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
-  right: calc(24px + env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  right: calc(20px + env(safe-area-inset-right, 0px));
   z-index: 90;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
+  background: var(--color-plate);
+  border: 2px solid var(--color-edge);
+  box-shadow: 0 3px 0 var(--color-edge), inset 0 2px 0 rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--color-ink);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: opacity 0.2s ease, transform 0.12s ease-out, box-shadow 0.12s ease-out;
   opacity: 0;
   pointer-events: none;
 }
 .scroll-top-btn.visible,
 .scroll-top-btn:focus-visible { opacity: 1; pointer-events: all; }
-.scroll-top-btn:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.26);
-  transform: translateY(-2px);
-}
-html:not(.dark) .scroll-top-btn {
-  background: #e2e8f0;
-  border: 1px solid #cbd5e1;
-  color: #334155;
-}
-html:not(.dark) .scroll-top-btn:hover {
-  background: #cbd5e1;
-  color: #0f172a;
-  border-color: #94a3b8;
-}
+.scroll-top-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--color-edge); }
+html.dark .scroll-top-btn { background: #262628; box-shadow: 0 3px 0 #000, inset 0 1px 0 rgba(255, 255, 255, 0.12); }
 
-
-/* ── 8b. Nav that steps aside on phones ──────────────────────────────
+/* 8b. Nav that steps aside on phones.
  * On phones the fixed nav slides away while the reader scrolls down and comes
  * back on the first scroll up (or on keyboard focus). Nav.jsx sets
  * html[data-nav-hidden]. The sticky page bar on inner pages moves up into the
- * freed space, so it stays put while the nav is away. Tablets and desktops
- * keep the nav visible. */
+ * freed space. Tablets and desktops keep the nav visible. */
 .site-nav { transition: transform 0.25s ease; }
 .page-bar { top: 4rem; transition: top 0.25s ease; }
 @media (max-width: 767px) {
-  html[data-nav-hidden='true'] .site-nav { transform: translateY(-100%); }
+  html[data-nav-hidden='true'] .site-nav { transform: translateY(-110%); }
   html[data-nav-hidden='true'] .page-bar { top: 0; }
 }
 
-/* ── 8c. Small-screen reading helpers ────────────────────────────────
+/* 8c. Small-screen reading helpers.
  * Meta lines (company, domain, dates) read as sentence-case 13px on phones;
- * the ALL-CAPS 12px mono eyebrow look is kept for larger screens. Use this on
- * true meta lines only. Real captions stay text-xs. */
+ * the upper-case label look is kept for larger screens. */
 .meta-line { font-size: 0.8125rem; letter-spacing: 0.01em; line-height: 1.4; }
 @media (min-width: 768px) {
-  .meta-line { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; }
+  .meta-line {
+    font-family: var(--font-display) !important;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
 }
 
 /* With viewport-fit=cover the page can draw under the notch (landscape) and the
@@ -201,13 +364,22 @@ body {
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
 }
+/* The nav's side gutter lives here, not in Tailwind classes: this unlayered rule
+   would override px-* anyway. max() keeps the gutter and clears the notch. */
 .site-nav {
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
 }
+@media (min-width: 768px) {
+  .site-nav {
+    padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
+  }
+}
+
 /* ── 9. Hamburger + mobile dropdown ──────────────────────────────── */
 .hamburger {
-  width: 22px;
+  width: 20px;
   height: 14px;
   position: relative;
   cursor: pointer;
@@ -238,24 +410,24 @@ body {
 .mobile-dropdown {
   position: fixed;
   top: 68px;
-  right: 14px;
-  width: min(300px, calc(100vw - 28px));
+  right: 12px;
+  width: min(300px, calc(100vw - 24px));
   z-index: 200;
-  background: rgba(8, 12, 24, 0.98);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 1.25rem;
+  background: var(--color-plate);
+  border: 2px solid var(--color-edge);
+  border-radius: 14px;
   padding: 8px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 5px 0 var(--color-edge), 0 24px 40px -16px rgba(10, 10, 10, 0.45);
   transform-origin: top right;
-  transform: scale(0.92) translateY(-8px);
+  transform: scale(0.94) translateY(-6px);
   opacity: 0;
   visibility: hidden;
   transition:
-    transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity   0.18s ease,
-    visibility 0s linear 0.24s;
+    transform 0.26s cubic-bezier(0.3, 1.3, 0.5, 1),
+    opacity   0.16s ease,
+    visibility 0s linear 0.26s;
 }
+html.dark .mobile-dropdown { border-color: #000; box-shadow: 0 5px 0 #000, 0 24px 40px -16px rgba(0, 0, 0, 0.9); }
 .mobile-dropdown.open {
   transform: scale(1) translateY(0);
   opacity: 1;
@@ -267,147 +439,324 @@ body {
   align-items: center;
   min-height: 48px;
   padding: 10px 14px;
-  border-radius: 0.75rem;
-  color: rgba(255, 255, 255, 0.80);
-  font-size: 1rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.dd-link:hover,
-.dd-link[aria-current='true'] {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-.dd-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: 6px 4px;
-}
-html:not(.dark) .mobile-dropdown {
-  background: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(0, 0, 0, 0.10);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.14);
-}
-html:not(.dark) .dd-link { color: #334155; }
-html:not(.dark) .dd-link:hover,
-html:not(.dark) .dd-link[aria-current='true'] {
-  background: rgba(0, 0, 0, 0.05);
-  color: #0f172a;
-}
-html:not(.dark) .dd-divider { background: rgba(0, 0, 0, 0.08); }
-
-/* ── 10. Buttons ─────────────────────────────────────────────────── */
-/*
- * Primary buttons use DARK text on the emerald fill in dark mode
- * (#0b0d14 on #10b981 = 7.6:1) and white on the darker emerald in light mode
- * (#fff on #047857 = 5.5:1). White-on-#10b981 was 2.5:1 and failed AA.
- */
-.cta-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 12px 28px;
-  border-radius: 9999px;
-  background: var(--color-accent);
-  color: #0b0d14;
-  font-weight: 700;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-  white-space: nowrap;
-}
-.cta-btn-primary:hover {
-  background: #34d399;
-  box-shadow: 0 0 28px rgba(16, 185, 129, 0.4);
-  transform: translateY(-2px);
-}
-html:not(.dark) .cta-btn-primary { color: #fff; }
-html:not(.dark) .cta-btn-primary:hover { background: #065f46; box-shadow: 0 6px 20px rgba(4, 120, 87, 0.3); }
-
-.cta-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 12px 28px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  color: rgba(255, 255, 255, 0.88);
-  font-weight: 700;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
-  white-space: nowrap;
-}
-.cta-btn-secondary:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  color: #fff;
-  transform: translateY(-2px);
-}
-html:not(.dark) .cta-btn-secondary { border-color: #cbd5e1; color: #334155; }
-html:not(.dark) .cta-btn-secondary:hover { border-color: #64748b; color: #0f172a; }
-
-/* Nav resume pill */
-.resume-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 36px;
-  padding: 6px 16px;
-  border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.10);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: var(--color-accent);
-  font-size: 0.75rem;
+  border-radius: 9px;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.dd-link:hover { background: var(--color-sunk); }
+.dd-link[aria-current='true'] { background: var(--color-accent); color: var(--color-on-accent); }
+.dd-divider {
+  height: 1px;
+  background: var(--color-line);
+  margin: 6px 4px;
+}
+
+/* ── 10. Keys (buttons), chips, links ────────────────────────────── */
+/*
+ * Buttons are keys: a 2px ink outline, a hard ink "base" underneath, and they
+ * press down into it. Primary = ink on orange (6.2:1).
+ */
+.cta-btn-primary,
+.cta-btn-secondary,
+.resume-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 8px;
+  border: 2px solid var(--color-edge);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition:
+    transform 80ms ease-out,
+    box-shadow 80ms ease-out,
+    background-color 0.12s,
+    color 0.12s;
 }
-.resume-btn:hover {
+.cta-btn-primary {
   background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: #0b0d14;
+  color: var(--color-on-accent);
+  box-shadow: 0 3px 0 var(--color-edge), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
-html:not(.dark) .resume-btn:hover { color: #fff; }
+.cta-btn-secondary,
+.resume-btn {
+  background: var(--color-plate);
+  color: var(--color-ink);
+  box-shadow: 0 3px 0 var(--color-edge), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+html.dark .cta-btn-secondary,
+html.dark .resume-btn {
+  background: #2a2a2d;
+  box-shadow: 0 3px 0 #000, inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+/* on the black panel the ink outline would vanish: use a graphite key */
+.plate--contrast .cta-btn-secondary { background: #2a2a2d; border-color: #000; box-shadow: 0 3px 0 #3a3a3e; }
+html.dark .plate--contrast .cta-btn-secondary { background: #fff; border-color: #0a0a0a; box-shadow: 0 3px 0 #0a0a0a; }
 
-/* ── 11. Card lift — CLICKABLE cards only ────────────────────────── */
+@media (hover: hover) {
+  .cta-btn-primary:hover { background: #ff6d1f; transform: translateY(-1px); box-shadow: 0 4px 0 var(--color-edge), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+  .cta-btn-secondary:hover,
+  .resume-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--color-edge), inset 0 1px 0 rgba(255, 255, 255, 0.8); }
+  html.dark .cta-btn-secondary:hover,
+  html.dark .resume-btn:hover { background: #333336; box-shadow: 0 4px 0 #000; }
+  /* Keys on the contrast plate keep their own colours on hover. Without these the
+     generic dark hover above paints the paper-coloured key graphite under ink text. */
+  .plate--contrast .cta-btn-secondary:hover { background: #343437; box-shadow: 0 4px 0 #3a3a3e; }
+  html.dark .plate--contrast .cta-btn-secondary:hover { background: #f3f2ef; box-shadow: 0 4px 0 #0a0a0a; }
+}
+.cta-btn-primary:active,
+.cta-btn-secondary:active,
+.resume-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--color-edge), inset 0 2px 3px rgba(10, 10, 10, 0.25);
+}
+.cta-btn-primary:disabled,
+.cta-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Nav resume key: smaller */
+.resume-btn {
+  min-height: 34px;
+  padding: 0 14px;
+  gap: 8px;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 0 var(--color-edge);
+}
+.resume-btn:active { transform: translateY(2px); }
+
+/* Filter chips are keys that stay pressed while on */
+.chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 2px solid var(--color-edge);
+  background: var(--color-plate);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--color-edge);
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out, background-color 0.12s;
+}
+html.dark .chip-toggle { background: #2a2a2d; border-color: #000; box-shadow: 0 3px 0 #000; }
+.chip-toggle:active { transform: translateY(3px); box-shadow: 0 0 0 var(--color-edge); }
+.chip-toggle[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--color-edge), inset 0 2px 3px rgba(10, 10, 10, 0.25);
+}
+/* html.dark .chip-toggle (above) outranks the pressed rule; restate the fill */
+html.dark .chip-toggle[aria-pressed='true'] { background: var(--color-accent); box-shadow: 0 1px 0 #000, inset 0 2px 3px rgba(0, 0, 0, 0.3); }
+/* narrower padding on phones so the filter row fits in two lines, not three */
+@media (max-width: 767px) { .chip-toggle { padding: 0 12px; } }
+
+.link-accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  transition: color 0.15s ease, text-decoration-thickness 0.15s ease;
+}
+.link-accent:hover { color: var(--color-accent-ink); text-decoration-thickness: 3px; }
+
+/* Touch devices: every control reaches 44px */
+@media (pointer: coarse) {
+  .resume-btn { min-height: 44px; }
+}
+
+/* ── 11. Card lift: CLICKABLE cards only ─────────────────────────── */
+/* The card rises out of the panel like a key being picked up. */
 .card-lift {
   transition:
-    transform 0.30s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.30s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.20s ease;
+    transform 0.22s cubic-bezier(0.3, 1.4, 0.5, 1),
+    box-shadow 0.22s ease,
+    background-color 0.2s ease;
 }
 @media (hover: hover) {
   .card-lift:hover {
     transform: translateY(-3px);
-    border-color: var(--color-accent);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    background-color: var(--color-plate);
+    box-shadow: 0 0 0 2px var(--color-edge), 0 5px 0 2px var(--color-edge);
+    z-index: 1;
   }
-  html:not(.dark) .card-lift:hover { box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12); }
+  html.dark .card-lift:hover { box-shadow: 0 0 0 2px var(--color-accent), 0 5px 0 2px #000; }
+  .card-lift:hover .arrow-knob { background: var(--color-accent); color: var(--color-on-accent); transform: rotate(-45deg); }
 }
 
-/* ── 12. Hero accent line ────────────────────────────────────────── */
-.hero-accent-line {
+/* ── 12. Knobs, icon boxes, marks, stripe ────────────────────────── */
+
+/* Small round arrow button that sits in cards and rows */
+.arrow-knob {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-edge);
+  background: var(--color-plate);
+  color: var(--color-ink);
+  box-shadow: 0 2px 0 var(--color-edge);
+  transition: transform 0.38s cubic-bezier(0.3, 1.5, 0.5, 1), background-color 0.15s, color 0.15s;
+}
+html.dark .arrow-knob { border-color: #000; background: #2a2a2d; box-shadow: 0 2px 0 #000; }
+
+/* Square icon box with an ink outline (What I bring, etc.) */
+.icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 9px;
+  border: 2px solid var(--color-edge);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 3px 0 var(--color-edge);
+}
+html.dark .icon-box { border-color: #000; box-shadow: 0 3px 0 #000; }
+
+/* Footer knobs: round, weighty, the notch turns on hover */
+.knob {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  border: 2px solid var(--color-edge);
+  color: var(--knob-ink, #0a0a0a);
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45), transparent 55%),
+    var(--knob, var(--color-plate));
+  box-shadow: 0 4px 0 var(--color-edge), 0 10px 16px -6px rgba(10, 10, 10, 0.45);
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+html.dark .knob { border-color: #000; box-shadow: 0 4px 0 #000, 0 10px 16px -6px rgba(0, 0, 0, 0.9); }
+.knob__face {
   position: absolute;
-  left: -20px;
-  top: 12%;
-  bottom: 12%;
-  width: 1px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(16, 185, 129, 0.55) 30%,
-    rgba(16, 185, 129, 0.55) 70%,
-    transparent
-  );
+  inset: 4px;
+  border-radius: 50%;
+  border: 1px solid rgba(10, 10, 10, 0.25);
+  transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.knob__face::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 3px;
+  height: 7px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.55;
+}
+.knob svg { position: relative; }
+@media (hover: hover) { .knob:hover .knob__face { transform: rotate(60deg); } }
+.knob:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--color-edge); }
+.knob--orange   { --knob: var(--color-accent); --knob-ink: #0a0a0a; }
+.knob--white    { --knob: #f6f5f2;             --knob-ink: #0a0a0a; }
+.knob--steel    { --knob: #6e6e71;             --knob-ink: #ffffff; }
+.knob--graphite { --knob: #303032;             --knob-ink: #ffffff; }
+
+/* Highlighted word: an orange block behind ink text (6.2:1) */
+.mark {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  padding: 0 0.12em;
+  margin: 0 -0.04em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Square orange bullet */
+.bullet-sq {
+  width: 6px;
+  height: 6px;
+  margin-top: 0.6em;
+  flex-shrink: 0;
+  background: var(--color-accent);
+}
+
+/* Colour stripe along the very bottom of the page */
+.stripe { display: flex; height: 6px; }
+.stripe > span:nth-child(1) { flex: 25; background: var(--color-plate); }
+.stripe > span:nth-child(2) { flex: 16; background: #6e6e71; }
+.stripe > span:nth-child(3) { flex: 32; background: var(--color-accent); }
+.stripe > span:nth-child(4) { flex: 17; background: var(--color-plate); }
+.stripe > span:nth-child(5) { flex: 10; background: #0a0a0a; }
+html.dark .stripe > span:nth-child(5) { background: #f1f0ed; }
+
+/* Sticker: a slightly rotated orange tag with a hard shadow (hero photo) */
+.sticker {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  border: 2px solid #0a0a0a;
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 #0a0a0a;
+  transform: rotate(4deg);
+  transition: transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+@media (hover: hover) { .sticker:hover { transform: rotate(1deg) translateY(-2px); } }
+
+/* ── 13. Print ───────────────────────────────────────────────────── */
+/* Recruiters print/PDF portfolios. The dark class is removed for printing in
+   App.jsx (beforeprint/afterprint) so text is dark-on-white. */
+@media print {
+  nav,
+  .site-nav,
+  .scroll-top-btn,
+  .mobile-dropdown,
+  .no-print { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .accordion-body { grid-template-rows: 1fr !important; }
+  .accordion-inner { overflow: visible !important; }
+  .accordion-inner[inert] { display: block !important; }
+  .plate { box-shadow: none !important; border: 1px solid #cbd5e1 !important; break-inside: auto; }
+  .plate--screwed::before { display: none; }
+  .plate--contrast { background: #fff !important; color: #000 !important; }
+  a { text-decoration: none; }
+  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 0.7em; word-break: break-all; }
+  section { break-inside: auto; }
 }
 
 /* ── 14. Company logos ───────────────────────────────────────────── */
@@ -415,75 +764,3 @@ html:not(.dark) .resume-btn:hover { color: #fff; }
    (theme-aware). See components/ui/CompanyLogo.jsx. */
 .company-logo { display: inline-flex; align-items: center; flex-shrink: 0; }
 .company-logo svg { height: 100%; width: auto; display: block; }
-
-/* ── 15. Toggle chip + accent text link (one system with the buttons) ── */
-.chip-toggle {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 8px 18px;
-  border-radius: 9999px;
-  border: 1px solid #cbd5e1;
-  background: transparent;
-  color: #334155;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.15s ease;
-}
-.chip-toggle:hover { border-color: #64748b; color: #0f172a; }
-.chip-toggle:active { transform: scale(0.97); }
-.chip-toggle[aria-pressed='true'] { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
-html.dark .chip-toggle { border-color: rgba(255, 255, 255, 0.22); color: rgba(255, 255, 255, 0.86); }
-html.dark .chip-toggle:hover { border-color: rgba(255, 255, 255, 0.5); color: #fff; }
-html.dark .chip-toggle[aria-pressed='true'] { color: #0b0d14; }
-/* narrower padding on phones so the filter row fits in two lines, not three */
-@media (max-width: 767px) { .chip-toggle { padding: 8px 14px; } }
-
-.link-accent {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  color: var(--color-accent);
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
-  text-underline-offset: 4px;
-  cursor: pointer;
-  background: none;
-  border: 0;
-  padding: 0;
-  transition: text-decoration-color 0.2s ease;
-}
-.link-accent:hover { text-decoration-color: var(--color-accent); }
-
-/* Pressed state + disabled state for the button system */
-.cta-btn-primary:active,
-.cta-btn-secondary:active { transform: scale(0.98); }
-.cta-btn-primary:disabled,
-.cta-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-/* Touch devices: every control reaches 44px */
-@media (pointer: coarse) {
-  .resume-btn { min-height: 44px; }
-}
-/* ── 13. Print ───────────────────────────────────────────────────── */
-/* Recruiters print/PDF portfolios. The dark class is removed for printing in
-   App.jsx (beforeprint/afterprint) so text is dark-on-white. */
-@media print {
-  nav,
-  .scroll-top-btn,
-    .mobile-dropdown,
-  .no-print { display: none !important; }
-  body { background: #fff !important; color: #000 !important; }
-  .reveal { opacity: 1 !important; transform: none !important; }
-  .accordion-body { grid-template-rows: 1fr !important; }
-  .accordion-inner { overflow: visible !important; }
-  .accordion-inner[inert] { display: block !important; }
-  .bg-cardBg { box-shadow: none !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; }
-  a { text-decoration: none; }
-  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 0.7em; word-break: break-all; }
-  section { break-inside: auto; padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
-}

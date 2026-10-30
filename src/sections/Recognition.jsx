@@ -41,16 +41,16 @@ const Attribution = ({ t }) => (
   <div className="flex items-start gap-3">
     <span
       aria-hidden="true"
-      className="flex-shrink-0 w-10 h-10 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center font-mono-pp font-bold dark:text-accent text-emerald-800 text-xs"
+      className="flex-shrink-0 w-10 h-10 rounded-full bg-accent border-2 border-edge dark:border-transparent flex items-center justify-center font-mono-pp font-bold text-on-accent text-xs"
     >
       {getInitials(t.name)}
     </span>
     <div className="min-w-0">
-      <p className="dark:text-white text-slate-900 font-bold text-sm">{t.name}</p>
-      <p className="dark:text-gray-400 text-slate-600 text-[0.8125rem] md:text-xs mt-0.5">
-        {t.title} · <span className="font-semibold dark:text-gray-300 text-slate-700">{t.company}</span>
+      <p className="text-ink font-bold text-sm">{t.name}</p>
+      <p className="text-muted text-[0.8125rem] md:text-xs mt-0.5">
+        {t.title} · <span className="font-semibold text-body">{t.company}</span>
       </p>
-      <p className="dark:text-gray-400 text-slate-600 text-[0.8125rem] md:text-xs mt-0.5">{t.relation}</p>
+      <p className="text-muted text-[0.8125rem] md:text-xs mt-0.5">{t.relation}</p>
     </div>
   </div>
 );
@@ -72,13 +72,13 @@ const RecommendationCard = ({ t, isDesktop, selected, panelId, onSelect }) => {
     <li ref={cardRef} className="flex scroll-mt-24">
       <div
         className={
-          'flex-1 p-5 md:p-6 rounded-2xl bg-cardBg border flex flex-col gap-2 md:gap-4 transition-colors ' +
-          (isDesktop && selected ? 'border-accent' : 'dark:border-gray-800 border-slate-200')
+          'sunk flex-1 p-5 md:p-6 flex flex-col gap-2 md:gap-4 transition-shadow ' +
+          (isDesktop && selected ? '!border-accent ring-2 ring-accent' : '')
         }
       >
         {/* flex-1: the quote takes the spare height, so everything below it lines up across cards */}
-        <blockquote className="flex-1 dark:text-gray-200 text-slate-800 text-base leading-relaxed">
-          <span aria-hidden="true" className="block font-serif text-4xl leading-none h-6 text-accent">“</span>
+        <blockquote className="flex-1 text-ink text-base md:text-[1.0625rem] font-medium leading-7">
+          <span aria-hidden="true" className="block font-display font-[850] text-5xl leading-none h-8 text-accent">“</span>
           {!isDesktop && expanded ? t.text : t.highlight}
         </blockquote>
 
@@ -92,7 +92,7 @@ const RecommendationCard = ({ t, isDesktop, selected, panelId, onSelect }) => {
         </button>
 
         {/* min height only when cards sit side by side; stacked cards would show an empty gap */}
-        <div className="md:min-h-[6.5rem] border-t dark:border-gray-800 border-slate-200 pt-3 md:pt-4">
+        <div className="md:min-h-[6.5rem] border-t border-line pt-3 md:pt-4">
           <Attribution t={t} />
         </div>
       </div>
@@ -104,7 +104,7 @@ const RecommendationCard = ({ t, isDesktop, selected, panelId, onSelect }) => {
 const RecommendationPanel = ({ t, onClose }) => (
   <article
     aria-label={`Full recommendation from ${t.name}`}
-    className="mt-3 md:mt-4 p-6 md:p-8 rounded-2xl bg-cardBg border border-accent/40"
+    className="mt-3 md:mt-4 p-6 md:p-8 rounded-[10px] bg-plate border-2 border-accent"
   >
     <div className="flex items-start justify-between gap-6 mb-5">
       <Attribution t={t} />
@@ -112,7 +112,7 @@ const RecommendationPanel = ({ t, onClose }) => (
     </div>
     <blockquote
       className={
-        'dark:text-gray-200 text-slate-800 text-base leading-relaxed ' +
+        'text-body text-base leading-relaxed ' +
         (t.text.length > LONG_TEXT ? 'lg:columns-2 lg:gap-12' : 'max-w-3xl')
       }
     >
@@ -159,16 +159,19 @@ const Recognition = () => {
   };
 
   return (
-    <section id="recognition" className="py-10 md:py-24 px-6 max-w-6xl mx-auto border-t dark:border-gray-900 border-slate-200">
+    <section id="recognition" className="plate max-w-6xl mx-auto w-full">
       <SectionHeader
+        num="04"
         title="Recognition"
+        meta={`${testimonials.length} recommendations`}
         subtitle="What people I've worked with say, the certifications I hold, and one open-source project you can inspect yourself."
       />
 
+      <div className="px-5 md:px-12 pt-7 md:pt-10 pb-7 md:pb-12">
       {/* Recommendations */}
       <div ref={recsRef} className="reveal scroll-mt-24">
-        <h3 className="font-display text-xl font-bold dark:text-white text-slate-900 mb-1">Recommendations</h3>
-        <p className="dark:text-gray-400 text-slate-600 text-sm mb-4 md:mb-5">From LinkedIn. Each card shows one line, and you can open it to read the whole recommendation.</p>
+        <h3 className="silk silk--strong flex items-center gap-2.5 mb-2"><span aria-hidden="true" className="bullet-sq !mt-0" />Recommendations</h3>
+        <p className="text-muted text-sm mb-4 md:mb-5">From LinkedIn. Each card shows one line, and you can open it to read the whole recommendation.</p>
 
         {rows.map((row, r) => {
           const openHere = isDesktop && selected !== null && Math.floor(selected / COLUMNS) === r;
@@ -219,7 +222,7 @@ const Recognition = () => {
 
       {/* Credentials */}
       <div className="reveal mt-10 md:mt-14">
-        <h3 className="font-display text-xl font-bold dark:text-white text-slate-900 mb-4 md:mb-5">Credentials</h3>
+        <h3 className="silk silk--strong flex items-center gap-2.5 mb-4 md:mb-5"><span aria-hidden="true" className="bullet-sq !mt-0" />Credentials</h3>
         <ul className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {certifications.map((c) => (
             <li key={c.short}>
@@ -227,13 +230,13 @@ const Recognition = () => {
                 href={c.link || undefined}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-full block p-4 md:p-5 rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 dark:hover:border-gray-600 hover:border-slate-300 transition-colors"
+                className="h-full flex flex-col items-start p-4 md:p-5 rounded-[10px] bg-plate dark:bg-[#222225] border-2 border-edge dark:border-black shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_#000] transition-transform duration-100 hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-none"
               >
-                <p className="font-mono-pp text-accent text-xs font-bold mb-1">{c.short}</p>
-                <p className="dark:text-white text-slate-900 text-sm font-bold leading-snug">{c.full}</p>
-                <p className="dark:text-gray-400 text-slate-600 text-[0.8125rem] md:text-xs mt-2">{c.issuer} · {c.year}</p>
+                <p className="label-key mb-3">{c.short}</p>
+                <p className="text-ink text-sm font-bold leading-snug">{c.full}</p>
+                <p className="text-muted text-[0.8125rem] md:text-xs mt-2">{c.issuer} · {c.year}</p>
                 {c.link && (
-                  <span className="text-accent text-[0.8125rem] md:text-xs font-semibold mt-2 md:mt-3 inline-flex items-center gap-1">
+                  <span className="mt-auto pt-2 md:pt-3 text-ink underline decoration-accent decoration-2 underline-offset-4 text-[0.8125rem] md:text-xs font-semibold inline-flex items-center gap-1">
                     Verify <ExtLink className="w-4 h-4" />
                   </span>
                 )}
@@ -246,10 +249,11 @@ const Recognition = () => {
       {/* Open source */}
       {openSource && (
         <div className="reveal mt-10 md:mt-14">
-          <h3 className="font-display text-xl font-bold dark:text-white text-slate-900 mb-4 md:mb-5">Open source</h3>
+          <h3 className="silk silk--strong flex items-center gap-2.5 mb-4 md:mb-5"><span aria-hidden="true" className="bullet-sq !mt-0" />Open source</h3>
           <WorkRow item={openSource} compact />
         </div>
       )}
+      </div>
     </section>
   );
 };

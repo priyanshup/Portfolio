@@ -1,19 +1,22 @@
 /**
  * components/work/WorkRow.jsx
  *
- * One row of the Work list. Three ways it is used:
+ * One item of the Work list. Three ways it is used:
  *
- *   featured   (showMetric)   Homepage. A whole-card link with the headline metric.
- *                             On phones it shows only the metric, company and
- *                             title; the summary and outcome chips move to the
- *                             case page (they stay in the page for screen readers
- *                             and screeners as visually-hidden text).
- *   collapsible               /work. On phones each row is compact (meta + title)
- *                             and a "Summary" button opens the rest in place;
- *                             from md up everything is shown. The title is the
- *                             link (stretched over the card), so the toggle can
- *                             live inside the row without nesting controls.
- *   compact                   The open-source card in Recognition. On phones the
+ *   featured   (showMetric)   Homepage. One column of a three-column panel: the
+ *                             company, the headline metric on a recessed "screen",
+ *                             the title, and an arrow knob; the whole cell is a link.
+ *                             The summary shows from md up. On phones it shows only
+ *                             the metric, company and title; the summary and outcome
+ *                             chips stay in the page for screen readers and screeners
+ *                             as visually-hidden text.
+ *   collapsible               /work. A row in a list panel: meta on the left, title
+ *                             and detail in the middle, arrow knob on the right. On
+ *                             phones each row is compact (meta + title) and a
+ *                             "Show summary" button opens the rest in place. The
+ *                             title is the link (stretched over the row), so the
+ *                             toggle can live inside without nesting controls.
+ *   compact                   The open-source row in Recognition. On phones the
  *                             topic tags are hidden and the padding is tighter.
  *
  * Rows with a case study link to it; the rest (impact stories, projects)
@@ -21,7 +24,7 @@
  *
  * Props:
  *   item         – an entry from data/work.js
- *   showMetric   – featured row: show the large headline metric
+ *   showMetric   – featured cell: show the large headline metric
  *   collapsible  – /work row: summary opens on tap on phones
  *   compact      – trim tags and padding on phones
  *   from         – "home" | "work-page": where the list is shown, so the case
@@ -32,14 +35,18 @@
 import { useState, useId, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Chip, Tag } from '../ui/Tag';
-import { GH, Package, IconDocs, ChevronDown } from '../ui/Icons';
+import { GH, Package, IconDocs, ChevronDown, ArrowRight } from '../ui/Icons';
 import useMediaQuery, { DESKTOP_QUERY } from '../../hooks/useMediaQuery';
 import { trackCaseStudyOpen, trackProjectLinkClick } from '../../utils/analytics';
 import { keepInView } from '../../utils/scroll';
 
 const LINK_ICONS = { GitHub: GH, PyPI: Package, Docs: IconDocs };
 
-const base = 'block rounded-2xl bg-cardBg border dark:border-gray-800 border-slate-200 ';
+const ArrowKnob = () => (
+  <span aria-hidden="true" className="arrow-knob">
+    <ArrowRight />
+  </span>
+);
 
 const WorkRow = ({
   item,
@@ -57,35 +64,16 @@ const WorkRow = ({
   const cardRef = useRef(null);
 
   /* ── Pieces ── */
-  const meta = (
-    <p className="font-mono-pp text-accent meta-line">
-      {item.company}
-      {/* the rest of the meta line is hidden visually on the featured phone row */}
-      <span className={showMetric ? 'max-md:sr-only' : ''}>
-        {[item.domain, item.readMinutes && `~${item.readMinutes} min read`]
-          .filter(Boolean)
-          .map((s) => ` · ${s}`)
-          .join('')}
-      </span>
-    </p>
-  );
-
-  const headingClass =
-    'font-display text-xl sm:text-2xl font-bold dark:text-white text-slate-900 leading-snug text-balance';
+  const extra = [item.domain, item.readMinutes && `~${item.readMinutes} min read`].filter(Boolean);
 
   const summary = (
-    <p
-      className={
-        'dark:text-gray-400 text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl ' +
-        (showMetric ? 'max-md:sr-only' : '')
-      }
-    >
+    <p className={'text-body text-sm md:text-[0.9375rem] leading-relaxed max-w-2xl ' + (showMetric ? 'max-md:sr-only' : '')}>
       {item.summary}
     </p>
   );
 
   const outcomes = item.outcomes?.length > 0 && (
-    <div className={'flex flex-wrap gap-1.5 ' + (showMetric ? 'max-md:sr-only' : '')}>
+    <div className={'flex flex-wrap gap-1.5 ' + (showMetric ? 'sr-only' : '')}>
       {item.outcomes.map((o) => <Chip key={o}>{o}</Chip>)}
     </div>
   );
@@ -101,7 +89,7 @@ const WorkRow = ({
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackProjectLinkClick(item.title, l.label)}
-            className="font-mono-pp text-[0.8125rem] md:text-xs px-3 md:px-2.5 py-1.5 max-md:min-h-11 rounded border dark:border-gray-700 border-slate-300 dark:text-gray-200 text-slate-700 dark:hover:text-white hover:text-slate-900 inline-flex items-center gap-1.5 transition-colors"
+            className="font-mono-pp text-[0.8125rem] md:text-xs font-semibold px-3 py-1.5 max-md:min-h-11 rounded-md border-2 border-edge dark:border-black bg-plate dark:bg-[#2a2a2d] text-ink shadow-[0_2px_0_var(--color-edge)] dark:shadow-[0_2px_0_#000] inline-flex items-center gap-1.5 transition-transform active:translate-y-0.5 active:shadow-none"
           >
             {Icon && <Icon className="w-4 h-4" />}
             {l.label}
@@ -117,31 +105,64 @@ const WorkRow = ({
     </div>
   );
 
-  const metric = showMetric && item.metric && (
-    <div className="order-first md:order-last md:w-72 md:text-right flex-shrink-0">
-      <p className="font-display text-2xl md:text-3xl font-extrabold text-accent leading-tight">
-        {item.metric.val}
-      </p>
-      <p className="text-[0.8125rem] md:text-xs dark:text-gray-400 text-slate-600 mt-0.5 md:mt-1 leading-snug">
-        {item.metric.label}
-      </p>
-    </div>
-  );
+  const headingClass = 'font-display font-[800] text-ink leading-snug text-balance';
+
+  /* ── Homepage featured cell ── */
+  if (showMetric) {
+    return (
+      <Link
+        to={`/case-studies/${item.slug}`}
+        state={{ from }}
+        onClick={() => trackCaseStudyOpen(item.slug)}
+        className="card-lift relative flex flex-col h-full p-5 md:p-7 bg-plate md:first:rounded-bl-[13px] md:last:rounded-br-[13px]"
+      >
+        <p className="meta-line text-muted flex flex-col gap-1">
+          <span className="text-ink font-semibold md:font-[650]">{item.company}</span>
+          <span className="max-md:sr-only">{extra.join(' · ')}</span>
+        </p>
+
+        {item.metric && (
+          <div className="sunk mt-4 md:mt-6 px-4 py-4 md:py-6 md:min-h-[8.5rem] flex flex-col justify-center">
+            <p className="font-display text-[1.625rem] md:text-[1.875rem] font-[850] text-ink leading-[1.05]">
+              {item.metric.val}
+            </p>
+            <p className="text-[0.8125rem] md:text-xs text-muted mt-1.5 leading-snug">{item.metric.label}</p>
+          </div>
+        )}
+
+        <Heading className={headingClass + ' text-lg md:text-xl mt-4 md:mt-6'}>{item.title}</Heading>
+        <div className="mt-2 md:mt-3">{summary}</div>
+        {outcomes}
+
+        <div className="mt-auto pt-4 md:pt-6 flex items-center justify-between gap-3">
+          <span className="silk silk--strong"><span className="md:max-lg:hidden">Read the case study</span><span className="hidden md:max-lg:inline">Case study</span></span>
+          <ArrowKnob />
+        </div>
+      </Link>
+    );
+  }
 
   /* ── /work: collapsible row (title is the link, summary opens on phones) ── */
   if (collapsible) {
     const collapsed = !isDesktop && !open;
     return (
-      <div ref={cardRef} className={base + 'relative scroll-mt-32 ' + (isPage ? 'card-lift' : '')}>
-        <div className="p-5 sm:p-7 flex flex-col gap-2 md:gap-3">
-          {meta}
-          <Heading className={headingClass}>
+      <div
+        ref={cardRef}
+        className={'relative scroll-mt-32 bg-plate p-5 md:p-8 grid md:grid-cols-[11rem_1fr_auto] gap-x-8 gap-y-2 ' + (isPage ? 'card-lift' : '')}
+      >
+        <div className="meta-line text-muted md:pt-1.5 flex md:flex-col flex-wrap gap-x-1.5 gap-y-1">
+          <span className="text-ink font-semibold md:font-[650]">{item.company}</span>
+          {extra.map((s) => <span key={s}><span className="md:hidden">· </span>{s}</span>)}
+        </div>
+
+        <div className="min-w-0 flex flex-col gap-2 md:gap-3">
+          <Heading className={headingClass + ' text-lg md:text-2xl'}>
             {isPage ? (
               <Link
                 to={`/case-studies/${item.slug}`}
                 state={{ from }}
                 onClick={() => trackCaseStudyOpen(item.slug)}
-                className="after:absolute after:inset-0 after:rounded-2xl"
+                className="after:absolute after:inset-0"
               >
                 {item.title}
               </Link>
@@ -161,7 +182,7 @@ const WorkRow = ({
             </div>
           </div>
 
-          {/* Phones: the toggle. The whole-card link sits underneath (z-10 lifts the button). */}
+          {/* Phones: the toggle. The whole-row link sits underneath (z-10 lifts the button). */}
           <div className="md:hidden flex items-center justify-between gap-3 -mb-2">
             <button
               type="button"
@@ -176,65 +197,33 @@ const WorkRow = ({
               {open ? 'Hide summary' : 'Show summary'}
               <ChevronDown open={open} />
             </button>
-            {isPage && (
-              <span aria-hidden="true" className="text-accent text-sm font-semibold">Case study</span>
-            )}
+            {isPage && <span aria-hidden="true" className="silk silk--strong">Case study</span>}
           </div>
-
-          {isPage && (
-            <p aria-hidden="true" className="hidden md:block text-accent text-sm font-semibold pt-1">
-              Read the case study
-            </p>
-          )}
         </div>
-      </div>
-    );
-  }
 
-  /* ── Homepage featured row, and the open-source card ── */
-  const body = (
-    <div
-      className={
-        'flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-8 sm:p-7 ' +
-        (compact ? 'p-4' : 'p-5')
-      }
-    >
-      <div className="min-w-0 flex-1 flex flex-col gap-2 md:gap-3">
-        {/* phones: the case-study cue shares the company line to save a row */}
-        <div className="flex items-baseline justify-between gap-3">
-          {meta}
-          {isPage && showMetric && (
-            <span className="md:hidden flex-shrink-0 text-accent text-[0.8125rem] font-semibold">Read case study</span>
-          )}
-        </div>
-        <Heading className={headingClass}>{item.title}</Heading>
-        {summary}
-        {outcomes}
-        {links}
-        {tags}
         {isPage && (
-          <p className={'text-accent text-sm font-semibold ' + (showMetric ? 'hidden md:block' : '')}>
-            Read the case study
-          </p>
+          <div className="hidden md:flex items-start pt-1">
+            <ArrowKnob />
+          </div>
         )}
       </div>
-      {metric}
-    </div>
-  );
-
-  if (isPage) {
-    return (
-      <Link
-        to={`/case-studies/${item.slug}`}
-        state={{ from }}
-        onClick={() => trackCaseStudyOpen(item.slug)}
-        className={base + 'card-lift'}
-      >
-        {body}
-      </Link>
     );
   }
-  return <div className={base}>{body}</div>;
+
+  /* ── The open-source row (Recognition) ── */
+  return (
+    <div className={'sunk flex flex-col gap-2 md:gap-3 ' + (compact ? 'p-4 md:p-7' : 'p-5 md:p-7')}>
+      <p className="meta-line text-muted">
+        <span className="text-ink font-semibold md:font-[650]">{item.company}</span>
+        {extra.map((s) => ` · ${s}`).join('')}
+      </p>
+      <Heading className={headingClass + ' text-xl md:text-2xl'}>{item.title}</Heading>
+      {summary}
+      {outcomes}
+      {links}
+      {tags}
+    </div>
+  );
 };
 
 export default WorkRow;

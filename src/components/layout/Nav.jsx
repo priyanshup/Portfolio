@@ -1,13 +1,14 @@
 /**
  * components/layout/Nav.jsx
  *
- * Fixed top navigation (the "floating layer" — blur is allowed here).
+ * Fixed top navigation: a floating plate with the brand, section tabs, the
+ * theme switch and the Resume key.
  *
  * Section links use react-router <Link to="/" state={{ scrollTo }}> so they
  * behave the same on the homepage and on inner pages (/work, case studies):
  * HomePage reads the state and scrolls. The URL stays clean (no #section
  * fragments fighting the HashRouter). On the homepage the link for the
- * section in view gets aria-current="true" and an underline.
+ * section in view gets aria-current="true" and its tab turns orange.
  *
  * The mobile menu is a simple NON-modal disclosure (aria-expanded), not a
  * dialog: it closes on Escape (returning focus to its button), on an outside
@@ -52,7 +53,7 @@ const SOCIAL_LINKS = [
 
 /* ── Animated 3-bar hamburger icon ─────────────────────────────── */
 const Hamburger = ({ open }) => (
-  <span className="hamburger dark:text-gray-300 text-slate-700" aria-hidden="true">
+  <span className="hamburger" aria-hidden="true">
     <span className={'hbar' + (open ? ' hbar-1-open' : '')} />
     <span className={'hbar' + (open ? ' hbar-2-open' : '')} />
     <span className={'hbar' + (open ? ' hbar-3-open' : '')} />
@@ -127,58 +128,69 @@ const Nav = ({ theme, toggleTheme }) => {
   return (
     <nav
       aria-label="Primary"
-      className="site-nav fixed w-full z-50 bg-darkBg/85 backdrop-blur-md border-b dark:border-gray-800/60 border-slate-200/80"
+      className="site-nav fixed top-0 inset-x-0 z-50 h-16 pt-2"
       onFocus={(e) => { if (e.target.matches(':focus-visible')) setKeyboardInside(true); }}
       onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setKeyboardInside(false); }}
     >
-      <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center gap-4">
-        {/* Brand logo: 44px tap target around the 36px mark */}
+      <div className="plate !rounded-[10px] max-w-6xl mx-auto h-12 flex items-stretch">
+        {/* Brand: logo + first name, a 48px-tall tap target */}
         <Link
           to="/"
           state={{ scrollTo: 'about' }}
           replace={onHome}
-          className="flex-shrink-0 flex items-center justify-center w-11 h-11 -ml-1"
+          className="flex-shrink-0 flex items-center gap-2.5 pl-2 pr-3 sm:pr-4 border-r border-line rounded-l-[10px] hover:bg-sunk transition-colors"
           aria-label="Priyanshu Pushpam, home"
         >
-          <BrandLogo className="h-9 w-9" />
+          <BrandLogo className="h-8 w-8" />
+          {/* set like the tabs beside it, so the bar reads as one row of labels */}
+          <span aria-hidden="true" className="hidden sm:inline silk silk--strong">
+            Priyanshu<span className="hidden xl:inline"> Pushpam</span>
+          </span>
         </Link>
 
-        {/* Desktop section links */}
-        <div className="hidden lg:flex space-x-7 text-sm font-medium dark:text-gray-300 text-slate-800">
-          {NAV_LINKS.map(([id, label]) =>
-            sectionLink(id, label, 'nav-link dark:hover:text-accent hover:text-emerald-700 transition-colors py-2')
-          )}
+        {/* Desktop section links: tabs, the one in view lights up orange */}
+        <div className="hidden lg:flex items-stretch">
+          {NAV_LINKS.map(([id, label]) => sectionLink(id, label, 'nav-tab silk silk--strong'))}
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Theme toggle — all breakpoints */}
+        <div className="flex-1" />
+
+        <div className="flex items-center gap-1.5 sm:gap-2 pr-1.5 sm:pr-2">
+          {/* Theme switch: on = dark */}
           <button
+            type="button"
+            role="switch"
+            aria-checked={theme === 'dark'}
+            aria-label="Dark mode"
             onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="flex items-center justify-center w-11 h-11 rounded-full border cursor-pointer transition-all duration-300 dark:bg-slate-800 bg-slate-100 dark:border-emerald-500/60 border-amber-500/60 dark:text-emerald-400 text-amber-700 dark:hover:border-emerald-400 hover:border-amber-600 dark:hover:text-emerald-300 hover:text-amber-800"
+            className="theme-switch"
           >
-            {theme === 'dark' ? <Sun /> : <Moon />}
+            <span className="theme-switch__track">
+              <span className="theme-switch__thumb">
+                {theme === 'dark' ? <Moon className="w-2.5 h-2.5" /> : <Sun className="w-2.5 h-2.5" />}
+              </span>
+            </span>
           </button>
 
-          {/* Resume pill — all breakpoints */}
+          {/* Resume key, all breakpoints */}
           <a
             href={CONFIG.resumeUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={trackResumeDownload}
-            className="resume-btn font-mono-pp"
+            className="resume-btn"
           >
-            <DL /> Resume
+            <DL className="w-3.5 h-3.5" /> Resume
           </a>
 
-          {/* Hamburger button — below lg breakpoint only */}
+          {/* Hamburger button, below lg only */}
           <button
             ref={btnRef}
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
             aria-controls="nav-dropdown"
-            className="lg:hidden flex items-center justify-center w-11 h-11 rounded-lg dark:hover:bg-white/5 hover:bg-black/5 transition-colors"
+            className="lg:hidden flex items-center justify-center w-11 h-11 rounded-lg text-ink hover:bg-sunk transition-colors"
           >
             <Hamburger open={open} />
           </button>
@@ -205,7 +217,7 @@ const Nav = ({ theme, toggleTheme }) => {
               rel="noopener noreferrer"
               aria-label={label}
               onClick={() => { track(); close(); }}
-              className="flex items-center justify-center w-11 h-11 rounded-xl dark:text-gray-300 text-slate-600 dark:hover:text-white hover:text-slate-900 dark:hover:bg-white/5 hover:bg-black/5 transition-all"
+              className="flex items-center justify-center w-11 h-11 rounded-lg text-ink hover:bg-sunk transition-colors"
             >
               {icon()}
             </a>

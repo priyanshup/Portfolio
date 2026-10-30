@@ -95,7 +95,7 @@ const CompanyLogo = ({ company, scale = 1, decorative = false, className = '' })
   if (!logo) return null;
   return (
     <span
-      className={'company-logo dark:text-slate-100 text-slate-800 ' + className}
+      className={'company-logo text-ink ' + className}
       style={{ height: Math.round(logo.height * scale) }}
       role={decorative ? undefined : 'img'}
       aria-label={decorative ? undefined : logo.label}
