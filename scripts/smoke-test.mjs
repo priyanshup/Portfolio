@@ -84,7 +84,8 @@ check('hash stays "#/" after nav click', (await ev('location.hash')) === '#/', a
 check('active nav link highlighted', (await ev(`[...new Set([...document.querySelectorAll('nav a[aria-current=true]')].map(a=>a.textContent.trim()))].join()`)) === 'Experience');
 
 // 3. experience accordion: one open at a time
-check('newest role expanded by default', (await ev(`document.querySelector('#role-btn-heineken').getAttribute('aria-expanded')`)) === 'true');
+check('every role starts collapsed, with its headline result', (await ev(`[...document.querySelectorAll('#experience button[aria-expanded]')].every(b=>b.getAttribute('aria-expanded')==='false')`)) === true);
+await ev(`document.querySelector('#role-btn-heineken').click()`); await sleep(700);
 await ev(`document.querySelector('#role-btn-vidaxl').click()`); await sleep(700);
 check('opening VidaXL collapses Heineken', (await ev(`document.querySelector('#role-btn-heineken').getAttribute('aria-expanded')`)) === 'false' && (await ev(`document.querySelector('#role-btn-vidaxl').getAttribute('aria-expanded')`)) === 'true');
 check('collapsed panel is inert', (await ev(`document.querySelector('#role-panel-heineken .accordion-inner').inert`)) === true);
@@ -201,7 +202,7 @@ await ev(`document.getElementById('recognition').scrollIntoView()`); await sleep
 check('phone: credentials are two per row', (await ev(`(()=>{const h=[...document.querySelectorAll('#recognition h3')].find(x=>/Credentials/.test(x.textContent)); const li=[...h.nextElementSibling.querySelectorAll('li')].map(e=>Math.round(e.getBoundingClientRect().top)); return li.length>=2 && li[0]===li[1] && (li.length<3 || li[2]>li[0])})()`)) === true);
 check('phone: no forced min-height gap above a recommendation attribution', (await ev(`(()=>{const a=document.querySelector('#recognition ul > li > div .border-t'); const m=getComputedStyle(a).minHeight; return m==='auto' || parseFloat(m)===0})()`)) === true);
 check('phone: tap targets are 44px (home logo, "More work" links, Quor chips)', (await ev(`(()=>{const h=(e)=>e.getBoundingClientRect().height; const logo=h(document.querySelector('nav a[aria-label*=home]')); const more=[...document.querySelectorAll('#work ul a')].map(h); const chips=[...document.querySelectorAll('#recognition a.font-mono-pp')].map(h); return logo>=43.5 && more.length>0 && more.every(x=>x>=43.5) && chips.length>=3 && chips.every(x=>x>=43.5)})()`)) === true, await ev(`'logo '+Math.round(document.querySelector('nav a[aria-label*=home]').getBoundingClientRect().height)+' more '+[...document.querySelectorAll('#work ul a')].map(e=>Math.round(e.getBoundingClientRect().height)).join(',')+' chips '+[...document.querySelectorAll('#recognition a.font-mono-pp')].map(e=>Math.round(e.getBoundingClientRect().height)).join(',')`));
-check('phone: meta lines are 13px or larger, sentence case', (await ev(`(()=>{const m=[...document.querySelectorAll('#work .meta-line')]; return m.length>0 && m.every(e=>parseFloat(getComputedStyle(e).fontSize)>=12.99 && getComputedStyle(e).textTransform==='none')})()`)) === true);
+check('phone: meta lines are 13px or larger, sentence case', (await ev(`(()=>{const m=[...document.querySelectorAll('#work .meta-line, #work .card-lift > p:first-child')]; return m.length>0 && m.every(e=>parseFloat(getComputedStyle(e).fontSize)>=12.99 && getComputedStyle(e).textTransform==='none')})()`)) === true);
 check('phone: homepage stays under 8,500px (about 10 screens)', (await ev('document.documentElement.scrollHeight')) <= 8500, 'height=' + (await ev('document.documentElement.scrollHeight')));
 
 await ev(`location.hash='#/work'`); await sleep(1500);

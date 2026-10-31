@@ -11,7 +11,8 @@
  *   start     "Mon YYYY"
  *   end       "Mon YYYY" or "Present"
  *   current   true for the present role (only one)
- *   headline  one line shown on the collapsed row: the result, not the duties
+ *   headline  one line shown on the collapsed row: the result, not the duties.
+ *             Wrap the number in **double asterisks** to bold it (<Emph>)
  *   note      one sentence on how this role connects to the previous one
  *   bullets   shown when the row is expanded
  *   tags      stack and skills
@@ -53,7 +54,7 @@ export const roles = [
     start: "Sep 2024",
     end: "Jun 2026",
     current: false,
-    headline: "7% conversion lift in 30 days and 23% lower monthly operating cost",
+    headline: "**7% conversion lift** in 30 days and 23% lower monthly operating cost",
     note: "Applied product ownership to AI at catalogue scale: 90K+ SKUs across 12 markets.",
     bullets: [
       "Conversion rose 7% across all SKUs within 30 days of introducing OpenAI-generated multilingual product content.",
@@ -72,7 +73,7 @@ export const roles = [
     start: "Mar 2022",
     end: "Aug 2024",
     current: false,
-    headline: "200% revenue growth within 3 months of MVP, across 5 countries",
+    headline: "**200% revenue growth** within 3 months of MVP, across 5 countries",
     note: "Took on full product ownership: five Scrum teams and 50+ people.",
     bullets: [
       "Grew revenue 200% within three months of the MVP, with a go-to-market plan covering the UK, Germany, Spain, Japan and Turkey.",
@@ -91,7 +92,7 @@ export const roles = [
     start: "Jun 2019",
     end: "Mar 2022",
     current: false,
-    headline: "25% better operational efficiency across four transformation initiatives",
+    headline: "**25% better operational efficiency** across four transformation initiatives",
     note: "The move from writing code to owning business outcomes.",
     bullets: [
       "Managed four enterprise transformation initiatives and improved operational efficiency by 25%.",
@@ -109,7 +110,7 @@ export const roles = [
     start: "Jul 2016",
     end: "Jun 2019",
     current: false,
-    headline: "92% of manual account-creation workload automated; 900+ ticket backlog cleared",
+    headline: "**92% of manual account-creation workload** automated; 900+ ticket backlog cleared",
     note: "Where I built the technical foundation: Java, SQL and shell on healthcare systems that had to stay up.",
     bullets: [
       "Automated 92% of the manual workload for account creation and cleared a backlog of 900+ tickets in four weeks.",

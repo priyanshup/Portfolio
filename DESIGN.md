@@ -19,9 +19,9 @@ demotes items; it never lengthens the homepage.
 
 | Section | Budget on the homepage | Overflow rule | Knob |
 |---|---|---|---|
-| Hero | 1 screen: role, name, one plain line, 3 proof points, 2 actions | none | `featured` items' `metric` in `data/work.js` |
+| Hero | 1 screen: role, name, one plain line, 3 proof points (plain orange numbers), 1 key + a resume text link | none | `featured` items' `metric` in `data/work.js` |
 | Work | The featured items only (keep to 3) + up to 5 more titles as links | "All work (N)" → `/work` page (with filters) | `featured`, `MORE_WORK_PREVIEW` |
-| Experience | One collapsed row per role; newest open | Roles beyond the newest 5 fold under "Earlier roles" | `EXPERIENCE_VISIBLE` |
+| Experience | One collapsed row per role (all start closed), result in bold | Roles beyond the newest 5 fold under "Earlier roles" | `EXPERIENCE_VISIBLE` |
 | What I bring | Static grid, no autoplay | none (edit `data/dna.js`) | — |
 | Recognition | 3 recommendations (one-line highlight), credentials strip, open-source card | "Show all N" expands inline; a recommendation opens in a wide panel under its row on desktop (one at a time, cards keep their height), inside the card on phones; credentials wrap | `RECOMMENDATIONS_VISIBLE` |
 | Currently | 2–4 short lines, dated | none | `data/currently.js` |
@@ -66,10 +66,21 @@ one person laid it out, not a stack of identical cards.
   the latin display file is preloaded in `index.html` (it is wide, and swapping it in
   late shifts the hero). **Nothing below 12px** (use `text-xs` or larger; never
   `text-[10px]`). Sizes stay rem-based. Headings use weight 800–850 with tight tracking.
-- **Labels:** upper-case wide text is `.silk` (12px, tracked): section tabs, meta,
-  eyebrows, button text. `.silk--strong` for ink, `.silk--accent` for orange.
-  `.label-key` is the small outlined orange label (Current, CSPO, Step 1). Tags and
-  chips are normal case.
+- **Labels:** upper-case wide text (`.silk`, 12px, tracked) is for the hardware
+  only: keys, the nav, plate tabs and their meta, the sticker. Labels inside a plate's
+  content (eyebrows, small headings, meta lines) are sentence case: `.eyebrow` (mono,
+  orange; `.eyebrow--muted` grey) or plain `text-sm` semibold. `.label-key` is the
+  small outlined orange label (Current, CSPO, Step 1). Tags and chips are normal case.
+- **Attention (one focal point per block):**
+  - *Orange* means "look here": proof numbers, the one main key per screen, the
+    name block, the "Now" sticker, plate-tab numbers. Nothing decorative. The active
+    nav item is an orange underline, never a filled block.
+  - *Bold:* at most one bold phrase per paragraph, and it is the result. Data files
+    mark it with `**double asterisks**`, rendered by `<Emph>` (`components/ui/Emph.jsx`).
+  - *Say each number once per screen.* A featured card shows the metric big, so its
+    `cardTitle` says what the work was, not the number again.
+  - *Space:* sections sit 96px apart on desktop; plates keep generous inner padding.
+    Running text stays under about 65 characters a line.
 - **Colour:** semantic tokens in `src/index.css` (`bg-page`, `bg-plate`, `bg-sunk`,
   `text-ink`, `text-body`, `text-muted`, `border-line`, `border-edge`, `bg-accent`,
   `text-accent-ink`, `text-on-accent`). They swap under `html.dark`, so token classes

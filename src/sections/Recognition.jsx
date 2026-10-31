@@ -170,7 +170,7 @@ const Recognition = () => {
       <div className="px-5 md:px-12 pt-7 md:pt-10 pb-7 md:pb-12">
       {/* Recommendations */}
       <div ref={recsRef} className="reveal scroll-mt-24">
-        <h3 className="silk silk--strong flex items-center gap-2.5 mb-2"><span aria-hidden="true" className="bullet-sq !mt-0" />Recommendations</h3>
+        <h3 className="text-base font-semibold text-ink flex items-center gap-2.5 mb-2"><span aria-hidden="true" className="bullet-sq !mt-0" />Recommendations</h3>
         <p className="text-muted text-sm mb-4 md:mb-5">From LinkedIn. Each card shows one line, and you can open it to read the whole recommendation.</p>
 
         {rows.map((row, r) => {
@@ -222,7 +222,7 @@ const Recognition = () => {
 
       {/* Credentials */}
       <div className="reveal mt-10 md:mt-14">
-        <h3 className="silk silk--strong flex items-center gap-2.5 mb-4 md:mb-5"><span aria-hidden="true" className="bullet-sq !mt-0" />Credentials</h3>
+        <h3 className="text-base font-semibold text-ink flex items-center gap-2.5 mb-4 md:mb-5"><span aria-hidden="true" className="bullet-sq !mt-0" />Credentials</h3>
         <ul className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {certifications.map((c) => (
             <li key={c.short}>
@@ -249,7 +249,7 @@ const Recognition = () => {
       {/* Open source */}
       {openSource && (
         <div className="reveal mt-10 md:mt-14">
-          <h3 className="silk silk--strong flex items-center gap-2.5 mb-4 md:mb-5"><span aria-hidden="true" className="bullet-sq !mt-0" />Open source</h3>
+          <h3 className="text-base font-semibold text-ink flex items-center gap-2.5 mb-4 md:mb-5"><span aria-hidden="true" className="bullet-sq !mt-0" />Open source</h3>
           <WorkRow item={openSource} compact />
         </div>
       )}

@@ -5,9 +5,9 @@
  * Replaces the old WorkExperience accordion + CareerJourney "Acts" strip:
  * both listed the same roles from two data files. Data: data/roles.js.
  *
- * Budget (DESIGN.md): the newest role is open by default on desktop (all rows
- * start collapsed on phones) and each collapsed row shows its headline result,
- * so the section reads in seconds. Only
+ * Budget (DESIGN.md): every row starts collapsed and shows its headline result
+ * (the number in bold), so the whole career reads in seconds. The current role
+ * is not opened first: it has no shareable result yet. Only
  * EXPERIENCE_VISIBLE roles show; older ones fold under "Earlier roles".
  *
  * ACCORDION SCROLL: call setOpen(i) first, then in a setTimeout(400) call
@@ -30,17 +30,14 @@ import { ChevronDown } from '../components/ui/Icons';
 import { roles, yearsExperience } from '../data/roles';
 import { EXPERIENCE_VISIBLE } from '../config';
 import { keepInView } from '../utils/scroll';
-import { DESKTOP_QUERY } from '../hooks/useMediaQuery';
+import Emph from '../components/ui/Emph';
 
 const NAV_HEIGHT = 80; // px, fixed nav bar height
 const TOP_MARGIN = 16; // px, breathing room below nav
 
 const Experience = () => {
-  /* Newest role starts expanded on larger screens. On phones every row starts
-     collapsed and shows its headline result, which keeps the section short. */
-  const [open, setOpen] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia(DESKTOP_QUERY).matches ? 0 : -1,
-  );
+  /* Every row starts collapsed and shows its headline result. */
+  const [open, setOpen] = useState(-1);
   const [showEarlier, setShowEarlier] = useState(false);
   const rowRefs = useRef([]);
 
@@ -66,7 +63,7 @@ const Experience = () => {
         num="02"
         title="Experience"
         meta={`${yearsExperience()} years · ${roles.length} roles`}
-        lede="I started as an engineer, moved into business analysis, then into product ownership."
+        lede="Engineer, then analyst, then product owner."
       />
 
       <ol className="mt-6 md:mt-10 border-t border-line divide-y divide-line">
@@ -98,7 +95,7 @@ const Experience = () => {
                   {/* Big start year, the way a log reads */}
                   <span className="hidden md:flex flex-col pt-0.5">
                     <span className="font-display text-[2.25rem] font-[850] leading-none text-ink">{startYear}</span>
-                    <span className="silk mt-2">{endLabel}</span>
+                    <span className="font-mono-pp text-[0.8125rem] text-muted mt-2">{endLabel}</span>
                     <span className="sr-only">{job.start} to {job.end}</span>
                   </span>
 
@@ -118,8 +115,8 @@ const Experience = () => {
                       {job.company} · {job.location}
                     </span>
                     {!isOpen && (
-                      <span className="block text-muted text-sm mt-1.5 md:mt-2 leading-relaxed">
-                        {job.headline}
+                      <span className="block text-body text-sm md:text-[0.9375rem] mt-1.5 md:mt-2 leading-relaxed">
+                        <Emph text={job.headline} />
                       </span>
                     )}
                   </span>

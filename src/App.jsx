@@ -99,7 +99,7 @@ const HomePage = () => {
     <main
       id="main-content"
       tabIndex={-1}
-      className="focus:outline-none px-2.5 md:px-6 pt-[4.75rem] md:pt-24 flex flex-col gap-3 md:gap-6"
+      className="focus:outline-none px-2.5 md:px-6 pt-[4.75rem] md:pt-24 flex flex-col gap-6 md:gap-24"
     >
       <Hero />
       <Work />

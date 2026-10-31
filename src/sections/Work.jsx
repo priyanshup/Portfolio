@@ -30,7 +30,6 @@ const Work = () => {
       <SectionHeader
         num="01"
         title="Work"
-        meta={`${featuredWork.length} of ${allWork.length}`}
         lede="Three projects I'd talk about first."
         subtitle="Most of my client work is under NDA, so the detail here is deliberately light."
       />
@@ -43,7 +42,7 @@ const Work = () => {
 
       <div className="reveal px-5 py-6 md:px-12 md:py-9 grid md:grid-cols-[1fr_auto] gap-5 md:gap-10 md:items-end">
         <div>
-          <h3 className="silk silk--strong mb-1 md:mb-3">More work</h3>
+          <h3 className="text-sm font-semibold text-ink mb-1 md:mb-3">More work</h3>
           <ul className="md:columns-2 md:gap-10">
             {preview.map((w) => (
               <li key={w.id} className="text-sm leading-relaxed break-inside-avoid">

@@ -41,7 +41,7 @@ const Footer = () => (
     <div className="px-2.5 md:px-6">
       <div className="plate plate--contrast plate--screwed max-w-6xl mx-auto px-6 py-12 sm:px-10 md:px-14 md:py-20 grid md:grid-cols-[1fr_auto] gap-8 md:gap-14 md:items-center">
         <div>
-          <p className="silk silk--accent mb-4">Open to conversations</p>
+          <p className="eyebrow mb-4">Open to conversations</p>
           <h2
             className="font-display font-[850] tracking-[-0.045em] leading-[1] text-ink mb-5"
             style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)' }}

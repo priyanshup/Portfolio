@@ -17,13 +17,13 @@ const Currently = () => (
           key={it.label}
           className={'px-5 py-6 md:px-12 md:py-10 border-line ' + (i > 0 ? 'max-md:border-t ' : '') + (i % 2 === 0 ? 'md:border-r' : '')}
         >
-          <dt className="silk silk--accent mb-2.5">{it.label}</dt>
+          <dt className="eyebrow mb-2.5">{it.label}</dt>
           <dd className="text-ink text-base md:text-lg leading-relaxed">{it.text}</dd>
         </div>
       ))}
     </dl>
     {/* the tab's meta is hidden on phones; keep the date there too */}
-    <p className="sm:hidden silk px-5 pb-5 -mt-1">Updated {currently.updated}</p>
+    <p className="sm:hidden eyebrow eyebrow--muted px-5 pb-5 -mt-1">Updated {currently.updated}</p>
   </section>
 );
 

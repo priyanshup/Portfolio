@@ -20,6 +20,10 @@
  *   company
  *   domain     short category, also the filter chip on /work
  *   summary    one or two sentences in the first person
+ *   cardTitle  featured only: the homepage card's title. Says what the work was;
+ *              the metric sits above it, so the title never repeats the number
+ *   teaser     featured only: one sentence under the card title, with the result
+ *              in **double asterisks** (rendered bold by <Emph>)
  *   outcomes   short result chips
  *   tags       topics and stack
  *   ctaLabel   optional short label for the Hero button when this is the first
@@ -49,6 +53,8 @@ export const work = [
       "I designed and shipped an AI content engine that writes product titles, descriptions and translations for a catalogue of 250K SKUs across 30+ markets. Publishing went from weeks to days.",
     outcomes: ["7% conversion lift in 30 days", "23% cost reduction", "60+ hrs/week saved"],
     tags: ["AI strategy", "Product discovery", "Automation", "OpenAI API", "GCP"],
+    cardTitle: "An AI content engine for 250K products",
+    teaser: "It writes product titles, descriptions and translations for **30+ markets**.",
     ctaLabel: "See how AI cut publishing time",
     metric: { val: "3 weeks to 3 days", label: "Product publishing time at VidaXL" },
   },
@@ -65,6 +71,8 @@ export const work = [
       "I set the MVP scope for a global sportsbook, coordinated 50+ engineers across several teams, and wrote a launch playbook we reused for each new country. Five countries launched in a month and revenue grew 200% within three months.",
     outcomes: ["200% revenue growth after the MVP", "30% better performance", "5 countries launched"],
     tags: ["Go-to-market", "Product roadmap", "Cross-team delivery", "AWS"],
+    cardTitle: "Launching a sportsbook in five countries",
+    teaser: "I set the MVP scope and wrote a launch playbook **reused for each new country**.",
     metric: { val: "200%", label: "Revenue growth within 3 months of MVP at Techmojo" },
   },
   {
@@ -80,6 +88,8 @@ export const work = [
       "I moved a dental claims vendor, March Vision, from its own claims format to the industry-standard 837 across 28 US states, without disrupting claim processing.",
     outcomes: ["0 downtime incidents", "28 states migrated", "100% rollout success"],
     tags: ["Risk management", "Technical leadership", "Stakeholder alignment", "Healthcare"],
+    cardTitle: "A claims format migration with zero downtime",
+    teaser: "I moved a dental claims vendor to the 837 standard **without disrupting claim processing**.",
     metric: { val: "28 states", label: "Moved to the 837 standard with zero downtime at UHG" },
   },
 

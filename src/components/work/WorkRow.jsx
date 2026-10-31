@@ -3,13 +3,13 @@
  *
  * One item of the Work list. Three ways it is used:
  *
- *   featured   (showMetric)   Homepage. One column of a three-column panel: the
- *                             company, the headline metric on a recessed "screen",
- *                             the title, and an arrow knob; the whole cell is a link.
- *                             The summary shows from md up. On phones it shows only
- *                             the metric, company and title; the summary and outcome
- *                             chips stay in the page for screen readers and screeners
- *                             as visually-hidden text.
+ *   featured   (showMetric)   Homepage. One column of a three-column panel, four
+ *                             layers: company and domain on one plain line, the
+ *                             metric as a large orange number, the card title, and
+ *                             one teaser sentence (from md up), then the link line.
+ *                             The whole cell is a link. The full summary and the
+ *                             outcome chips stay in the page as visually-hidden
+ *                             text for screen readers and screeners.
  *   collapsible               /work. A row in a list panel: meta on the left, title
  *                             and detail in the middle, arrow knob on the right. On
  *                             phones each row is compact (meta + title) and a
@@ -35,6 +35,7 @@
 import { useState, useId, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Chip, Tag } from '../ui/Tag';
+import Emph from '../ui/Emph';
 import { GH, Package, IconDocs, ChevronDown, ArrowRight } from '../ui/Icons';
 import useMediaQuery, { DESKTOP_QUERY } from '../../hooks/useMediaQuery';
 import { trackCaseStudyOpen, trackProjectLinkClick } from '../../utils/analytics';
@@ -114,28 +115,38 @@ const WorkRow = ({
         to={`/case-studies/${item.slug}`}
         state={{ from }}
         onClick={() => trackCaseStudyOpen(item.slug)}
-        className="card-lift relative flex flex-col h-full p-5 md:p-7 bg-plate md:first:rounded-bl-[13px] md:last:rounded-br-[13px]"
+        className="card-lift relative flex flex-col h-full p-5 md:p-7 lg:p-9 bg-plate md:first:rounded-bl-[13px] md:last:rounded-br-[13px]"
       >
-        <p className="meta-line text-muted flex flex-col gap-1">
-          <span className="text-ink font-semibold md:font-[650]">{item.company}</span>
-          <span className="max-md:sr-only">{extra.join(' · ')}</span>
+        <p className="text-sm text-muted">
+          <span className="text-ink font-semibold">{item.company}</span>
+          <span className="max-md:sr-only"> · {item.domain}</span>
         </p>
 
         {item.metric && (
-          <div className="sunk mt-4 md:mt-6 px-4 py-4 md:py-6 md:min-h-[8.5rem] flex flex-col justify-center">
-            <p className="font-display text-[1.625rem] md:text-[1.875rem] font-[850] text-ink leading-[1.05]">
+          <div className="mt-4 md:mt-7">
+            <p className="font-display text-[1.875rem] md:text-[2.375rem] font-[850] tracking-[-0.03em] text-accent-ink leading-[1.02] text-balance">
               {item.metric.val}
             </p>
-            <p className="text-[0.8125rem] md:text-xs text-muted mt-1.5 leading-snug">{item.metric.label}</p>
+            <p className="text-sm text-muted mt-2 leading-snug">{item.metric.label}</p>
           </div>
         )}
 
-        <Heading className={headingClass + ' text-lg md:text-xl mt-4 md:mt-6'}>{item.title}</Heading>
-        <div className="mt-2 md:mt-3">{summary}</div>
+        <Heading className={headingClass + ' text-lg md:text-xl mt-5 md:mt-8'}>
+          {item.cardTitle ?? item.title}
+          {item.cardTitle && <span className="sr-only">: {item.title}</span>}
+        </Heading>
+        {item.teaser && (
+          <p className="mt-2 md:mt-3 text-body text-sm md:text-[0.9375rem] leading-relaxed max-md:hidden">
+            <Emph text={item.teaser} />
+          </p>
+        )}
+        <div className="sr-only">{summary}</div>
         {outcomes}
 
-        <div className="mt-auto pt-4 md:pt-6 flex items-center justify-between gap-3">
-          <span className="silk silk--strong"><span className="md:max-lg:hidden">Read the case study</span><span className="hidden md:max-lg:inline">Case study</span></span>
+        <div className="mt-auto pt-5 md:pt-8 flex items-center justify-between gap-3">
+          <span className="text-sm font-semibold text-ink">
+            Read the case study{item.readMinutes && <span className="font-normal text-muted"> · {item.readMinutes} min</span>}
+          </span>
           <ArrowKnob />
         </div>
       </Link>

@@ -2,12 +2,13 @@
  * sections/Hero.jsx
  *
  * The first plate: a screwed panel holding the name, one plain line, three
- * proof points and two keys, with the photo as a framed print on the right.
+ * proof points (plain orange numbers, no boxes), one key and a resume text
+ * link, with the photo as a framed print on the right.
  * Under the plate, outside it, a "Worked at" strip of employer logos.
  *
  * Budget (DESIGN.md): everything a recruiter needs in the first two screens —
  * current role, name, one plain line about what you do, three proof points,
- * and two actions. Proof points come from the featured work (data/work.js),
+ * and one main action. Proof points come from the featured work (data/work.js),
  * the role/badge from data/roles.js: nothing here is hard-coded twice.
  *
  * Layout is CSS Grid with an explicit photo column width, so the text never
@@ -16,8 +17,9 @@
  * screen. A small round photo, cropped to the face, sits beside the name on
  * phones (the framed print is md and up). The current role is a line above the
  * name on phones and a sticker on the print from md up (one or the other is
- * displayed, never both). "Worked at" is a 2x2 grid of equal cells on phones,
- * and Resume is a text link there (the nav already has the Resume key).
+ * displayed, never both). "Worked at" is a 2x2 grid of equal cells on phones.
+ * Resume is a text link at every size: the nav already has the Resume key, and
+ * a second key of equal weight would split attention with the main one.
  */
 
 import { Link } from 'react-router-dom';
@@ -35,13 +37,13 @@ const Hero = () => {
 
   return (
     <header id="about" className="max-w-6xl mx-auto w-full flex flex-col gap-3 md:gap-6">
-      <div className="plate plate--screwed px-5 pt-8 pb-7 sm:px-10 md:px-14 md:py-16 grid grid-cols-1 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_360px] gap-10 lg:gap-16 items-center">
+      <div className="plate plate--screwed px-5 pt-8 pb-7 sm:px-10 md:px-14 md:py-16 lg:px-16 lg:py-24 grid grid-cols-1 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_360px] gap-10 lg:gap-16 items-center">
 
         {/* ── Text column ── */}
         <div className="min-w-0 flex flex-col gap-5 md:gap-6">
 
           {/* Current role (phones; md+ shows it as the sticker on the photo) */}
-          <p className="md:hidden flex items-center gap-2.5 silk silk--strong">
+          <p className="md:hidden flex items-center gap-2.5 text-sm font-semibold text-ink">
             <span className="relative flex h-2 w-2 flex-shrink-0" aria-hidden="true">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
@@ -61,9 +63,9 @@ const Hero = () => {
                 {/* inline-block + a small top margin keeps the orange block clear of the "y" above */}
                 <span className="mark inline-block mt-[0.1em] leading-[1.05]">Pushpam</span>
               </h1>
-              <p className="silk mt-4 md:mt-5 max-sm:!tracking-[0.08em]">
-                <span className="sm:hidden">Product leader · {years} years</span>
-                <span className="hidden sm:inline">Technical product leader · Digital commerce · {years} years</span>
+              <p className="mt-4 md:mt-6 text-sm md:text-[0.9375rem] text-muted">
+                <span className="sm:hidden"><strong className="font-semibold text-ink">Product leader</strong> · {years} years</span>
+                <span className="hidden sm:inline"><strong className="font-semibold text-ink">Technical product leader</strong> · digital commerce · {years} years</span>
               </p>
             </div>
 
@@ -81,27 +83,24 @@ const Hero = () => {
           </div>
 
           {/* One plain line about what I do */}
-          <p className="text-base md:text-lg text-body leading-relaxed max-w-xl">
-            I'm a product owner who started out as a software engineer. I've worked on
+          <p className="text-base md:text-xl text-body leading-relaxed max-w-xl">
+            I'm a product owner who started out as a <strong className="font-semibold text-ink">software engineer</strong>. I've worked on
             healthcare systems, an online sportsbook and an AI-driven e-commerce platform.
           </p>
 
-          {/* Proof points, pulled from the featured work */}
-          {/* phones: one recessed panel with rows; sm+: three recessed gauges */}
-          <ul aria-label="Highlights" className="max-sm:sunk max-sm:divide-y max-sm:divide-line grid sm:gap-2 sm:grid-cols-3 max-w-2xl">
-            {heroProofs.map((p, i) => (
-              <li key={p.val} className="sm:sunk px-3.5 py-2.5 sm:py-3 flex sm:flex-col gap-x-3 gap-y-1 items-baseline sm:items-start">
-                <span aria-hidden="true" className="font-mono-pp text-xs text-muted">0{i + 1}</span>
-                <span className="min-w-0">
-                  <span className="block font-display text-lg md:text-xl font-[850] text-ink leading-tight">{p.val}</span>
-                  <span className="block text-[0.8125rem] md:text-xs text-muted leading-snug mt-0.5">{p.label}</span>
-                </span>
+          {/* Proof points, pulled from the featured work: plain orange numbers split by
+              hairlines (phones: a stack with an orange rule on the left) */}
+          <ul aria-label="Highlights" className="grid gap-4 sm:gap-0 sm:grid-cols-3 sm:divide-x sm:divide-line max-w-2xl md:mt-2">
+            {heroProofs.map((p) => (
+              <li key={p.val} className="max-sm:pl-3.5 max-sm:border-l-2 max-sm:border-accent sm:px-5 sm:first:pl-0 sm:last:pr-0">
+                <span className="block font-display text-xl md:text-[1.625rem] font-[850] tracking-[-0.02em] text-accent-ink leading-tight text-balance">{p.val}</span>
+                <span className="block text-[0.8125rem] md:text-sm text-muted leading-snug mt-1">{p.label}</span>
               </li>
             ))}
           </ul>
 
-          {/* Actions. On phones Resume is a text link; the nav already has the key. */}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 md:gap-4 pt-1">
+          {/* Actions: one key; Resume is a text link (the nav already has the key) */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-1 md:pt-2">
             <Link
               to={`/case-studies/${flagship.slug}`}
               state={{ from: 'home' }}
@@ -109,34 +108,20 @@ const Hero = () => {
             >
               {flagship.ctaLabel ?? 'Read my top case study'} <ArrowRight />
             </Link>
-            {/* (wrappers do the hiding: the button classes set `display` themselves) */}
-            <span className="hidden sm:inline-flex">
-              <a
-                href={CONFIG.resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={trackResumeDownload}
-                className="cta-btn-secondary"
-              >
-                <DL /> Resume
-              </a>
-            </span>
-            <span className="sm:hidden">
-              <a
-                href={CONFIG.resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={trackResumeDownload}
-                className="link-accent"
-              >
-                <DL className="w-4 h-4" /> Download my resume
-              </a>
-            </span>
+            <a
+              href={CONFIG.resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={trackResumeDownload}
+              className="link-accent"
+            >
+              <DL className="w-4 h-4" /> Download my resume
+            </a>
           </div>
 
           {/* Location + a quiet, professional openness signal */}
-          <p className="flex items-center gap-2 silk">
-            <IconPin className="w-3.5 h-3.5 text-accent-ink flex-shrink-0" />
+          <p className="flex items-center gap-2 text-sm text-muted">
+            <IconPin className="w-4 h-4 text-muted flex-shrink-0" />
             Hyderabad, India · Open to conversations
           </p>
         </div>
@@ -159,17 +144,13 @@ const Hero = () => {
               {roleAsPhrase(currentRole)} at {currentRole.company}
             </span>
           </p>
-          <figcaption className="mt-5 flex justify-between gap-4 silk">
-            <span>Fig. 1</span>
-            <span>Me, in the snow</span>
-          </figcaption>
         </figure>
       </div>
 
       {/* ── Where I've worked: recognisable names, shown once (theme-aware logos).
           A fixed 2x2 grid on phones so the row never wraps raggedly. ── */}
       <div className="px-3 md:px-10 flex flex-col md:flex-row md:items-center gap-3 md:gap-10">
-        <p className="silk flex-shrink-0">Worked at</p>
+        <p className="text-sm text-muted flex-shrink-0">Worked at</p>
         <ul
           aria-label="Companies I have worked at"
           className="grid grid-cols-2 gap-px rounded-xl overflow-hidden border border-line max-sm:bg-line sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:flex-1 sm:gap-x-10 sm:gap-y-4 sm:overflow-visible sm:rounded-none sm:border-0"
@@ -181,11 +162,6 @@ const Hero = () => {
           ))}
         </ul>
       </div>
-
-      {/* Credentials: plain text, kept for screeners */}
-      <p className="px-3 md:px-10 -mt-1 md:-mt-3 text-[0.8125rem] md:text-xs text-muted">
-        CSPO® · Google GA4 · Productsup Expert · Former software engineer
-      </p>
     </header>
   );
 };

@@ -49,7 +49,7 @@ src/
 ├── components/
 │   ├── layout/                    # Nav, Footer
 │   ├── work/WorkRow.jsx           # One row of the work list (homepage + /work)
-│   └── ui/                        # BrandLogo, CompanyLogo, PageBar, Icons, ScrollToTop, SectionHeader, Tag (Tag + Chip)
+│   └── ui/                        # BrandLogo, CompanyLogo, Emph (**bold** in data strings), PageBar, Icons, ScrollToTop, SectionHeader, Tag (Tag + Chip)
 ├── hooks/                         # useScrollReveal, useScrollTracking, useSectionTracking, useActiveSection, useDocumentMeta, useTheme, useMediaQuery, useScrollDirection
 ├── styles/globals.css             # Custom CSS (focus ring, reduced motion, reveal, accordion, buttons, print)
 └── index.css                      # Tailwind + theme tokens
