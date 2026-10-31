@@ -17,6 +17,7 @@ import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { cleanupOnExit } from './browser-cleanup.mjs';
 
 const BASE = process.env.BASE_URL || 'http://localhost:5173/Portfolio/';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -43,6 +44,7 @@ if (!browser) {
 const port = 9333 + Math.floor(Math.random() * 500);
 const prof = mkdtempSync(path.join(tmpdir(), 'a11y-'));
 const proc = spawn(browser, ['--headless=new', '--disable-gpu', `--remote-debugging-port=${port}`, `--user-data-dir=${prof}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+cleanupOnExit(proc, prof);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let targets;
 for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json(); if (targets.length) break; } catch { /* retry */ } await sleep(250); }
@@ -84,5 +86,5 @@ for (const width of [1280, 390]) {
   }
 }
 console.log(total === 0 ? '\nAll pages pass in both themes.' : `\n${total} rule violation(s).`);
-ws.close(); proc.kill();
+ws.close();
 process.exit(total === 0 ? 0 : 1);

@@ -18,6 +18,7 @@ import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { cleanupOnExit } from './browser-cleanup.mjs';
 
 const BASE = process.env.BASE_URL || 'http://localhost:5173/Portfolio/';
 
@@ -42,6 +43,7 @@ if (!browser) {
 const port = 9333 + Math.floor(Math.random() * 500);
 const prof = mkdtempSync(path.join(tmpdir(), 'edge-'));
 const edge = spawn(browser, ['--headless=new', '--disable-gpu', `--remote-debugging-port=${port}`, `--user-data-dir=${prof}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+cleanupOnExit(edge, prof);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let targets;
 for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json(); if (targets.length) break; } catch { /* retry */ } await sleep(250); }
@@ -248,4 +250,4 @@ check('prefers-reduced-motion: reveals are not hidden', (await ev(`[...document.
 
 check('no console errors or exceptions', errors.length === 0, errors.slice(0, 3).join(' || '));
 console.log(`\n${results.filter(Boolean).length}/${results.length} checks passed`);
-ws.close(); edge.kill(); process.exit(results.every(Boolean) ? 0 : 1);
+ws.close(); process.exit(results.every(Boolean) ? 0 : 1);
