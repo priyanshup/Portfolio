@@ -1,0 +1,22 @@
+# Priyanshu Pushpam
+
+> Product owner with ten years in healthcare, gaming and e-commerce, currently working on digital commerce at Heineken. Case studies, experience and recommendations.
+
+## Pages
+
+- [Portfolio](https://priyanshup.github.io/Portfolio/): experience, selected work, recommendations and credentials
+- [All work](https://priyanshup.github.io/Portfolio/work/): Case studies, projects and short write-ups from ten years in e-commerce, gaming and healthcare.
+
+## Case studies
+
+- [How AI cut product publishing time from 3 weeks to 3 days](https://priyanshup.github.io/Portfolio/case-studies/vidaxl-ai-content-automation/): I designed and shipped an AI content engine that writes product titles, descriptions and translations for a catalogue of 250K SKUs across 30+ markets. Publishing went from weeks to days.
+- [Launching a sportsbook in five countries in one month](https://priyanshup.github.io/Portfolio/case-studies/techmojo-sportsbook-gtm/): I set the MVP scope for a global sportsbook, coordinated 50+ engineers across several teams, and wrote a launch playbook we reused for each new country. Five countries launched in a month and revenue grew 200% within three months.
+- [Migrating 28 states to the 837 claims format with zero downtime](https://priyanshup.github.io/Portfolio/case-studies/uhg-zero-downtime-migration/): I moved a dental claims vendor, March Vision, from its own claims format to the industry-standard 837 across 28 US states, without disrupting claim processing.
+- [Cutting QA cycle time by 30% with a test data generator](https://priyanshup.github.io/Portfolio/case-studies/uhg-qa-cycle-automation/): I built an Excel macro tool that generates privacy-safe test data and the database queries to load it. QA cycles got 30% shorter, and no patient data was involved.
+- [Speeding up claim payments by about 20%](https://priyanshup.github.io/Portfolio/case-studies/uhg-claims-transformation/): I designed logic that fills in missing claim fields, corrects likely provider typos and cuts rejections. Payments got about 20% faster, as tracked by the analytics team.
+
+## Elsewhere
+
+- [Resume (PDF)](https://priyanshup.github.io/Portfolio/Priyanshu_Pushpam_Technical_Product_Manager.pdf)
+- [LinkedIn](https://www.linkedin.com/in/ppushpam/)
+- [GitHub](https://github.com/priyanshup)
