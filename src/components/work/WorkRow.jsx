@@ -90,7 +90,7 @@ const WorkRow = ({
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackProjectLinkClick(item.title, l.label)}
-            className="font-mono-pp text-[0.8125rem] md:text-xs font-semibold px-3 py-1.5 max-md:min-h-11 rounded-md border-2 border-edge dark:border-black bg-plate dark:bg-key text-ink shadow-[0_2px_0_var(--color-edge)] dark:shadow-[0_2px_0_#000] inline-flex items-center gap-1.5 transition-transform active:translate-y-0.5 active:shadow-none"
+            className="font-mono-pp text-[0.8125rem] md:text-xs font-semibold px-3 py-1.5 max-md:min-h-11 rounded-md border-2 border-edge dark:border-black bg-plate dark:bg-key text-ink shadow-[0_2px_0_var(--color-edge)] dark:shadow-[0_2px_0_var(--key-drop),var(--key-edge-light)] inline-flex items-center gap-1.5 transition-transform active:translate-y-0.5 active:shadow-none"
           >
             {Icon && <Icon className="w-4 h-4" />}
             {l.label}

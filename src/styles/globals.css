@@ -504,10 +504,11 @@ html.dark .mobile-dropdown { border-color: #000; box-shadow: 0 5px 0 #000, 0 24p
   color: var(--color-ink);
   box-shadow: 0 3px 0 var(--color-edge), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
+html.dark .cta-btn-primary { box-shadow: 0 3px 0 var(--key-drop), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
 html.dark .cta-btn-secondary,
 html.dark .resume-btn {
   background: var(--color-key);
-  box-shadow: 0 3px 0 #000, inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 3px 0 var(--key-drop), var(--key-edge-light);
 }
 /* on the black panel the ink outline would vanish: use a graphite key */
 .plate--contrast .cta-btn-secondary { background: var(--color-key); border-color: #000; box-shadow: 0 3px 0 #3a3a3e; }
@@ -517,8 +518,9 @@ html.dark .plate--contrast .cta-btn-secondary { background: #fff; border-color: 
   .cta-btn-primary:hover { background: #ff6d1f; transform: translateY(-1px); box-shadow: 0 4px 0 var(--color-edge), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
   .cta-btn-secondary:hover,
   .resume-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--color-edge), inset 0 1px 0 rgba(255, 255, 255, 0.8); }
+  html.dark .cta-btn-primary:hover { box-shadow: 0 4px 0 var(--key-drop), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
   html.dark .cta-btn-secondary:hover,
-  html.dark .resume-btn:hover { background: #333336; box-shadow: 0 4px 0 #000; }
+  html.dark .resume-btn:hover { background: #38383c; box-shadow: 0 4px 0 var(--key-drop), var(--key-edge-light); }
   /* Keys on the contrast plate keep their own colours on hover. Without these the
      generic dark hover above paints the paper-coloured key graphite under ink text. */
   .plate--contrast .cta-btn-secondary:hover { background: #343437; box-shadow: 0 4px 0 #3a3a3e; }
@@ -562,7 +564,7 @@ html.dark .plate--contrast .cta-btn-secondary { background: #fff; border-color: 
   box-shadow: 0 3px 0 var(--color-edge);
   transition: transform 80ms ease-out, box-shadow 80ms ease-out, background-color 0.12s;
 }
-html.dark .chip-toggle { background: var(--color-key); border-color: #000; box-shadow: 0 3px 0 #000; }
+html.dark .chip-toggle { background: var(--color-key); border-color: #000; box-shadow: 0 3px 0 var(--key-drop), var(--key-edge-light); }
 .chip-toggle:active { transform: translateY(3px); box-shadow: 0 0 0 var(--color-edge); }
 .chip-toggle[aria-pressed='true'] {
   background: var(--color-accent);
@@ -571,7 +573,7 @@ html.dark .chip-toggle { background: var(--color-key); border-color: #000; box-s
   box-shadow: 0 1px 0 var(--color-edge), inset 0 2px 3px rgba(10, 10, 10, 0.25);
 }
 /* html.dark .chip-toggle (above) outranks the pressed rule; restate the fill */
-html.dark .chip-toggle[aria-pressed='true'] { background: var(--color-accent); box-shadow: 0 1px 0 #000, inset 0 2px 3px rgba(0, 0, 0, 0.3); }
+html.dark .chip-toggle[aria-pressed='true'] { background: var(--color-accent); box-shadow: 0 1px 0 var(--key-drop), inset 0 2px 3px rgba(0, 0, 0, 0.3); }
 /* narrower padding on phones so the filter row fits in two lines, not three */
 @media (max-width: 767px) { .chip-toggle { padding: 0 12px; } }
 
@@ -636,7 +638,7 @@ html.dark .chip-toggle[aria-pressed='true'] { background: var(--color-accent); b
   box-shadow: 0 2px 0 var(--color-edge);
   transition: transform 0.38s cubic-bezier(0.3, 1.5, 0.5, 1), background-color 0.15s, color 0.15s;
 }
-html.dark .arrow-knob { border-color: #000; background: var(--color-key); box-shadow: 0 2px 0 #000; }
+html.dark .arrow-knob { border-color: #000; background: var(--color-key); box-shadow: 0 2px 0 var(--key-drop), var(--key-edge-light); }
 
 /* Square icon box with an ink outline (What I bring, etc.) */
 .icon-box {

@@ -145,7 +145,7 @@ export const MetricRow = ({ metrics }) => {
           key={label}
           /* on the 2-column mobile grid an odd last item spans the row (no orphan) */
           className={
-            'p-4 md:p-5 rounded-[10px] border-2 border-edge dark:border-black bg-plate dark:bg-tile shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_#000] ' +
+            'p-4 md:p-5 rounded-[10px] border-2 border-edge dark:border-black bg-plate dark:bg-tile shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_var(--key-drop),var(--key-edge-light)] ' +
             (odd && i === metrics.length - 1 ? 'col-span-2 sm:col-span-1' : '')
           }
         >
@@ -248,7 +248,7 @@ export const ProcessFlow = ({ steps }) => (
   <div className="my-6 md:my-10 flex flex-col md:flex-row md:items-stretch gap-2 md:gap-3" role="list" aria-label="Approach, step by step">
     {steps.map((step, i) => (
       <Fragment key={i}>
-        <div role="listitem" className="flex-1 p-4 md:p-5 rounded-[10px] border-2 border-edge dark:border-black bg-plate dark:bg-tile shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_#000] min-w-0">
+        <div role="listitem" className="flex-1 p-4 md:p-5 rounded-[10px] border-2 border-edge dark:border-black bg-plate dark:bg-tile shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_var(--key-drop),var(--key-edge-light)] min-w-0">
           <p className="label-key mb-2.5">
             Step {i + 1}
           </p>

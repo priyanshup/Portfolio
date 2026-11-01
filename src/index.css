@@ -39,8 +39,8 @@
   /* Dark-theme surfaces that stand up from a plate (light theme uses the
      plate itself): tiles = metric tiles, process steps, credential cards
      (dark:bg-tile); keys = chips, knobs, small keys (dark:bg-key). */
-  --color-tile:      #222225;
-  --color-key:       #2a2a2d;
+  --color-tile:      #2a2a2d;
+  --color-key:       #2e2e32;
 
   /* kept as aliases so nothing that still uses them breaks */
   --color-darkBg: var(--color-page);
@@ -60,6 +60,10 @@ html.dark {
   --color-line:      #2e2e31;
   --color-edge:      #000000;
   --color-accent-ink:#fa6a1a;
+  /* Buttons/keys: a black drop vanishes on the dark page, so keys sit on a
+     steel-grey drop with a light top edge (globals.css, WorkRow; tiles too) */
+  --key-drop:        #8a8a8c;
+  --key-edge-light:  inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color-scheme: dark;
 }
 

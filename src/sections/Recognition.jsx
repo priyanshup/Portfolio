@@ -230,7 +230,7 @@ const Recognition = () => {
                 href={c.link || undefined}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-full flex flex-col items-start p-4 md:p-5 rounded-[10px] bg-plate dark:bg-tile border-2 border-edge dark:border-black shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_#000] transition-transform duration-100 hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-none"
+                className="h-full flex flex-col items-start p-4 md:p-5 rounded-[10px] bg-plate dark:bg-tile border-2 border-edge dark:border-black shadow-[0_3px_0_var(--color-edge)] dark:shadow-[0_3px_0_var(--key-drop),var(--key-edge-light)] transition-transform duration-100 hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-none"
               >
                 <p className="label-key mb-3">{c.short}</p>
                 <p className="text-ink text-sm font-bold leading-snug">{c.full}</p>
