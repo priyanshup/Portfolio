@@ -38,12 +38,14 @@ jobs:
           cache: npm
 
       - name: Install 📦
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
-      # Same guard `npm run deploy` uses: resume-file check + ESLint.
-      - name: Verify (resume file + lint) 🔍
+      # Same guard `npm run deploy` uses: resume-file check + content check + ESLint.
+      - name: Verify (resume file + content + lint) 🔍
         run: npm run verify
 
+      # Client build, then the SSR bundle and the prerender (one HTML file per
+      # page, sitemap.xml, llms.txt, 404.html).
       - name: Build 🔧
         run: npm run build
 

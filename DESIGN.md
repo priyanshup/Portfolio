@@ -145,7 +145,7 @@ Check: `npm run copy` flags the mechanical tells (dashes, stock words, "not just
 ```
 npm run verify     # resume file + ESLint      (also runs in CI and before deploy)
 npm run dev        # then, in another terminal:
-npm run smoke      # 78 end-to-end checks in a real headless browser (incl. the phone layout)
+npm run smoke      # 86 end-to-end checks in a real headless browser (incl. the phone layout)
 npm run a11y       # axe-core (WCAG 2.x + best practices), dark AND light, desktop AND mobile
 npm run copy       # flags AI-writing tells in the site's prose (no server needed)
 ```

@@ -4,10 +4,9 @@
  * Adds the "in-view" class to any element with className="reveal"
  * when it enters the viewport.
  *
- * Includes a MutationObserver so newly mounted .reveal elements
- * (e.g. from conditional carousel ↔ grid switching) are observed
- * immediately without a page reload — fixes the "disappearing
- * certifications on resize" bug.
+ * Includes a MutationObserver so .reveal elements mounted later (a route
+ * change, "Show all", a layout that switches at a breakpoint) are observed
+ * too; without it they would stay invisible.
  */
 
 import { useEffect } from 'react';

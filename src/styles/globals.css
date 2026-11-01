@@ -77,9 +77,7 @@
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
-.label-key--plain { background: var(--color-plate); color: var(--color-ink); }
 html.dark .label-key { border-color: transparent; }
-html.dark .label-key--plain { border-color: var(--color-line); }
 
 html,
 body {
@@ -508,11 +506,11 @@ html.dark .mobile-dropdown { border-color: #000; box-shadow: 0 5px 0 #000, 0 24p
 }
 html.dark .cta-btn-secondary,
 html.dark .resume-btn {
-  background: #2a2a2d;
+  background: var(--color-key);
   box-shadow: 0 3px 0 #000, inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 /* on the black panel the ink outline would vanish: use a graphite key */
-.plate--contrast .cta-btn-secondary { background: #2a2a2d; border-color: #000; box-shadow: 0 3px 0 #3a3a3e; }
+.plate--contrast .cta-btn-secondary { background: var(--color-key); border-color: #000; box-shadow: 0 3px 0 #3a3a3e; }
 html.dark .plate--contrast .cta-btn-secondary { background: #fff; border-color: #0a0a0a; box-shadow: 0 3px 0 #0a0a0a; }
 
 @media (hover: hover) {
@@ -564,7 +562,7 @@ html.dark .plate--contrast .cta-btn-secondary { background: #fff; border-color: 
   box-shadow: 0 3px 0 var(--color-edge);
   transition: transform 80ms ease-out, box-shadow 80ms ease-out, background-color 0.12s;
 }
-html.dark .chip-toggle { background: #2a2a2d; border-color: #000; box-shadow: 0 3px 0 #000; }
+html.dark .chip-toggle { background: var(--color-key); border-color: #000; box-shadow: 0 3px 0 #000; }
 .chip-toggle:active { transform: translateY(3px); box-shadow: 0 0 0 var(--color-edge); }
 .chip-toggle[aria-pressed='true'] {
   background: var(--color-accent);
@@ -638,7 +636,7 @@ html.dark .chip-toggle[aria-pressed='true'] { background: var(--color-accent); b
   box-shadow: 0 2px 0 var(--color-edge);
   transition: transform 0.38s cubic-bezier(0.3, 1.5, 0.5, 1), background-color 0.15s, color 0.15s;
 }
-html.dark .arrow-knob { border-color: #000; background: #2a2a2d; box-shadow: 0 2px 0 #000; }
+html.dark .arrow-knob { border-color: #000; background: var(--color-key); box-shadow: 0 2px 0 #000; }
 
 /* Square icon box with an ink outline (What I bring, etc.) */
 .icon-box {

@@ -1,8 +1,7 @@
 /**
  * sections/WhatIBring.jsx
  *
- * Static list of strengths (data/dna.js). Replaces the old auto-scrolling
- * "Core DNA" marquee: no autoplay, no carousel, all text visible.
+ * Static list of strengths (data/dna.js), all text visible.
  * The skill keywords (CSPO, RICE, GA4 …) stay as plain text for screeners.
  *
  * Phones: list rows, one sentence each (`short`).

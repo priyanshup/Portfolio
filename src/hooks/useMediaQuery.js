@@ -8,10 +8,13 @@ import { useState, useEffect } from 'react';
  *   const isDesktop = useMediaQuery('(min-width: 768px)');
  *
  * The site's own breakpoint for "phone layout" is below 768px (Tailwind `md`).
+ *
+ * The prerender has no window; it renders the desktop layout, where every
+ * panel is open, so crawlers and no-JS readers get the expanded page.
  */
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia(query).matches,
+    () => (typeof window === 'undefined' ? query === DESKTOP_QUERY : window.matchMedia(query).matches),
   );
 
   useEffect(() => {

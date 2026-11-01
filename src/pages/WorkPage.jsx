@@ -17,6 +17,7 @@ import PageBar from '../components/ui/PageBar';
 import WorkRow from '../components/work/WorkRow';
 import useDocumentMeta from '../hooks/useDocumentMeta';
 import { allWork, workDomains } from '../data/work';
+import { workMeta } from '../utils/pageMeta';
 
 const WorkPage = () => {
   const [params, setParams] = useSearchParams();
@@ -26,11 +27,7 @@ const WorkPage = () => {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  useDocumentMeta({
-    title: 'All work | Priyanshu Pushpam',
-    description: 'Case studies, projects and short write-ups from ten years in e-commerce, gaming and healthcare.',
-    path: '/work',
-  });
+  useDocumentMeta(workMeta);
 
   const choose = (domain) => setParams(domain && domain !== active ? { domain } : {}, { replace: true });
 

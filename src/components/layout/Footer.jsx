@@ -16,6 +16,7 @@
  */
 
 import { CONFIG } from '../../config';
+import { asset } from '../../utils/asset';
 import BrandLogo from '../ui/BrandLogo';
 import { LI, GH, IG, FB, DL, ArrowUpRight } from '../ui/Icons';
 import {
@@ -64,7 +65,7 @@ const Footer = () => (
             Connect on LinkedIn <ArrowUpRight />
           </a>
           <a
-            href={CONFIG.resumeUrl}
+            href={asset(CONFIG.resumeUrl)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={trackResumeDownload}

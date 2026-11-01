@@ -4,7 +4,8 @@
  * Root component — imports and composes all sections.
  * Contains NO content, NO styles, NO data.
  *
- * Routing (HashRouter — URLs are /#/…):
+ * Routing (BrowserRouter, basename /Portfolio; each page is also prerendered
+ * to its own HTML file by scripts/prerender.mjs):
  *   /                    → full portfolio (all sections)
  *   /work                → all work (overflow for the homepage Work section)
  *   /case-studies/:slug  → individual case study page
@@ -23,7 +24,6 @@ import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useScrollReveal, useScrollTracking, useSectionTracking, useTheme } from './hooks';
 import { trackPageView } from './utils/analytics.js';
-import { CONFIG } from './config';
 
 /* Layout */
 import Nav         from './components/layout/Nav';
@@ -46,15 +46,17 @@ import WorkPage      from './pages/WorkPage';
 
 /* ─────────────────────────────────────────────────────────────────
    ROUTE TRACKER
-   Fires a GA4 page_view event on every route change.
-   Handles HashRouter navigation which GA4 doesn't track automatically.
+   Fires a GA4 page_view event on every route change (index.html's config
+   call sends none, so the first load isn't counted twice). Rendered after
+   <Routes> so its effect runs after the page's useDocumentMeta, and the hit
+   carries the new page's title.
 ───────────────────────────────────────────────────────────────── */
 const RouteTracker = () => {
   const location = useLocation();
 
   useEffect(() => {
-    trackPageView(location.pathname + location.hash);
-  }, [location]);
+    trackPageView(location.pathname + location.search);
+  }, [location.pathname, location.search]);
 
   return null;
 };
@@ -115,17 +117,6 @@ const HomePage = () => {
    APP — sets up routing and persistent layout (Nav, Footer, ScrollToTop)
 ───────────────────────────────────────────────────────────────── */
 const App = () => {
-  /* Set page title and favicon from public/logo.png */
-  useEffect(() => {
-    document.title = CONFIG.siteTitle;
-    const existing = document.querySelector("link[rel*='icon']");
-    const link = existing || document.createElement('link');
-    link.rel  = 'icon';
-    link.type = 'image/png';
-    link.href = 'logo.png';
-    if (!existing) document.head.appendChild(link);
-  }, []);
-
   /* Theme management — sets dark/light class on <html>, syncs localStorage */
   const [theme, toggleTheme] = useTheme();
 
@@ -150,7 +141,7 @@ const App = () => {
     };
   }, []);
 
-  /* Skip link: move focus to <main> without touching the router's hash */
+  /* Skip link: move focus to <main> without adding #main-content to the URL */
   const skipToContent = (e) => {
     e.preventDefault();
     const main = document.getElementById('main-content');
@@ -174,13 +165,6 @@ const App = () => {
       {/* Nav is always visible on every page */}
       <Nav theme={theme} toggleTheme={toggleTheme} />
 
-      {/*
-        RouteTracker lives inside the router context (provided by HashRouter
-        in main.jsx) so useLocation() works correctly.
-        It renders nothing — purely fires analytics events.
-      */}
-      <RouteTracker />
-
       <Routes>
         {/* Home — full portfolio */}
         <Route path="/" element={<HomePage />} />
@@ -188,12 +172,15 @@ const App = () => {
         {/* All work — overflow for the homepage Work section */}
         <Route path="/work" element={<WorkPage />} />
 
-        {/* Individual case study pages — e.g. /#/case-studies/vidaxl-ai-content-automation */}
+        {/* Individual case study pages — e.g. /case-studies/vidaxl-ai-content-automation */}
         <Route path="/case-studies/:slug" element={<CaseStudyPage />} />
 
         {/* Catch-all: unknown paths fall back to home */}
         <Route path="*" element={<HomePage />} />
       </Routes>
+
+      {/* Renders nothing; fires page_view (see above) */}
+      <RouteTracker />
 
       {/* Footer and scroll-to-top are always visible on every page */}
       <Footer />

@@ -2,6 +2,11 @@
 
 Tracks identified tech debt, when it was fixed, and what changed.
 
+Entries are a log: file names, fonts and colours are as they were at the time
+(e.g. #31 names Plus Jakarta Sans and #25/#36 emerald; the workshop restyle later
+moved to Zalando Sans Expanded and orange). Current rules live in CLAUDE.md and
+DESIGN.md.
+
 ---
 
 ## Resolved
@@ -242,10 +247,53 @@ Tracks identified tech debt, when it was fixed, and what changed.
 
 ---
 
+### 2026-11-01 (session 6) — tech-debt review
+
+Review of the repo after the workshop restyle (`1fc24b5`), the homepage calm-down (`a2d64c1`) and the browser-leak fix (`d0aabac`), none of which this log had covered.
+
+#### 40. Hash URLs: no link previews, one page to crawlers, no per-role links
+- **Files:** `src/main.jsx`, new `src/entry-server.jsx`, new `scripts/prerender.mjs`, new `src/utils/pageMeta.js`, new `src/content/case-studies/registry.js`, `src/App.jsx`, `src/pages/*`, `src/hooks/useDocumentMeta.js`, `index.html`, `package.json`; deleted `public/404.html`, `public/sitemap.xml`
+- **Problem:** HashRouter put every page at `/Portfolio/#/…`. Link-preview bots and crawlers see one document (the homepage's static `<head>`), so a shared case study unfurled as the homepage; the sitemap listed hash URLs search engines ignore; a single role couldn't be linked (BACKLOG #12, #18).
+- **Fix:** BrowserRouter with real paths. `npm run build` now also bundles `entry-server.jsx` for Node, and `prerender.mjs` writes `dist/<path>/index.html` per page (from `pageMeta.js`): the page rendered inside `#root`, plus its own title, description, canonical, `og:*` and `twitter:*`. Also generated: `sitemap.xml`, `llms.txt`, and `404.html` (noindex; boots the app for unknown paths). The prerender is **not hydrated**: `useMediaQuery` chooses the layout on the first render, so hydrating the desktop prerender on a phone would flash. `#root[data-prerendered]` is hidden and the live app renders over it, no later than the old empty `#root` filled in. Without JS the prerender is shown (reveals off). Large logo SVG bodies are stripped from the prerender (aria-labels carry the names), keeping pages at 11–17 KB gzipped. A case study opened directly now loads its article before the first render (no skeleton). `/Portfolio/#role-<id>` opens a role, and open roles have "Copy link to this role".
+- **Kept working:** old `/#/…` links are rewritten to real paths by an inline script in `index.html` before the app reads the URL (tested for case studies and `?domain=`).
+- **Found on the way:** `logo.png`, `me.jpg` and the resume were relative URLs and would 404 on inner pages → `asset()` helper (`src/utils/asset.js`). `App.jsx` also re-set the favicon to a relative `logo.png` on mount (a duplicate of `index.html`'s tag) → removed. `ScrollToTop` wrote `#/` into the URL → now clears only a `#fragment`, keeping router state.
+
+#### 41. Google Analytics loaded before the page
+- **Files:** `index.html`, `src/utils/analytics.js`, `src/App.jsx`
+- **Problem:** `gtag.js` (~165 KB, the largest single cost) was an `async` script in the head, competing with the page for bandwidth and main thread. GA is required, so removing it wasn't an option (BACKLOG #27).
+- **Fix:** `gtag()` is defined inline and queues into `dataLayer`; the script is injected after `load` + `requestIdleCallback` (3s timeout). Queued hits (the first page_view included) go out when it arrives. Page views now send `page_location` and `page_title`; `RouteTracker` renders after `<Routes>` so the title is the new page's, and it fires on path/query changes only (a nav click within the homepage used to log a second home page_view).
+- **Trade-off:** a visitor who leaves before the page finishes loading isn't counted.
+
+#### 42. CI needed `--legacy-peer-deps`; local install was broken
+- **Files:** `package.json`, `package-lock.json`, `.github/workflows/deploy.yml`
+- **Problem:** `@tailwindcss/vite` 4.2.1 didn't list Vite 8 as a peer, so `npm ci` only worked with `--legacy-peer-deps` (which hides every other peer conflict too). Separately, the local `node_modules` lacked the three `@fontsource` packages and `axe-core`, so local builds and `npm run a11y` couldn't have worked.
+- **Fix:** Minor/patch upgrades (React 19.3.1, React Router 7.18.5, Vite 8.3.5, Tailwind 4.3.3, whose Vite plugin now accepts Vite 8, plus ESLint 9.39.5 and plugins). `npm audit fix` for the dev-tool advisories. CI runs plain `npm ci`. ESLint 10 is left for a deliberate upgrade.
+- **Remaining:** `minimatch` (moderate, dev-only via ESLint) has no fix released yet.
+
+#### 43. Content rules nothing enforced
+- **Files:** new `scripts/check-content.js`, `package.json` (`verify`)
+- **Problem:** testimonial `highlight`s must be verbatim quotes and each case study needs a content folder; nothing checked either.
+- **Fix:** `npm run verify` (CI + predeploy) now fails on a non-verbatim highlight or a slug with no `src/content/case-studies/<slug>/index.jsx`.
+
+#### 44. Lint blind spots
+- **File:** `eslint.config.js`
+- **Problem:** the scripts block matched `scripts/**/*.js`, so the `.mjs` scripts (smoke, a11y, copy check) were never linted.
+- **Fix:** `scripts/**/*.{js,mjs}`. `entry-server.jsx` is exempt from the fast-refresh rule (build-only). The upgraded hooks plugin flagged a setState-in-effect in `CaseStudyPage`; its loader now seeds state from the registry and only sets state in promise callbacks.
+
+#### 45. Small cleanups
+- Stale carousel/modal/marquee comments (`testimonials.js`, `useScrollReveal.js`, `WhatIBring.jsx`, `check-resume.js`).
+- Raw colours → tokens: `--color-tile` (#222225) and `--color-key` (#2a2a2d), used via `dark:bg-tile` / `dark:bg-key` and in `globals.css`; the Hero sticker's `!text-[#0a0a0a]` → `!text-on-accent`.
+- `globals.css`: removed the unused `.label-key--plain` (`.no-print` kept as an opt-in print utility).
+- `vite.config.js`: comment rewritten, trailing space removed.
+- Docs: README (routing, install, smoke count, theme tokens; "newest role open by default" was wrong), CLAUDE.md (routing/prerender rules, GA, tokens), DESIGN.md (smoke count).
+- Tests: smoke now navigates by real page loads and has 86 checks (new: prerender cover removed, direct case-study load with no skeleton, public-file URLs on deep pages, per-page canonical/og, old `/#/` links, role links). The a11y audit and `.lighthouserc.json` use real paths.
+
+---
+
 ## Open / Future
 
 - **`data/currently.js` was drafted, not written by the owner.** Review and edit (BACKLOG #4a).
-- **The Lighthouse gate in CI is untested.** It ran fine locally against the same config; the first pull request will show whether the `treosh/lighthouse-ci-action` step behaves on GitHub's runners (it only runs on pull requests, so it can't block a deploy).
-- **Google Analytics is the largest performance cost** (~165 KB `gtag.js`). Tracked as BACKLOG #27.
-- **`robots.txt` / `sitemap.xml` are not at the domain root** (they live under `/Portfolio/`), so crawlers ignore them. Tracked with prerender/custom domain (BACKLOG #12, #19).
-- **`highlight` fields in `testimonials.js` must stay verbatim** — nothing enforces this at build time.
+- **The Lighthouse gate in CI has never run.** It only runs on pull requests and none has gone through since it was added. A local run (`@lhci/cli`, same config) couldn't launch Edge on Windows, so it is still unverified; the first pull request will tell. It can't block a deploy.
+- **`robots.txt` / `sitemap.xml` are not at the domain root** (they live under `/Portfolio/`), so crawlers ignore them. Needs a custom domain (BACKLOG #19); the paths are ready.
+- **GA4 setting to check:** "Page changes based on browser history events" must be off in the GA4 property, or in-app navigation double-counts (BACKLOG #21).
+- **`minimatch` advisory** (dev-only) waits on an upstream fix. **ESLint 10** is a deliberate major upgrade still to do.

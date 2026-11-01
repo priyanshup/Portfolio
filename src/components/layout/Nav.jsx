@@ -24,6 +24,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CONFIG } from '../../config';
+import { asset } from '../../utils/asset';
 import BrandLogo from '../ui/BrandLogo';
 import { LI, GH, IG, FB, DL, Sun, Moon } from '../ui/Icons';
 import useActiveSection from '../../hooks/useActiveSection';
@@ -174,7 +175,7 @@ const Nav = ({ theme, toggleTheme }) => {
 
           {/* Resume key, all breakpoints */}
           <a
-            href={CONFIG.resumeUrl}
+            href={asset(CONFIG.resumeUrl)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={trackResumeDownload}

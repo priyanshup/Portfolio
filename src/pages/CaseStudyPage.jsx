@@ -2,10 +2,12 @@
  * pages/CaseStudyPage.jsx
  *
  * Renders an individual case study at /case-studies/:slug
- * (URL in HashRouter form: /#/case-studies/<slug>).
+ * (served from /Portfolio/case-studies/<slug>/, a prerendered page).
  *
  * Metadata comes from data/work.js (items with a `slug`); the article body is
- * lazy-loaded from src/content/case-studies/<slug>/index.jsx.
+ * lazy-loaded from src/content/case-studies/<slug>/index.jsx through
+ * content/case-studies/registry.js (already loaded when the URL was opened
+ * directly, so there's no skeleton then).
  *
  * Page furniture:
  *   - a sticky PageBar under the nav: Portfolio / Work (or All work) / this page,
@@ -30,6 +32,9 @@ import { ArrowUpRight, ArrowRight, DL, ChevronDown } from '../components/ui/Icon
 import useDocumentMeta from '../hooks/useDocumentMeta';
 import useMediaQuery, { DESKTOP_QUERY } from '../hooks/useMediaQuery';
 import { trackCaseStudyOpen, trackLinkedInClick, trackResumeDownload } from '../utils/analytics';
+import { caseStudyMeta } from '../utils/pageMeta';
+import { asset } from '../utils/asset';
+import { loadCaseStudy, loadedCaseStudy } from '../content/case-studies/registry';
 
 /* ── Loading skeleton ── */
 const LoadingSkeleton = () => (
@@ -44,15 +49,17 @@ const LoadingSkeleton = () => (
 
 /* ── Dynamic content loader ── */
 const CaseStudyContent = ({ slug, onReady }) => {
-  const [Content, setContent] = useState(null);
-  const [error, setError]     = useState(false);
+  /* Seeded from the registry, so a study loaded before the first render shows at once */
+  const [loaded, setLoaded] = useState(() => ({ slug, Content: loadedCaseStudy(slug) }));
+  const Content = loaded.slug === slug ? loaded.Content : null;
+  const error = loaded.slug === slug && loaded.error;
 
   useEffect(() => {
-    setContent(null);
-    setError(false);
-    import(`../content/case-studies/${slug}/index.jsx`)
-      .then((mod) => setContent(() => mod.default))
-      .catch(() => setError(true));
+    let current = true;
+    loadCaseStudy(slug)
+      .then((C) => { if (current) setLoaded({ slug, Content: C }); })
+      .catch(() => { if (current) setLoaded({ slug, error: true }); });
+    return () => { current = false; };
   }, [slug]);
 
   /* tell the page when the article is in the DOM, so it can build the section menu */
@@ -149,11 +156,7 @@ const CaseStudyPage = () => {
     );
   }, []);
 
-  useDocumentMeta({
-    title: cs ? `${cs.title} | Priyanshu Pushpam` : 'Case study not found | Priyanshu Pushpam',
-    description: cs ? cs.summary : undefined,
-    path: cs ? `/case-studies/${cs.slug}` : undefined,
-  });
+  useDocumentMeta(cs ? caseStudyMeta(cs) : { title: 'Case study not found | Priyanshu Pushpam' });
 
   /* Scroll to top on navigation */
   useEffect(() => {
@@ -235,7 +238,7 @@ const CaseStudyPage = () => {
               Message me on LinkedIn <ArrowUpRight />
             </a>
             <a
-              href={CONFIG.resumeUrl}
+              href={asset(CONFIG.resumeUrl)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={trackResumeDownload}

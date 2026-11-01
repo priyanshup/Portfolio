@@ -22,13 +22,17 @@ const gtag = (...args) => {
 };
 
 /* ── Page view tracking ──────────────────────────────────────────────
-   Called when the route changes (HashRouter).
-   The GA4 snippet in index.html handles the initial page load —
-   this handles subsequent navigation within the SPA.
+   Called by RouteTracker (App.jsx) for every page, including the first:
+   index.html's config call uses send_page_view: false.
+   `path` excludes the /Portfolio base, e.g. "/work".
 ─────────────────────────────────────────────────────────────────────── */
+const GA_ID = 'G-43E3DDMJLM'; // same ID as index.html
+
 export const trackPageView = (path) => {
-  gtag('config', 'G-43E3DDMJLM', {   // ← replace with your ID
+  gtag('config', GA_ID, {
     page_path: path,
+    page_location: window.location.href,
+    page_title: document.title,
   });
 };
 

@@ -5,8 +5,8 @@
       "startServerReadyPattern": "Local",
       "url": [
         "http://localhost:4173/Portfolio/",
-        "http://localhost:4173/Portfolio/#/work",
-        "http://localhost:4173/Portfolio/#/case-studies/vidaxl-ai-content-automation"
+        "http://localhost:4173/Portfolio/work/",
+        "http://localhost:4173/Portfolio/case-studies/vidaxl-ai-content-automation/"
       ],
       "numberOfRuns": 1,
       "settings": { "chromeFlags": "--no-sandbox" }

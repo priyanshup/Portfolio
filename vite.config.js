@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  // This is critical for your GitHub Pages URL: https://priyanshup.github.io/Portfolio/
-  base: '/Portfolio/', 
+  // The site is served from https://priyanshup.github.io/Portfolio/. Router
+  // basename and public-file URLs (src/utils/asset.js) derive from this.
+  base: '/Portfolio/',
 })

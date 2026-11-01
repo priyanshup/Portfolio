@@ -56,10 +56,10 @@ const send = (method, params = {}) => new Promise((res) => { const i = ++id; pen
 const ev = async (expr) => (await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true })).result?.result?.value;
 
 const ROUTES = [
-  ['home', '#/'],
-  ['work', '#/work'],
-  ['case', '#/case-studies/vidaxl-ai-content-automation'],
-  ['case-2', '#/case-studies/uhg-zero-downtime-migration'],
+  ['home', ''],
+  ['work', 'work/'],
+  ['case', 'case-studies/vidaxl-ai-content-automation'],
+  ['case-2', 'case-studies/uhg-zero-downtime-migration'],
 ];
 const RULES = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
 
@@ -68,9 +68,9 @@ let total = 0;
 for (const width of [1280, 390]) {
   await send('Emulation.setDeviceMetricsOverride', { width, height: width < 600 ? 800 : 900, deviceScaleFactor: 1, mobile: width < 600 });
   for (const theme of ['dark', 'light']) {
-    for (const [name, hash] of ROUTES) {
+    for (const [name, route] of ROUTES) {
       await send('Page.navigate', { url: 'about:blank' }); await sleep(200);
-      await send('Page.navigate', { url: BASE + hash }); await sleep(2200);
+      await send('Page.navigate', { url: BASE + route }); await sleep(2200);
       await ev(`localStorage.setItem('theme','${theme}'); document.documentElement.classList.toggle('dark', '${theme}'==='dark'); document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in-view')); true`);
       await sleep(1300);
       await ev(axeSrc);

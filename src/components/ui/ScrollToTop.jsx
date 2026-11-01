@@ -48,7 +48,10 @@ const ScrollToTop = () => {
     <button
       onClick={() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        window.history.replaceState(null, '', '#/');
+        // drop a #fragment (e.g. a role link) so a refresh stays at the top; keep the router's state
+        if (window.location.hash) {
+          window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
+        }
       }}
       onFocus={() => { window.clearTimeout(timer.current); setVisible(true); }}
       onBlur={() => setVisible(false)}

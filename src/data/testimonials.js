@@ -2,11 +2,12 @@
  * data/testimonials.js
  *
  * LinkedIn recommendations.
- * Paste the full text — the modal handles any length.
- * Add more objects freely; the carousel handles any count.
+ * Paste the full text; the card expands inline to show all of it.
+ * Add more objects freely; RECOMMENDATIONS_VISIBLE (config) show before "Show all".
  *
  * `highlight` is a VERBATIM sentence lifted from `text` (shown on the card;
- * the full text expands inline). Never edit or paraphrase it.
+ * the full text expands inline). Never edit or paraphrase it;
+ * `npm run verify` (scripts/check-content.js) fails if it isn't verbatim.
  *
  * Ordering: direct-manager attestations first (strongest authority signal
  * for a recruiter), most recent company as tiebreak, then decreasing

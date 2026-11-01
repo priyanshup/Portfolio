@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const getInitialTheme = () => {
+  if (typeof window === 'undefined') return 'dark'; // prerender
   const saved = localStorage.getItem('theme');
   if (saved === 'dark' || saved === 'light') return saved;
   try {

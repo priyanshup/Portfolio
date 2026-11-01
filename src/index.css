@@ -36,6 +36,11 @@
   --color-on-accent: #0a0a0a;
   --color-steel:     #8a8a8c;
   --color-graphite:  #303032;
+  /* Dark-theme surfaces that stand up from a plate (light theme uses the
+     plate itself): tiles = metric tiles, process steps, credential cards
+     (dark:bg-tile); keys = chips, knobs, small keys (dark:bg-key). */
+  --color-tile:      #222225;
+  --color-key:       #2a2a2d;
 
   /* kept as aliases so nothing that still uses them breaks */
   --color-darkBg: var(--color-page);

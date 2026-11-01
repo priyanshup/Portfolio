@@ -4,7 +4,7 @@
  * End-to-end smoke test: drives a real (headless) Chromium-family browser over
  * the DevTools protocol against a RUNNING site and checks the behaviours that
  * matter — nav + scroll, accordion, recommendations, /work filter, case study
- * navigation, skip link, mobile menu, the phone layout (collapsed rows, tap
+ * navigation, old /#/ links and role links, skip link, mobile menu, the phone layout (collapsed rows, tap
  * targets, nav that hides on scroll, scroll-to-top, "On this page" menu),
  * reduced motion, 12px text floor, and no console errors. No dependencies (uses Node's built-in fetch + WebSocket).
  *
@@ -21,6 +21,7 @@ import path from 'node:path';
 import { cleanupOnExit } from './browser-cleanup.mjs';
 
 const BASE = process.env.BASE_URL || 'http://localhost:5173/Portfolio/';
+const ROOT = new URL(BASE).pathname; // "/Portfolio/"
 
 const CANDIDATES = [
   process.env.CHROME_PATH,
@@ -66,6 +67,9 @@ const key = async (k, code, vk) => {
 
 const results = [];
 const check = (name, ok, extra = '') => { results.push(ok); console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? '  [' + extra + ']' : '')); };
+/* Load a page fresh, the way a visitor arrives from a link: path is relative to BASE */
+const open = async (p, wait = 1800) => { await send('Page.navigate', { url: BASE + p }); await sleep(wait); };
+const route = () => ev(`(location.pathname.slice(${ROOT.length - 1}) || "/") + location.search`); // "/", "/work?domain=…"
 
 await send('Runtime.enable'); await send('Page.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -74,6 +78,7 @@ await sleep(2500);
 await ev(`localStorage.setItem('theme','dark'); true`);
 
 // 1. structure
+check('live app replaced the prerendered markup (cover removed)', (await ev(`!document.getElementById('root').hasAttribute('data-prerendered')`)) === true);
 check('home renders 6 sections', (await ev(`['about','work','experience','what-i-bring','recognition','currently'].every(i=>document.getElementById(i))`)) === true);
 check('hero shows 3 proof points', (await ev(`document.querySelectorAll('#about ul[aria-label=Highlights] li').length`)) === 3);
 check('exactly 3 featured work rows on home', (await ev(`document.querySelectorAll('#work a[href*="case-studies"].card-lift').length`)) === 3);
@@ -82,7 +87,7 @@ check('exactly 3 featured work rows on home', (await ev(`document.querySelectorA
 await ev(`[...document.querySelectorAll('nav a')].find(a=>a.textContent.trim()==='Experience').click()`); await sleep(1600);
 const y1 = await ev('window.scrollY');
 check('nav link scrolls to Experience', y1 > 500, 'scrollY=' + Math.round(y1));
-check('hash stays "#/" after nav click', (await ev('location.hash')) === '#/', await ev('location.hash'));
+check('URL stays on the homepage after nav click', (await route()) === '/' && (await ev('location.hash')) === '', await ev('location.href'));
 check('active nav link highlighted', (await ev(`[...new Set([...document.querySelectorAll('nav a[aria-current=true]')].map(a=>a.textContent.trim()))].join()`)) === 'Experience');
 
 // 3. experience accordion: one open at a time
@@ -113,39 +118,56 @@ check('"Show all" reveals all 6', (await ev(`document.querySelectorAll('#recogni
 // 5. /work page + filter
 await ev(`document.getElementById('work').scrollIntoView()`); await sleep(400);
 await ev(`[...document.querySelectorAll('#work a')].find(a=>/All work/.test(a.textContent)).click()`); await sleep(1200);
-check('"All work" opens /#/work', (await ev('location.hash')) === '#/work', await ev('location.hash'));
+check('"All work" opens /work', (await route()) === '/work', await route());
 check('dark: the pressed filter key is orange (its ink label stays readable)', (await ev(`getComputedStyle(document.querySelector('main button[aria-pressed=true]')).backgroundColor`)) === 'rgb(250, 91, 1)', await ev(`getComputedStyle(document.querySelector('main button[aria-pressed=true]')).backgroundColor`));
 check('/work lists all 11 items', (await ev(`document.querySelectorAll('main ul > li > a, main ul > li > div').length`)) >= 11);
 await ev(`[...document.querySelectorAll('main button')].find(b=>/^Gaming/.test(b.textContent.trim())).click()`); await sleep(500);
-check('filter narrows list and writes ?domain= to URL', (await ev(`location.hash`)).includes('domain=Gaming') && (await ev(`document.querySelectorAll('main ul > li').length`)) === 1, await ev('location.hash'));
+check('filter narrows list and writes ?domain= to URL', (await route()) === '/work?domain=Gaming' && (await ev(`document.querySelectorAll('main ul > li').length`)) === 1, await route());
 check('document title set on /work', (await ev('document.title')).startsWith('All work'));
 
 // 6. nav from an inner page returns home and scrolls
 await ev(`[...document.querySelectorAll('nav a')].find(a=>a.textContent.trim()==='Recognition').click()`); await sleep(2000);
-check('nav from /work returns to home', (await ev('location.hash')) === '#/', await ev('location.hash'));
+check('nav from /work returns to home', (await route()) === '/', await route());
 check('...and scrolls to Recognition', (await ev(`Math.abs(document.getElementById('recognition').getBoundingClientRect().top)`)) < 200, 'top=' + Math.round(await ev(`document.getElementById('recognition').getBoundingClientRect().top`)));
 check('title restored to homepage title', (await ev('document.title')).includes('Technical Product Leader'));
 
 // 7. case study, next link, back link scroll target
 await ev(`document.getElementById('work').scrollIntoView()`); await sleep(400);
 await ev(`document.querySelector('#work a.card-lift').click()`); await sleep(1500);
-check('featured row opens case study route', (await ev('location.hash')).startsWith('#/case-studies/'), await ev('location.hash'));
+check('featured row opens case study route', (await route()).startsWith('/case-studies/'), await route());
 check('breadcrumb + read time + next-case link present', (await ev(`!!document.querySelector('nav[aria-label=Breadcrumb]') && /min read/i.test(document.body.innerText) && /Next case study/i.test(document.body.innerText)`)) === true);
 await sleep(1500);
 check('case study body lazy-loaded', (await ev(`/The problem/i.test(document.body.innerText)`)) === true);
 await ev(`[...document.querySelectorAll('a')].find(a=>/Next case study/.test(a.textContent)).click()`); await sleep(1500);
-check('"Next case study" navigates to another study', (await ev('location.hash')).startsWith('#/case-studies/'), await ev('location.hash'));
+check('"Next case study" navigates to another study', (await route()).startsWith('/case-studies/'), await route());
 await ev(`[...document.querySelectorAll('nav[aria-label=Breadcrumb] a')].find(a=>a.textContent.trim()==='Work').click()`); await sleep(2000);
-check('breadcrumb "Work" lands in the Work section', (await ev('location.hash')) === '#/' && (await ev(`Math.abs(document.getElementById('work').getBoundingClientRect().top)`)) < 200);
+check('breadcrumb "Work" lands in the Work section', (await route()) === '/' && (await ev(`Math.abs(document.getElementById('work').getBoundingClientRect().top)`)) < 200);
 
 // 8. unknown case study -> 404 content
-await ev(`location.hash='#/case-studies/nope'`); await sleep(800);
+await open('case-studies/nope', 1500);
 check('unknown case study shows 404', (await ev(`/Case study not found/.test(document.body.innerText)`)) === true);
 
+// 8b. case study opened directly: article renders at once, public files resolve from a deep path
+await open('case-studies/uhg-qa-cycle-automation/', 1200);
+check('direct case-study load renders the article with no loading skeleton', (await ev(`/The problem/i.test(document.body.innerText) && !document.querySelector('.animate-pulse')`)) === true);
+check('deep page: resume and logo URLs point at the site root', (await ev(`[...document.querySelectorAll('a[href$=".pdf"]')].every(a=>new URL(a.href).pathname==='${ROOT}'+a.href.split('/').pop())`)) === true && (await ev(`(()=>{const i=document.querySelector('nav img'); return i.complete && i.naturalWidth>0})()`)) === true);
+check('case-study page has its own canonical and share title', (await ev(`document.querySelector('link[rel=canonical]').href.endsWith('/case-studies/uhg-qa-cycle-automation/') && document.querySelector('meta[property="og:title"]').content===document.title`)) === true);
+
+// 8c. links from the hash-URL era still land on the right page
+await open('#/case-studies/uhg-claims-transformation', 2000);
+check('old /#/case-studies/… link opens that case study at its real path', (await route()) === '/case-studies/uhg-claims-transformation' && (await ev(`document.querySelector('article h1').textContent.length>10`)) === true, await route());
+await open('#/work?domain=Healthcare', 1500);
+check('old /#/work?domain= link keeps its filter', (await route()) === '/work?domain=Healthcare', await route());
+
+// 8d. a role link opens that role and scrolls to it
+await open('#role-vidaxl', 2200);
+check('role link opens the role and brings it into view', (await ev(`document.querySelector('#role-btn-vidaxl').getAttribute('aria-expanded')`)) === 'true' && (await ev(`(()=>{const t=document.getElementById('role-vidaxl').getBoundingClientRect().top; return t>=0 && t<300})()`)) === true, 'top=' + (await ev(`Math.round(document.getElementById('role-vidaxl').getBoundingClientRect().top)`)));
+check('open role offers "Copy link to this role"', (await ev(`!![...document.querySelectorAll('#role-panel-vidaxl button')].find(b=>/Copy link/.test(b.textContent))`)) === true);
+
 // 9. skip link moves focus without changing route
-await ev(`location.hash='#/'`); await sleep(800);
+await open('', 1500);
 await ev(`document.querySelector('a[href="#main-content"]').click()`); await sleep(300);
-check('skip link focuses <main> and keeps route', (await ev(`document.activeElement.id`)) === 'main-content' && (await ev('location.hash')) === '#/');
+check('skip link focuses <main> and keeps route', (await ev(`document.activeElement.id`)) === 'main-content' && (await route()) === '/' && (await ev('location.hash')) === '');
 
 // 10. mobile menu
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 800, deviceScaleFactor: 1, mobile: true });
@@ -160,18 +182,18 @@ check('no text smaller than 12px on the homepage', (await ev(`(()=>{const bad=[]
 
 // 12. sticky page bar + origin-aware trail (desktop)
 await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
-await ev(`location.hash='#/case-studies/uhg-claims-transformation'`); await sleep(1800);
+await open('case-studies/uhg-claims-transformation');
 await ev('window.scrollTo(0, 2500)'); await sleep(700);
 check('page bar stays pinned under the nav while scrolling', (await ev(`Math.round(document.querySelector('.page-bar').getBoundingClientRect().top)`)) === 64);
 check('bar links every level above the page (Portfolio, Work)', (await ev(`[...document.querySelectorAll('nav[aria-label=Breadcrumb] a')].map(a=>a.textContent.trim()).join('|')`)) === 'Portfolio|Work');
-await ev(`location.hash='#/work'`); await sleep(1200);
+await open('work', 1500);
 await ev(`document.querySelector('main ul .card-lift a').click()`); await sleep(1600);
 check('case study opened from /work leads back to "All work"', (await ev(`[...document.querySelectorAll('nav[aria-label=Breadcrumb] a')].map(a=>a.textContent.trim()).join('|')`)) === 'Portfolio|All work', await ev(`[...document.querySelectorAll('nav[aria-label=Breadcrumb] a')].map(a=>a.textContent.trim()).join('|')`));
 check('case study opens with the "short version" (problem, did, result, takeaway)', (await ev(`(()=>{const s=document.querySelector('section[aria-label="The short version"]'); if(!s) return false; const t=[...s.querySelectorAll('dt')].map(d=>d.textContent.trim().toLowerCase()).join('|'); return t.startsWith('the problem|what i did|the result|the takeaway')})()`)) === true);
 check('company logo shown in the case study header', (await ev(`!!document.querySelector('article header .company-logo')`)) === true);
 
 // 13. employer logos + theme + equal-height cards + unique ids
-await ev(`location.hash='#/'`); await sleep(1500);
+await open('', 2000);
 check('hero shows 4 employer logos', (await ev(`document.querySelectorAll('#about [role=img]').length`)) === 4);
 check('every experience row carries its employer logo', (await ev(`document.querySelectorAll('#experience .company-logo').length`)) >= 5);
 check('logo colour follows the theme (dark vs light differ)', (await ev(`(()=>{const el=document.querySelector('.company-logo'); const a=getComputedStyle(el).color; document.documentElement.classList.toggle('dark'); const b=getComputedStyle(el).color; document.documentElement.classList.toggle('dark'); return a!==b})()`)) === true);
@@ -184,7 +206,7 @@ check('"Read full recommendation" buttons line up across the row', (await ev(`((
 
 // 14. same page bar on mobile
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 800, deviceScaleFactor: 1, mobile: true });
-await ev(`location.hash='#/case-studies/techmojo-sportsbook-gtm'`); await sleep(1800);
+await open('case-studies/techmojo-sportsbook-gtm');
 await ev('window.scrollTo(0, 2200)'); await sleep(700);
 check('mobile: page bar stays pinned (top of screen while the nav is away) and no horizontal overflow', [0, 64].includes(await ev(`Math.round(document.querySelector('.page-bar').getBoundingClientRect().top)`)) && (await ev('document.documentElement.scrollWidth <= 390')) === true);
 
@@ -207,14 +229,14 @@ check('phone: tap targets are 44px (home logo, "More work" links, Quor chips)', 
 check('phone: meta lines are 13px or larger, sentence case', (await ev(`(()=>{const m=[...document.querySelectorAll('#work .meta-line, #work .card-lift > p:first-child')]; return m.length>0 && m.every(e=>parseFloat(getComputedStyle(e).fontSize)>=12.99 && getComputedStyle(e).textTransform==='none')})()`)) === true);
 check('phone: homepage stays under 8,500px (about 10 screens)', (await ev('document.documentElement.scrollHeight')) <= 8500, 'height=' + (await ev('document.documentElement.scrollHeight')));
 
-await ev(`location.hash='#/work'`); await sleep(1500);
+await open('work', 1500);
 const workRow = `document.querySelector('main ul li .card-lift')`;
 const closedFirst = await ev(`(()=>{const row=${workRow}; return row.querySelector('.accordion-inner').inert && row.querySelector('button[aria-expanded]').getAttribute('aria-expanded')==='false'})()`);
 await ev(`${workRow}.querySelector('button[aria-expanded]').click()`); await sleep(400);
 check('phone /work: rows start compact and the summary opens on tap', closedFirst === true && (await ev(`(()=>{const row=${workRow}; return !row.querySelector('.accordion-inner').inert && row.querySelector('button[aria-expanded]').getAttribute('aria-expanded')==='true'})()`)) === true);
 check('phone /work: stays under 4,200px (was 6,500)', (await ev('document.documentElement.scrollHeight')) <= 4200, 'height=' + (await ev('document.documentElement.scrollHeight')));
 
-await ev(`location.hash='#/case-studies/vidaxl-ai-content-automation'`); await sleep(2200);
+await open('case-studies/vidaxl-ai-content-automation', 2200);
 check('phone case study: the plain-language line is in the first screen', (await ev(`(()=>{const p=document.querySelector('section[aria-label="The short version"] p.font-display'); const r=p.getBoundingClientRect(); return r.top<500 && r.bottom<700})()`)) === true);
 check('phone case study: role, team and timeline collapse into one Details line', (await ev(`(()=>{const s=document.querySelector('section[aria-label="The short version"]'); const p=[...s.querySelectorAll('p')].find(p=>/^Details/.test(p.textContent.trim())); return !!p && p.offsetParent!==null && /Team:/.test(p.textContent) && /Timeline:/.test(p.textContent)})()`)) === true);
 check('phone case study: topic tags collapse behind a toggle but stay in the page', (await ev(`(()=>{const b=[...document.querySelectorAll('article header button')].find(b=>/Topics/.test(b.textContent)); if(!b) return false; const p=document.getElementById(b.getAttribute('aria-controls')); return b.getAttribute('aria-expanded')==='false' && p.querySelector('.accordion-inner').inert && p.textContent.includes('Automation')})()`)) === true);

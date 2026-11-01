@@ -20,26 +20,59 @@
  *   (open/closed styling lives on an inner div); .accordion-inner (overflow hidden) on
  *   the inner div ONLY. The collapsed panel is `inert` so keyboard and screen
  *   reader users skip it; its text stays in the DOM for crawlers and print.
+ *
+ * ROLE LINKS: each row has id="role-<id>". Opening /Portfolio/#role-<id>
+ * starts with that role open (unfolding "Earlier roles" if needed) and
+ * scrolls to it. An open row offers "Copy link to this role".
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import SectionHeader from '../components/ui/SectionHeader';
 import { Tag } from '../components/ui/Tag';
 import CompanyLogo from '../components/ui/CompanyLogo';
 import { ChevronDown } from '../components/ui/Icons';
 import { roles, yearsExperience } from '../data/roles';
-import { EXPERIENCE_VISIBLE } from '../config';
+import { CONFIG, EXPERIENCE_VISIBLE } from '../config';
 import { keepInView } from '../utils/scroll';
 import Emph from '../components/ui/Emph';
 
 const NAV_HEIGHT = 80; // px, fixed nav bar height
 const TOP_MARGIN = 16; // px, breathing room below nav
 
+const roleAnchor = (id) => `role-${id}`;
+
+/* Index of the role named by a #role-<id> link, or -1 */
+const linkedRole = () => {
+  if (typeof window === 'undefined') return -1;
+  return roles.findIndex((r) => '#' + roleAnchor(r.id) === window.location.hash);
+};
+
 const Experience = () => {
-  /* Every row starts collapsed and shows its headline result. */
-  const [open, setOpen] = useState(-1);
-  const [showEarlier, setShowEarlier] = useState(false);
+  /* Every row starts collapsed and shows its headline result, unless the URL names a role. */
+  const [open, setOpen] = useState(linkedRole);
+  const [showEarlier, setShowEarlier] = useState(() => linkedRole() >= EXPERIENCE_VISIBLE);
+  const [copied, setCopied] = useState(null);
   const rowRefs = useRef([]);
+
+  /* Arrived on a role link: bring that row into view once the panel has opened */
+  useEffect(() => {
+    const i = linkedRole();
+    if (i < 0) return undefined;
+    const timer = setTimeout(() => rowRefs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const copyLink = async (id) => {
+    const url = CONFIG.siteUrl + '#' + roleAnchor(id);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(id);
+      setTimeout(() => setCopied((c) => (c === id ? null : c)), 2500);
+    } catch {
+      // no clipboard access: put the link in the address bar instead
+      window.history.replaceState(window.history.state, '', '#' + roleAnchor(id));
+    }
+  };
 
   const shown = showEarlier ? roles : roles.slice(0, EXPERIENCE_VISIBLE);
   const hiddenCount = roles.length - shown.length;
@@ -76,6 +109,7 @@ const Experience = () => {
           return (
             <li
               key={job.id}
+              id={roleAnchor(job.id)}
               ref={(el) => { rowRefs.current[i] = el; }}
               /* The class list here must never change between renders: useScrollReveal adds
                  `in-view` to this element directly, and a new className from React would
@@ -156,6 +190,12 @@ const Experience = () => {
                       <div className="flex flex-wrap gap-2 mt-5">
                         {job.tags.map((t) => <Tag key={t}>{t}</Tag>)}
                       </div>
+                      <button type="button" onClick={() => copyLink(job.id)} className="link-accent mt-4">
+                        {copied === job.id ? 'Link copied' : 'Copy link to this role'}
+                      </button>
+                      <span className="sr-only" role="status" aria-live="polite">
+                        {copied === job.id ? 'Link to this role copied' : ''}
+                      </span>
                     </div>
                   </div>
                 </div>

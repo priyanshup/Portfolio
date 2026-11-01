@@ -24,6 +24,7 @@
 
 import { Link } from 'react-router-dom';
 import { CONFIG } from '../config';
+import { asset } from '../utils/asset';
 import { IconPin, DL, ArrowRight } from '../components/ui/Icons';
 import { roles, currentRole, roleAsPhrase, roleShort, yearsExperience } from '../data/roles';
 import { featuredWork, heroProofs } from '../data/work';
@@ -72,7 +73,7 @@ const Hero = () => {
             {/* Phones: the photo is cropped to the face, so it reads at this size */}
             <span className="hero-avatar md:hidden flex-shrink-0 w-[88px] h-[88px] rounded-full overflow-hidden border-2 border-edge bg-accent shadow-[0_3px_0_var(--color-edge)]">
               <img
-                src="me.jpg"
+                src={asset('me.jpg')}
                 alt="Priyanshu Pushpam"
                 className="w-full h-full object-cover object-top scale-[2.3] origin-[54%_24%] select-none pointer-events-none"
                 draggable={false}
@@ -109,7 +110,7 @@ const Hero = () => {
               {flagship.ctaLabel ?? 'Read my top case study'} <ArrowRight />
             </Link>
             <a
-              href={CONFIG.resumeUrl}
+              href={asset(CONFIG.resumeUrl)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={trackResumeDownload}
@@ -130,7 +131,7 @@ const Hero = () => {
         <figure className="hidden md:block relative m-0 pt-6 pr-3">
           <div className="relative rounded-[10px] overflow-hidden border-2 border-edge bg-accent shadow-[8px_8px_0_var(--color-edge)] dark:shadow-[8px_8px_0_var(--color-accent)] aspect-[4/5]">
             <img
-              src="me.jpg"
+              src={asset('me.jpg')}
               alt="Priyanshu Pushpam"
               className="w-full h-full object-cover object-[50%_20%] select-none pointer-events-none"
               draggable={false}
@@ -139,7 +140,7 @@ const Hero = () => {
             />
           </div>
           <p className="sticker absolute -top-1 -right-2 lg:-right-6 max-w-[15rem]">
-            <span className="silk !text-[#0a0a0a] !tracking-[0.16em]">Now</span>
+            <span className="silk !text-on-accent !tracking-[0.16em]">Now</span>
             <span className="font-display font-[800] text-[0.9375rem] leading-tight">
               {roleAsPhrase(currentRole)} at {currentRole.company}
             </span>
